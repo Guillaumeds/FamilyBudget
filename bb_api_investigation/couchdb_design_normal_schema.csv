@@ -1,0 +1,5 @@
+"path","types","examples"
+"_id","string","_design/normal_repl"
+"_rev","string","1-c3fd4d8718c1f8e3dde72708052ce7c4"
+"filters","object",""
+"filters.repl","string","function(doc, req) { return ""_design"" !== doc._id.substr(0, 7); }"

@@ -1,0 +1,2550 @@
+{
+  "generatedAt": "2026-06-23T10:19:29.630Z",
+  "source": "BudgetBakers Web UI CouchDB _changes via authenticated browser session",
+  "couchHost": "couch-prod-eu-1.budgetbakers.com",
+  "docCount": 2119,
+  "lastSeq": 3845,
+  "objectTypes": {
+    "Record": {
+      "count": 2008,
+      "fieldCount": 48,
+      "fields": [
+        {
+          "path": "_deleted",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "Record_017a9ca9-4e57-4fa0-beea-8cc5a6c35134",
+            "Record_018de89b-3046-4e76-8dc2-694372ecfab2",
+            "Record_01c8e8a1-d7f6-4fcd-9a0b-efbe6b20272a",
+            "Record_0267ad35-75b9-40bd-bcb6-348b015f49d0",
+            "Record_02691313-5ada-4efd-b7d4-e30762aa7160"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "2-fc49bc72a9ccd5d7e5e9921f0ec7db77",
+            "2-d230c6d19c2efab28c11504d35ba3f92",
+            "2-e9dda431dfb2e5a89d5ef4770263b7b9",
+            "2-35b436637cf017f71c6b376ab50d961c",
+            "2-633485c42f515526bb3c30a85993e6ca"
+          ]
+        },
+        {
+          "path": "accountId",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "accuracy",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "amount",
+          "types": "number",
+          "examples": [
+            "1435",
+            "2000",
+            "656",
+            "600",
+            "1010"
+          ]
+        },
+        {
+          "path": "categoryChanged",
+          "types": "boolean",
+          "examples": [
+            "false",
+            "true"
+          ]
+        },
+        {
+          "path": "categoryConfirmReason",
+          "types": "number",
+          "examples": [
+            "3",
+            "6"
+          ]
+        },
+        {
+          "path": "categoryId",
+          "types": "string",
+          "examples": [
+            "-Category_87642e32-d737-4753-8d17-159a30cb7399",
+            "-Category_033d8fdf-356f-495b-8ae3-2a3079273635",
+            "-Category_654f924c-e630-4639-9948-3daa0667f19f",
+            "-Category_9e286979-680c-40d1-bef7-d02df8aeaabd",
+            "-Category_be2e6e24-2dba-445a-839c-8a55468549de"
+          ]
+        },
+        {
+          "path": "contactId",
+          "types": "null",
+          "examples": []
+        },
+        {
+          "path": "currencyId",
+          "types": "string",
+          "examples": [
+            "-Currency_8b73f838-a7a2-4de8-9688-32684c32bdcd",
+            "-Currency_710ee255-bc2a-409e-81ec-969af508a620"
+          ]
+        },
+        {
+          "path": "deleted",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "deletedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T10:16:41.133Z",
+            "2026-06-18T10:16:41.134Z",
+            "2026-06-18T10:16:41.135Z",
+            "2026-06-18T10:16:41.136Z",
+            "2026-06-18T10:16:41.137Z"
+          ]
+        },
+        {
+          "path": "enrichmentInfo",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "enrichmentInfo.enrichmentTrail",
+          "types": "string",
+          "examples": [
+            "WALLET-ML(e)-f(c,kw,m)",
+            "WALLET-W_MER_ML(e)-ML-f(c,kw,m)",
+            "WALLET-W_MER(e)-ML-f(c,kw,m)"
+          ]
+        },
+        {
+          "path": "enrichmentInfo.envelopeAssignSource",
+          "types": "number",
+          "examples": [
+            "11",
+            "8",
+            "22",
+            "21",
+            "20"
+          ]
+        },
+        {
+          "path": "enrichmentInfo.merchant",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "enrichmentInfo.merchant.id",
+          "types": "string",
+          "examples": [
+            "7c3bbcf8-4fd3-4c1e-8d85-b239c1b8ac21",
+            "dd2fb4f2-37f1-4338-af26-6d0bd5fbb0c0",
+            "9d2610c6-543d-43c4-96d0-af9fd2429607",
+            "5336a059-3f39-4f8d-90f3-e2b25898a8a2",
+            "b7801492-3611-4604-afeb-62c9ae50a051"
+          ]
+        },
+        {
+          "path": "enrichmentInfo.merchant.name",
+          "types": "string",
+          "examples": [
+            "Vodafone",
+            "Amazon",
+            "Londis",
+            "Gala",
+            "Oculus"
+          ]
+        },
+        {
+          "path": "latitude",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "longitude",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "magicRuleId",
+          "types": "string",
+          "examples": [
+            "-MagicRule_7edac6c8-f6d2-4642-b2be-afd628f810f6",
+            "-MagicRule_3d4e670b-e10e-4a37-b236-86b951e43baa",
+            "-MagicRule_571e6c10-2d25-4a6c-9bcf-ae4dd7d90368"
+          ]
+        },
+        {
+          "path": "note",
+          "types": "string",
+          "examples": [
+            "Lb Retailing Limited",
+            "Vesta  *vodafone Topup",
+            "Amazon.ie",
+            "Flahives Bar",
+            "Londis Heuston Station"
+          ]
+        },
+        {
+          "path": "originalCategoryId",
+          "types": "string",
+          "examples": [
+            "-Category_87642e32-d737-4753-8d17-159a30cb7399",
+            "-Category_033d8fdf-356f-495b-8ae3-2a3079273635",
+            "-Category_654f924c-e630-4639-9948-3daa0667f19f",
+            "-Category_9e286979-680c-40d1-bef7-d02df8aeaabd",
+            "-Category_be2e6e24-2dba-445a-839c-8a55468549de"
+          ]
+        },
+        {
+          "path": "paymentType",
+          "types": "number",
+          "examples": [
+            "3"
+          ]
+        },
+        {
+          "path": "photos",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "recordDate",
+          "types": "string",
+          "examples": [
+            "2026-05-14T17:32:18.000+00:00",
+            "2026-04-30T15:13:59.000+00:00",
+            "2026-05-01T10:58:39.000+00:00",
+            "2026-04-19T20:08:16.000+00:00",
+            "2026-04-20T19:03:54.000+00:00"
+          ]
+        },
+        {
+          "path": "recordState",
+          "types": "number",
+          "examples": [
+            "1",
+            "2"
+          ]
+        },
+        {
+          "path": "refAmount",
+          "types": "number",
+          "examples": [
+            "1435",
+            "2000",
+            "656",
+            "600",
+            "1010"
+          ]
+        },
+        {
+          "path": "refObjects",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T09:43:01.981+00:00",
+            "2026-06-18T09:42:57.933+00:00",
+            "2026-06-18T09:43:04.002+00:00",
+            "2026-06-18T09:42:53.921+00:00",
+            "2026-06-18T09:42:55.910+00:00"
+          ]
+        },
+        {
+          "path": "reservedDeletedSource",
+          "types": "string",
+          "examples": [
+            "web"
+          ]
+        },
+        {
+          "path": "reservedIntegrationDate",
+          "types": "string",
+          "examples": [
+            "2026-05-14T17:32:18.000+00:00",
+            "2026-04-30T15:13:59.000+00:00",
+            "2026-05-01T10:58:39.000+00:00",
+            "2026-04-19T20:08:16.000+00:00",
+            "2026-04-20T19:03:54.000+00:00"
+          ]
+        },
+        {
+          "path": "reservedIntegrationId",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "reservedIntegrationRecipeId",
+          "types": "string",
+          "examples": [
+            "1830700578473249298",
+            "1830708088508778748",
+            "1830719234762607225",
+            "1830724887325444645",
+            "1830725853365930143"
+          ]
+        },
+        {
+          "path": "reservedIntegrationRemoteTransactionId",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "reservedIntegrationSource",
+          "types": "string",
+          "examples": [
+            "saltedge_partners"
+          ]
+        },
+        {
+          "path": "reservedIntegrationTransactionId",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "Record"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "backend",
+            "web",
+            "android"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T11:15:04.368Z",
+            "2026-06-18T11:15:47.047Z",
+            "2026-06-18T11:19:29.363Z",
+            "2026-06-18T11:19:29.362Z",
+            "2026-06-18T11:21:39.878Z"
+          ]
+        },
+        {
+          "path": "sendPushNotification",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "suggestedEnvelopeId",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "transfer",
+          "types": "boolean",
+          "examples": [
+            "true",
+            "false"
+          ]
+        },
+        {
+          "path": "transferAccountId",
+          "types": "null|string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "transferId",
+          "types": "string",
+          "examples": [
+            "e155c0f1-b7b6-456f-90e5-7cb280e30cb0",
+            "878c317f-98f6-46d0-b723-059793c40f3f",
+            "1f6216ce-670e-4882-9315-ae8524841ef1",
+            "394c0f80-e1a1-4b99-8915-bcf3aba7bbd5",
+            "ca3930d8-9e5d-4c88-8567-eb49d71d06e8"
+          ]
+        },
+        {
+          "path": "type",
+          "types": "number",
+          "examples": [
+            "1",
+            "0"
+          ]
+        },
+        {
+          "path": "warrantyInMonth",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        }
+      ]
+    },
+    "Category": {
+      "count": 57,
+      "fieldCount": 20,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "-Category_25feb48e-5bd0-4733-a7f5-4744dbcffccc",
+            "-Category_84721c98-8ff8-4762-9d54-d82fd0abc3f3",
+            "-Category_97545ef9-2696-4675-9f07-4233a14eeda3",
+            "-Category_af5d393b-ea88-4485-9231-3652c030fbca",
+            "-Category_ddc31dcd-86b6-4d25-a569-c3fd0ba3820b"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "1-16cc82ee9595ffaf2546d3100df99c71",
+            "1-7414e079d577001886476fb21f18939a",
+            "1-5ed9e255b4911c55c56c6f3e20163b34",
+            "1-6c993d8571dcb279d7dbc6a9876938c5",
+            "1-64df856117241e7d310cfc2058f6ffcc"
+          ]
+        },
+        {
+          "path": "cardinality",
+          "types": "number",
+          "examples": [
+            "2",
+            "3"
+          ]
+        },
+        {
+          "path": "color",
+          "types": "string",
+          "examples": [
+            "#8BC34A",
+            "#2258FF",
+            "#4BB5C1",
+            "#19BC9C",
+            "#85E029"
+          ]
+        },
+        {
+          "path": "customCategory",
+          "types": "boolean",
+          "examples": [
+            "false",
+            "true"
+          ]
+        },
+        {
+          "path": "customColor",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "customName",
+          "types": "boolean",
+          "examples": [
+            "false",
+            "true"
+          ]
+        },
+        {
+          "path": "defaultType",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "enabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "envelopeId",
+          "types": "number",
+          "examples": [
+            "20004",
+            "20001",
+            "20000",
+            "20003",
+            "20002"
+          ]
+        },
+        {
+          "path": "iconName",
+          "types": "string",
+          "examples": [
+            "menu-filled"
+          ]
+        },
+        {
+          "path": "isHidden",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "name",
+          "types": "string",
+          "examples": [
+            "Wallet - OneTap record",
+            "Transfer, withdraw",
+            "Debt",
+            "Unknown",
+            "Shopping list"
+          ]
+        },
+        {
+          "path": "parentId",
+          "types": "number",
+          "examples": [
+            "200",
+            "20",
+            "110"
+          ]
+        },
+        {
+          "path": "position",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T09:27:53.335Z",
+            "2026-06-18T09:27:53.329Z",
+            "2026-06-18T09:27:53.328Z",
+            "2026-06-18T09:27:53.334Z",
+            "2026-06-18T09:27:53.330Z"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "Category"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "web",
+            "backend",
+            "android"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T09:27:53.335Z",
+            "2026-06-18T09:27:53.329Z",
+            "2026-06-18T09:27:53.328Z",
+            "2026-06-18T09:27:53.334Z",
+            "2026-06-18T09:27:53.330Z"
+          ]
+        },
+        {
+          "path": "systemCategory",
+          "types": "number",
+          "examples": [
+            "4",
+            "1",
+            "0",
+            "3",
+            "2"
+          ]
+        }
+      ]
+    },
+    "MagicRule": {
+      "count": 29,
+      "fieldCount": 14,
+      "fields": [
+        {
+          "path": "_deleted",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "-MagicRule_571e6c10-2d25-4a6c-9bcf-ae4dd7d90368",
+            "-MagicRule_7edac6c8-f6d2-4642-b2be-afd628f810f6",
+            "-MagicRule_2fd7385f-1cd3-43d8-a3fc-e7e2947f153b",
+            "-MagicRule_8a53be29-31b8-48f1-a721-97ee0186c5d2",
+            "-MagicRule_821c70aa-2161-4a48-8dd5-4dee309e4bc2"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "1-5f0a3aa874ebdfae1e220f28d29c2736",
+            "1-09dcbf8089b7f3cd0322b5e625255e65",
+            "1-c97b8f8484e696502e96098c65563dda",
+            "1-ac1e3bd577be93a9395c3a5185cba6a8",
+            "1-d71c444f8d706e3b6aaf687ecda9573c"
+          ]
+        },
+        {
+          "path": "categoryId",
+          "types": "string",
+          "examples": [
+            "-Category_be2e6e24-2dba-445a-839c-8a55468549de",
+            "-Category_b2cb1d2b-4650-4ee7-8404-bc3d58396bf8",
+            "-Category_dc030294-f648-48de-9d2f-e964005332cb",
+            "-Category_8fdd12b6-29fd-46cb-8c4c-4f73f6154c41",
+            "-Category_14265584-e134-4db4-aa5c-138c1bd46c08"
+          ]
+        },
+        {
+          "path": "deletedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T13:07:57.971Z"
+          ]
+        },
+        {
+          "path": "keywords",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "keywords[]",
+          "types": "string",
+          "examples": [
+            "LB Retailing Limited",
+            "Gideon",
+            "Centra",
+            "Kiosk",
+            "Top Tralee"
+          ]
+        },
+        {
+          "path": "name",
+          "types": "string",
+          "examples": [
+            "LB Retailing Limited",
+            "Family Friends Transfer",
+            "Centra",
+            "Kiosk",
+            "Top Tralee"
+          ]
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T11:19:24.436Z",
+            "2026-06-18T11:21:36.932Z",
+            "2026-06-18T11:22:00.601Z",
+            "2026-06-18T11:23:33.148Z",
+            "2026-06-18T11:25:16.297Z"
+          ]
+        },
+        {
+          "path": "reservedDeletedSource",
+          "types": "string",
+          "examples": [
+            "web"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "MagicRule"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "web"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T11:19:24.436Z",
+            "2026-06-18T11:21:36.932Z",
+            "2026-06-18T11:22:00.601Z",
+            "2026-06-18T11:23:33.148Z",
+            "2026-06-18T11:25:16.297Z"
+          ]
+        },
+        {
+          "path": "sendPushNotification",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        }
+      ]
+    },
+    "Account": {
+      "count": 12,
+      "fieldCount": 49,
+      "fields": [
+        {
+          "path": "_deleted",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "-Account_1795368d-66f3-4d3a-a2f1-adb829bdac6a",
+            "-Account_55fcf2f6-792d-4ecb-9289-2bd7dac457f2",
+            "-Account_0a0149c0-77ff-48ea-9eac-c2e9eabf90da",
+            "-Account_d257e69d-6afe-4bab-9ae7-8e69525e2249",
+            "-Account_3c7ecb2c-e888-41bf-9c09-8a8eb6887be6"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "14-f3d62ca76a1bfb1d3481b1200e0a0f7b",
+            "6-ada7ab3dd33d8f9a676d0b8acb9cd2b7",
+            "10-3b9ec10e59b2d8eedc7b8f80f46c13f4",
+            "17-7cc19f5e6956054fcc0020fb2c128a0c",
+            "9-68562b80cd7cf9ea1671abb75d793fb2"
+          ]
+        },
+        {
+          "path": "accountType",
+          "types": "number",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "allowToCreateTransactions",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "archived",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "color",
+          "types": "string",
+          "examples": [
+            "#2e7d32",
+            "#AD1457",
+            "#212121",
+            "#0097a7",
+            "#00897b"
+          ]
+        },
+        {
+          "path": "currency",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "currency._id",
+          "types": "string",
+          "examples": [
+            "-Currency_8b73f838-a7a2-4de8-9688-32684c32bdcd"
+          ]
+        },
+        {
+          "path": "currency._rev",
+          "types": "string",
+          "examples": [
+            "1-2995ccfffc173fa3efee1bfff206a58b"
+          ]
+        },
+        {
+          "path": "currency.code",
+          "types": "string",
+          "examples": [
+            "EUR"
+          ]
+        },
+        {
+          "path": "currency.ratioToReferential",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "currency.referential",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "currency.reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T09:28:24.419Z"
+          ]
+        },
+        {
+          "path": "currency.reservedModelType",
+          "types": "string",
+          "examples": [
+            "Currency"
+          ]
+        },
+        {
+          "path": "currency.reservedSource",
+          "types": "string",
+          "examples": [
+            "web"
+          ]
+        },
+        {
+          "path": "currency.reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T09:28:24.419Z"
+          ]
+        },
+        {
+          "path": "currencyId",
+          "types": "string",
+          "examples": [
+            "-Currency_8b73f838-a7a2-4de8-9688-32684c32bdcd",
+            "-Currency_710ee255-bc2a-409e-81ec-969af508a620"
+          ]
+        },
+        {
+          "path": "deletedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T10:16:42.770Z",
+            "2026-06-18T10:16:59.284Z",
+            "2026-06-18T10:17:19.135Z",
+            "2026-06-18T10:29:54.729Z",
+            "2026-06-18T10:30:31.917Z"
+          ]
+        },
+        {
+          "path": "excludeFromStats",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "gps",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "initAmount",
+          "types": "number",
+          "examples": [
+            "1356922",
+            "0"
+          ]
+        },
+        {
+          "path": "initRefAmount",
+          "types": "number",
+          "examples": [
+            "1356922",
+            "0"
+          ]
+        },
+        {
+          "path": "locked",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "name",
+          "types": "string",
+          "examples": [
+            "Revolut IE52REVO99036056949858-EUR",
+            "Revolut IE52REVO99036056949858-ZAR",
+            "Revolut IE96REVO99036036790914-EUR",
+            "Revolut IE59REVO99036047484278-EUR",
+            "Cash"
+          ]
+        },
+        {
+          "path": "notifications",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "notifications.maxBalanceEnabled",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "notifications.minBalance",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "notifications.minBalanceEnabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "position",
+          "types": "number",
+          "examples": [
+            "2000",
+            "3000",
+            "4000",
+            "6000",
+            "1000"
+          ]
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T09:42:49.017+00:00",
+            "2026-06-18T09:59:21.356+00:00",
+            "2026-06-18T10:19:30.109+00:00",
+            "2026-06-18T10:33:32.014+00:00",
+            "2026-06-18T09:28:24.492Z"
+          ]
+        },
+        {
+          "path": "reservedDeletedSource",
+          "types": "string",
+          "examples": [
+            "web"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "reservedIntegrationConnection.bankBalance",
+          "types": "number",
+          "examples": [
+            "36137",
+            "2930",
+            "345051",
+            "2547687"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection.consent",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "reservedIntegrationConnection.consent.granted",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection.consent.validUntil",
+          "types": "string",
+          "examples": [
+            "2026-12-20T09:27:49.053+00:00",
+            "2026-12-20T09:27:49.332+00:00"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection.createdAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T10:33:32.136+00:00",
+            "2026-06-18T10:33:24.023+00:00"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection.integrationSource",
+          "types": "string",
+          "examples": [
+            "saltedge_partners"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection.isActive",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection.isAutomaticRefreshPossible",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection.lastSuccessRefresh",
+          "types": "string",
+          "examples": [
+            "2026-06-23T09:27:48.000+00:00",
+            "2026-06-23T09:27:49.000+00:00"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection.nextRefreshPossible",
+          "types": "string",
+          "examples": [
+            "2026-06-23T09:42:48.000+00:00",
+            "2026-06-23T09:42:49.000+00:00"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection.providerCode",
+          "types": "string",
+          "examples": [
+            "revolut_oauth_client_ie"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection.providerCreditCardReverse",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "reservedIntegrationConnection.remoteProviderName",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "Account"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "backend",
+            "web"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T10:16:55.482+00:00",
+            "2026-06-18T10:17:06.742+00:00",
+            "2026-06-18T10:17:31.004+00:00",
+            "2026-06-18T10:30:08.850+00:00",
+            "2026-06-18T10:30:39.844+00:00"
+          ]
+        }
+      ]
+    },
+    "Currency": {
+      "count": 2,
+      "fieldCount": 10,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "-Currency_8b73f838-a7a2-4de8-9688-32684c32bdcd",
+            "-Currency_710ee255-bc2a-409e-81ec-969af508a620"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "1-2995ccfffc173fa3efee1bfff206a58b",
+            "2-bf751e6b0d48545a4a25a293650b8569"
+          ]
+        },
+        {
+          "path": "code",
+          "types": "string",
+          "examples": [
+            "EUR",
+            "ZAR"
+          ]
+        },
+        {
+          "path": "position",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "ratioToReferential",
+          "types": "number",
+          "examples": [
+            "1",
+            "18.838591601806122"
+          ]
+        },
+        {
+          "path": "referential",
+          "types": "boolean",
+          "examples": [
+            "true",
+            "false"
+          ]
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T09:28:24.419Z",
+            "2026-06-18T09:42:49.001Z"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "Currency"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "web",
+            "android"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T09:28:24.419Z",
+            "2026-06-19T06:47:01.244Z"
+          ]
+        }
+      ]
+    },
+    "Configure": {
+      "count": 2,
+      "fieldCount": 9,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "-Configure_ad098216-3d51-44d6-8836-3f456b730d0b",
+            "-Configure_6514666a-290c-4102-a3b9-b7d157763aea"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "2-a4805a2ad3dcdbd3cedeea02d23a7ea1",
+            "4-5b4f4ad6edb98e0606af8752a34bed7b"
+          ]
+        },
+        {
+          "path": "deviceId",
+          "types": "string",
+          "examples": [
+            "fOWq6Uh7RF6y9nshZvK3KD"
+          ]
+        },
+        {
+          "path": "key",
+          "types": "string",
+          "examples": [
+            "hidden_wallet_now_cards",
+            "selected_limits"
+          ]
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T10:29:29.846Z",
+            "2026-06-18T13:32:07.400Z"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "Configure"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "android"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T10:29:29.855Z",
+            "2026-06-18T13:32:37.120Z"
+          ]
+        },
+        {
+          "path": "value",
+          "types": "string",
+          "examples": [
+            "8,9",
+            "-Budget_b8d405c9-5def-4a8f-91e8-db5eaff8f0fd"
+          ]
+        }
+      ]
+    },
+    "design/security": {
+      "count": 1,
+      "fieldCount": 3,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "_design/security"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "1-77754795eb80117a701ac788112581b5"
+          ]
+        },
+        {
+          "path": "validate_doc_update",
+          "types": "string",
+          "examples": [
+            "function(new_doc, old_doc, userCtx) { if (userCtx.name != 'b0ee4a3d-f3f3-4a44-9b49-d7a5a14f7a04' && userCtx.roles.indexO"
+          ]
+        }
+      ]
+    },
+    "design/normal": {
+      "count": 1,
+      "fieldCount": 4,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "_design/normal_repl"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "1-c3fd4d8718c1f8e3dde72708052ce7c4"
+          ]
+        },
+        {
+          "path": "filters",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "filters.repl",
+          "types": "string",
+          "examples": [
+            "function(doc, req) { return \"_design\" !== doc._id.substr(0, 7); }"
+          ]
+        }
+      ]
+    },
+    "design/integration": {
+      "count": 1,
+      "fieldCount": 26,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "_design/integration"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "1-011e0f943ffefdcb247b8eac3d8e067e"
+          ]
+        },
+        {
+          "path": "views",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "views.findLastClearedRecordDate",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "views.findLastClearedRecordDate.map",
+          "types": "string",
+          "examples": [
+            "function(doc) { if (doc.recordState !== undefined && doc.recordState == 1 && doc.accountId !== undefined && doc.recordDa"
+          ]
+        },
+        {
+          "path": "views.findLastClearedRecordDate.reduce",
+          "types": "string",
+          "examples": [
+            "function (key, values, rereduce) { return Math.max.apply({}, values);}"
+          ]
+        },
+        {
+          "path": "views.findLastClearedRemoteTransactionId",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "views.findLastClearedRemoteTransactionId.map",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "views.findLastClearedRemoteTransactionId.reduce",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "views.findLastForeignRecordDate",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "views.findLastForeignRecordDate.map",
+          "types": "string",
+          "examples": [
+            "function(doc) { if ( doc.recordState !== undefined && doc.recordDate !== undefined && doc.recordState == 1 && doc.accoun"
+          ]
+        },
+        {
+          "path": "views.findLastForeignRecordDate.reduce",
+          "types": "string",
+          "examples": [
+            "function (key, values, rereduce) { return Math.max.apply({}, values);}"
+          ]
+        },
+        {
+          "path": "views.findLastIntegratedTransactionByBankAccountId",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "views.findLastIntegratedTransactionByBankAccountId.map",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "views.findLastIntegratedTransactionByBankAccountId.reduce",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "views.findRemoteTransactionIdsFromDate",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "views.findRemoteTransactionIdsFromDate.map",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "views.findRemoteTrxIdByRemoteTrxIds",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "views.findRemoteTrxIdByRemoteTrxIds.map",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "views.getAccountBalance",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "views.getAccountBalance.map",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "views.getAccountBalance.reduce",
+          "types": "string",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "views.getAllUncleared",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "views.getAllUncleared.map",
+          "types": "string",
+          "examples": [
+            "function(doc) { if (doc._id.slice(0, 7) == 'Record_' && doc.recordState !== undefined && doc.recordState == 2 && doc.acc"
+          ]
+        },
+        {
+          "path": "views.getAllUnclearedForIntegration",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "views.getAllUnclearedForIntegration.map",
+          "types": "string",
+          "examples": [
+            "function(doc) { if (doc.recordState !== undefined && doc.recordState == 2 && doc.reservedIntegrationSource !== undefined"
+          ]
+        }
+      ]
+    },
+    "Notification": {
+      "count": 1,
+      "fieldCount": 14,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "-Notification_8991f3f7-97ca-56c8-9726-604c766905d8"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "1-51d1815bec2c72ba5df54a02f009be14"
+          ]
+        },
+        {
+          "path": "dismissed",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "generatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T10:29:29.620Z"
+          ]
+        },
+        {
+          "path": "notificationDate",
+          "types": "string",
+          "examples": [
+            "2026-06-06T11:00:00.000Z"
+          ]
+        },
+        {
+          "path": "read",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "relatedID",
+          "types": "string",
+          "examples": [
+            "-Account_d257e69d-6afe-4bab-9ae7-8e69525e2249"
+          ]
+        },
+        {
+          "path": "relatedName",
+          "types": "string",
+          "examples": [
+            "Revolut IE52REVO99036056949858-EUR"
+          ]
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T10:29:29.647Z"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "Notification"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "android"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T10:29:29.647Z"
+          ]
+        },
+        {
+          "path": "sourceID",
+          "types": "string",
+          "examples": [
+            "typeID:accountBalanceBelow;relatedID:-Account_d257e69d-6afe-4bab-9ae7-8e69525e2249;date:2026-06-06"
+          ]
+        },
+        {
+          "path": "typeID",
+          "types": "string",
+          "examples": [
+            "accountBalanceBelow"
+          ]
+        }
+      ]
+    },
+    "HashTag": {
+      "count": 1,
+      "fieldCount": 11,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "-HashTag_7da4b2c4-c3e6-4c78-924f-f968b66ceb83"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "1-65dfe7c3c3d2f9d8677ff115218f833c"
+          ]
+        },
+        {
+          "path": "archived",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "autoAssign",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "color",
+          "types": "string",
+          "examples": [
+            "#26C6DA"
+          ]
+        },
+        {
+          "path": "name",
+          "types": "string",
+          "examples": [
+            "Groceries Label"
+          ]
+        },
+        {
+          "path": "position",
+          "types": "number",
+          "examples": [
+            "1000"
+          ]
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T13:32:05.156Z"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "HashTag"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "android"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T13:32:05.156Z"
+          ]
+        }
+      ]
+    },
+    "Budget": {
+      "count": 1,
+      "fieldCount": 25,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "-Budget_b8d405c9-5def-4a8f-91e8-db5eaff8f0fd"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "1-2eee06733e851760075d54d45312a953"
+          ]
+        },
+        {
+          "path": "accountIds",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "amount",
+          "types": "number",
+          "examples": [
+            "50000"
+          ]
+        },
+        {
+          "path": "categoryIds",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "changes",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "closed",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "contactIds",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "currencyId",
+          "types": "string",
+          "examples": [
+            "-Currency_8b73f838-a7a2-4de8-9688-32684c32bdcd"
+          ]
+        },
+        {
+          "path": "envelopes",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "envelopes[]",
+          "types": "number",
+          "examples": [
+            "1000"
+          ]
+        },
+        {
+          "path": "labels",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "labels[]",
+          "types": "string",
+          "examples": [
+            "-HashTag_7da4b2c4-c3e6-4c78-924f-f968b66ceb83"
+          ]
+        },
+        {
+          "path": "name",
+          "types": "string",
+          "examples": [
+            "Groceries"
+          ]
+        },
+        {
+          "path": "notifications",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "notifications.afterOverspentEnabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "notifications.riskCustomAmount",
+          "types": "number",
+          "examples": [
+            "5"
+          ]
+        },
+        {
+          "path": "notifications.riskCustomEnabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "notifications.riskOverspendingEnabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T13:32:07.365Z"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "Budget"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "android"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T13:32:07.365Z"
+          ]
+        },
+        {
+          "path": "templateId",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "type",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        }
+      ]
+    },
+    "Config": {
+      "count": 1,
+      "fieldCount": 24,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "Config"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "8-bafb98a829f7870569e4e6506095c476"
+          ]
+        },
+        {
+          "path": "dashboard",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "dashboard.screens",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "dashboard.screens[]",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "dashboard.screens[].accountEntities",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "dashboard.screens[].accountEntities[]",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "dashboard.screens[].accountEntities[].cardId",
+          "types": "number",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "dashboard.screens[].accountEntities[].id",
+          "types": "number",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "dashboard.screens[].accountEntities[].periodId",
+          "types": "number",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "hideDecimalPlaces",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "notificationsSettings",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "notificationsSettings.accountBalanceEnabled",
+          "types": "boolean",
+          "examples": [
+            "<redacted>"
+          ]
+        },
+        {
+          "path": "notificationsSettings.blogPostsEnabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "notificationsSettings.budgetsEnabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "notificationsSettings.incomeEnabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "notificationsSettings.lastGeneratedDate",
+          "types": "string",
+          "examples": [
+            "2026-06-19T07:03:50.371Z"
+          ]
+        },
+        {
+          "path": "notificationsSettings.ppsEnabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "notificationsSettings.unconfirmedRecordsEnabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "notificationsSettings.whatsNewEnabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T10:29:28.993Z"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "Config"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "android"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-19T07:03:50.372Z"
+          ]
+        }
+      ]
+    },
+    "UserConfigure": {
+      "count": 1,
+      "fieldCount": 11,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "UserConfigure"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "9-5ee428f04bf4e3c005fae2b16e59c149"
+          ]
+        },
+        {
+          "path": "changeSource",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "changeType",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "deviceId",
+          "types": "string",
+          "examples": [
+            "backend"
+          ]
+        },
+        {
+          "path": "key",
+          "types": "string",
+          "examples": [
+            "user_object"
+          ]
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T09:34:53.246+00:00"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "UserConfigure"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "backend"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-22T20:35:37.654+00:00"
+          ]
+        },
+        {
+          "path": "value",
+          "types": "string",
+          "examples": [
+            "1781775293246"
+          ]
+        }
+      ]
+    },
+    "WebConfig": {
+      "count": 1,
+      "fieldCount": 67,
+      "fields": [
+        {
+          "path": "_id",
+          "types": "string",
+          "examples": [
+            "-WebConfig_d2df1bcb-fedd-4a82-ae4d-18ccd07b69a7"
+          ]
+        },
+        {
+          "path": "_rev",
+          "types": "string",
+          "examples": [
+            "21-a2eafa91d25b048af68cf44cd744ead1"
+          ]
+        },
+        {
+          "path": "hideMobileAppsBanner",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "interval",
+          "types": "string",
+          "examples": [
+            "month"
+          ]
+        },
+        {
+          "path": "language",
+          "types": "string",
+          "examples": [
+            "en-US"
+          ]
+        },
+        {
+          "path": "reservedCreatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T09:27:53.870Z"
+          ]
+        },
+        {
+          "path": "reservedModelType",
+          "types": "string",
+          "examples": [
+            "WebConfig"
+          ]
+        },
+        {
+          "path": "reservedSource",
+          "types": "string",
+          "examples": [
+            "web"
+          ]
+        },
+        {
+          "path": "reservedUpdatedAt",
+          "types": "string",
+          "examples": [
+            "2026-06-18T09:27:53.870Z"
+          ]
+        },
+        {
+          "path": "showDecimalPlaces",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "version",
+          "types": "number",
+          "examples": [
+            "3"
+          ]
+        },
+        {
+          "path": "visitedWebV2",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "web2",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "web2.analytics",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "web2.analytics.cols",
+          "types": "number",
+          "examples": [
+            "2"
+          ]
+        },
+        {
+          "path": "web2.analytics.showPercentageDiff",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "web2.autoLogoutEnabled",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "web2.newTosNotified",
+          "types": "boolean",
+          "examples": [
+            "true"
+          ]
+        },
+        {
+          "path": "web2.widgetIds",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetIds[]",
+          "types": "string",
+          "examples": [
+            "performance"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetLayouts.lg",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetLayouts.lg[]",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetLayouts.lg[].h",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.lg[].i",
+          "types": "string",
+          "examples": [
+            "performance"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.lg[].moved",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.lg[].static",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.lg[].w",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.lg[].x",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.lg[].y",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.md",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetLayouts.md[]",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetLayouts.md[].h",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.md[].i",
+          "types": "string",
+          "examples": [
+            "performance"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.md[].moved",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.md[].static",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.md[].w",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.md[].x",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.md[].y",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.sm",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetLayouts.sm[]",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetLayouts.sm[].h",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.sm[].i",
+          "types": "string",
+          "examples": [
+            "performance"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.sm[].moved",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.sm[].static",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.sm[].w",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.sm[].x",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.sm[].y",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xs",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetLayouts.xs[]",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetLayouts.xs[].h",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xs[].i",
+          "types": "string",
+          "examples": [
+            "performance"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xs[].moved",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xs[].static",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xs[].w",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xs[].x",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xs[].y",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xxs",
+          "types": "array",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetLayouts.xxs[]",
+          "types": "object",
+          "examples": []
+        },
+        {
+          "path": "web2.widgetLayouts.xxs[].h",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xxs[].i",
+          "types": "string",
+          "examples": [
+            "performance"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xxs[].moved",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xxs[].static",
+          "types": "boolean",
+          "examples": [
+            "false"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xxs[].w",
+          "types": "number",
+          "examples": [
+            "1"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xxs[].x",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "web2.widgetLayouts.xxs[].y",
+          "types": "number",
+          "examples": [
+            "0"
+          ]
+        },
+        {
+          "path": "widgets",
+          "types": "array",
+          "examples": []
+        }
+      ]
+    }
+  }
+}

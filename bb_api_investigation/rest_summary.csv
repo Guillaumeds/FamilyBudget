@@ -1,0 +1,5 @@
+"Name","Status","TopLevelKeys","ItemCount","SchemaFields"
+"categories","OK","categories, limit, offset","90","13"
+"accounts","OK","accounts, limit, offset","5","27"
+"records","OK","appliedRecordDateFilters, limit, nextOffset, offset, records","200","21"
+"budgets","OK","budgets, limit, offset","1","15"

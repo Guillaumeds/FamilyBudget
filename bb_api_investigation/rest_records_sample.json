@@ -1,0 +1,5631 @@
+{
+  "appliedRecordDateFilters": [
+    "gte.2026-03-23T10:09:50.207Z",
+    "lt.2026-06-24T10:09:50.207Z"
+  ],
+  "limit": 200,
+  "nextOffset": 200,
+  "offset": 0,
+  "records": [
+    {
+      "id": "0a4ca3c6-1bd3-4d87-b4fa-982a0eb78e61",
+      "accountId": "8d510777-2aa9-4505-bf51-4537c2abfd14",
+      "note": "From Guillaume D",
+      "counterParty": "56949858",
+      "amount": {
+        "value": 18000,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-23T07:41:50Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-23T09:27:53.95Z",
+      "updatedAt": "2026-06-23T10:09:25.648Z",
+      "accountName": "Joint Savings EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "93569dd5-de78-45df-b767-e914a9cc6e74",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "To DOROTHEA MAGDALENA DE SWARDT & GUILLAUME DE SWARDT",
+      "counterParty": "47484278",
+      "amount": {
+        "value": -18000,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-23T07:41:50Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-23T09:27:49.727Z",
+      "updatedAt": "2026-06-23T10:09:25.648Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "219cfd03-66ec-43fc-b4f0-4dd8dda08377",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Fee for Anthropic",
+      "amount": {
+        "value": -0.22,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-23T06:44:05Z",
+      "category": {
+        "id": "5c5c1b5b-0046-8000-8000-000000000000",
+        "name": "Software, apps, games",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "uncleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-23T09:27:49.727Z",
+      "updatedAt": "2026-06-23T10:09:25.648Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "55e79330-2d90-41df-bc4e-2f172f0c6032",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Anthropic",
+      "amount": {
+        "value": -21.65,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-23T06:44:05Z",
+      "category": {
+        "id": "5c5c1b5b-0046-8000-8000-000000000000",
+        "name": "Software, apps, games",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "uncleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-23T09:27:49.727Z",
+      "updatedAt": "2026-06-23T10:09:25.648Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "89bafc3e-2695-4ea9-88c2-4e72e6f22717",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Irish Rail 84693851-ml",
+      "amount": {
+        "value": -59.98,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-22T19:00:29Z",
+      "category": {
+        "id": "5c5c0fa3-0028-8000-8000-000000000000",
+        "name": "Business trips",
+        "group": {
+          "id": "transportation",
+          "name": "Transportation"
+        },
+        "color": "#8A9BB1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-23T09:27:49.727Z",
+      "updatedAt": "2026-06-23T10:09:25.648Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "d9863616-34e3-498b-b735-9e321386894f",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Tesco Stores 3684",
+      "amount": {
+        "value": -74.23,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-22T13:49:50Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-23T09:27:49.436Z",
+      "updatedAt": "2026-06-23T10:09:25.648Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "0a8690aa-3571-48dd-b909-8005d3a51912",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "The Range - Tralee",
+      "amount": {
+        "value": -22.25,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-22T13:35:22Z",
+      "category": {
+        "id": "5c5c0fa3-0028-8000-8000-000000000000",
+        "name": "Business trips",
+        "group": {
+          "id": "transportation",
+          "name": "Transportation"
+        },
+        "color": "#8A9BB1"
+      },
+      "recordState": "uncleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-23T09:27:49.436Z",
+      "updatedAt": "2026-06-23T10:09:25.648Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "febe389a-e583-4b23-ac1f-a4e1f9b76e64",
+      "accountId": "0cb2a46a-a6ba-45f9-b631-2812a6c7eff1",
+      "note": "Airbnb * Hmzw8h8cje",
+      "amount": {
+        "value": -1457.76,
+        "currencyCode": "ZAR"
+      },
+      "recordDate": "2026-06-22T09:13:12Z",
+      "category": {
+        "id": "5c5c1779-003c-8000-8000-000000000000",
+        "name": "Holidays, trips, hotels",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "uncleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-23T09:27:51.808Z",
+      "updatedAt": "2026-06-23T10:09:25.648Z",
+      "accountName": "Guillaume - Revolut ZAR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "7d69b2c7-29ea-473c-b78d-7b834e9f7519",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Decathlon Ireland",
+      "amount": {
+        "value": -16.99,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-21T19:15:18Z",
+      "category": {
+        "id": "5c5c07d0-0014-8000-8000-000000000000",
+        "name": "Clothes & shoes",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-22T09:27:57.373Z",
+      "updatedAt": "2026-06-22T13:28:40.956Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "8915caf7-2359-488c-8e15-25b166b9b294",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Carryout Off License Carryout Off Licens",
+      "amount": {
+        "value": -1.9,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-21T17:08:59Z",
+      "category": {
+        "id": "5c5c177b-003c-8000-8000-000000000000",
+        "name": "Alcohol, tobacco",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-22T17:20:46.387Z",
+      "updatedAt": "2026-06-22T20:37:30.225Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "30ba25f0-53ec-41b0-8ee7-280eef3d8e76",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Gala Oak Park",
+      "amount": {
+        "value": -11.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-21T17:07:20Z",
+      "category": {
+        "id": "5c5c03eb-000a-8000-8000-000000000000",
+        "name": "Food & Drinks",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-22T09:27:57.373Z",
+      "updatedAt": "2026-06-22T13:28:40.956Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "279fba80-935d-48fb-8674-004d89556fed",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lb Retailing Limited",
+      "amount": {
+        "value": -25.09,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-21T13:29:38Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-22T17:20:51.515Z",
+      "updatedAt": "2026-06-22T20:37:30.225Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "d75b7f17-5b09-4f60-99a2-cac102d029a2",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Carryout Off License Carryout Off Licens",
+      "amount": {
+        "value": -8,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-21T13:24:19Z",
+      "category": {
+        "id": "5c5c177b-003c-8000-8000-000000000000",
+        "name": "Alcohol, tobacco",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-22T17:20:46.387Z",
+      "updatedAt": "2026-06-22T20:37:30.225Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "d968d5d1-6c74-4ed6-ae55-f8ff563a2d6d",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Michael Fitzgerald",
+      "amount": {
+        "value": -73,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-21T12:57:27Z",
+      "category": {
+        "id": "5c5c32c9-0082-8000-8000-000000000000",
+        "name": "Unknown expense",
+        "group": {
+          "id": "unknown_records",
+          "name": "Unknown"
+        },
+        "color": "#d0d0d0"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-22T17:20:46.387Z",
+      "updatedAt": "2026-06-22T20:37:30.225Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "cecedb00-5573-45f9-b4a5-c4241c21a189",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Michael Fitzgerald",
+      "amount": {
+        "value": -23.9,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-21T12:08:05Z",
+      "category": {
+        "id": "5c5c32c9-0082-8000-8000-000000000000",
+        "name": "Unknown expense",
+        "group": {
+          "id": "unknown_records",
+          "name": "Unknown"
+        },
+        "color": "#d0d0d0"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-22T17:20:46.387Z",
+      "updatedAt": "2026-06-22T20:37:30.225Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "4c90a58d-2cff-4dfe-9014-eca92d84d5ec",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Sumup  *jamie Knox Waters",
+      "amount": {
+        "value": -70,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-21T10:43:56Z",
+      "category": {
+        "id": "5c5c0fa3-0028-8000-8000-000000000000",
+        "name": "Business trips",
+        "group": {
+          "id": "transportation",
+          "name": "Transportation"
+        },
+        "color": "#8A9BB1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-22T09:27:57.373Z",
+      "updatedAt": "2026-06-22T13:28:40.956Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "f0fe703b-3250-45b1-b73d-9ece0d648ade",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Sumup  *splashsports",
+      "amount": {
+        "value": -3.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-21T09:52:53Z",
+      "category": {
+        "id": "5c5c0fa3-0028-8000-8000-000000000000",
+        "name": "Business trips",
+        "group": {
+          "id": "transportation",
+          "name": "Transportation"
+        },
+        "color": "#8A9BB1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-22T09:27:55.195Z",
+      "updatedAt": "2026-06-22T13:28:40.956Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "67f8dec6-c176-404c-becb-18229b1d8bec",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Cash at Spar Castlegregory",
+      "amount": {
+        "value": -100,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-21T09:35:06Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-22T09:27:57.373Z",
+      "updatedAt": "2026-06-22T13:28:40.956Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "e58b6cb7-7d11-4bc9-be30-8389fe1bae0f",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "O Sheas Gala Service S",
+      "amount": {
+        "value": -16.48,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-21T08:37:17Z",
+      "category": {
+        "id": "5c5c07d4-0014-8000-8000-000000000000",
+        "name": "Home & garden",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-22T09:27:57.373Z",
+      "updatedAt": "2026-06-22T13:28:40.956Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "6be85fa8-3379-4637-8931-8e22d96e5b5c",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Gala Oak Park",
+      "amount": {
+        "value": -27.29,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T15:30:13Z",
+      "category": {
+        "id": "5c5c03eb-000a-8000-8000-000000000000",
+        "name": "Food & Drinks",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T09:28:35.668Z",
+      "updatedAt": "2026-06-21T13:19:17.327Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "2f265b9b-5706-4465-8d0f-40a772ddb710",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "O Sheas Gala Service S",
+      "amount": {
+        "value": -11,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T15:24:52Z",
+      "category": {
+        "id": "5c5c07d4-0014-8000-8000-000000000000",
+        "name": "Home & garden",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T09:28:28.603Z",
+      "updatedAt": "2026-06-21T13:19:17.327Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "f9202dcc-151d-43c7-84ec-0892f7cf161d",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Cash at Blennerville",
+      "amount": {
+        "value": -50,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T15:23:49Z",
+      "category": {
+        "id": "5c5c32c9-0082-8000-8000-000000000000",
+        "name": "Unknown expense",
+        "group": {
+          "id": "unknown_records",
+          "name": "Unknown"
+        },
+        "color": "#d0d0d0"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T09:28:35.668Z",
+      "updatedAt": "2026-06-21T13:19:17.327Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "aeba3050-2d33-4b00-bda6-680a5617c17c",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Epower",
+      "amount": {
+        "value": -3.71,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T15:06:36Z",
+      "category": {
+        "id": "5c5c1388-0032-8000-8000-000000000000",
+        "name": "Fuel",
+        "group": {
+          "id": "vehicle",
+          "name": "Vehicle"
+        },
+        "color": "#4BB5C1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T09:28:28.603Z",
+      "updatedAt": "2026-06-21T13:19:17.327Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "83e50037-e4cd-4c8d-966a-46fa8f735b12",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "X9753 Sports E",
+      "amount": {
+        "value": -15,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T13:00:28Z",
+      "category": {
+        "id": "5c5c0fa3-0028-8000-8000-000000000000",
+        "name": "Business trips",
+        "group": {
+          "id": "transportation",
+          "name": "Transportation"
+        },
+        "color": "#8A9BB1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T09:28:28.603Z",
+      "updatedAt": "2026-06-21T13:19:17.327Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "05eecfb9-0a7e-4c3b-8fed-760ec423376a",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "0404b",
+      "amount": {
+        "value": -7.99,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T12:59:02Z",
+      "category": {
+        "id": "5c5c1f45-0050-8000-8000-000000000000",
+        "name": "Charges, fees",
+        "group": {
+          "id": "financial_expenses",
+          "name": "Financial expenses"
+        },
+        "color": "#19BC9C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T09:28:28.603Z",
+      "updatedAt": "2026-06-21T13:19:17.327Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "bd73eb38-da52-4a77-b53e-744220404abd",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Fee for E-Visa Turkey",
+      "amount": {
+        "value": -0.43,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T12:57:42Z",
+      "category": {
+        "id": "5c5c1f45-0050-8000-8000-000000000000",
+        "name": "Charges, fees",
+        "group": {
+          "id": "financial_expenses",
+          "name": "Financial expenses"
+        },
+        "color": "#19BC9C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T17:20:56.081Z",
+      "updatedAt": "2026-06-21T21:04:17.346Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "fa6d7690-24a8-4f3e-b70a-b273e941ee92",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "E-visa Turkey",
+      "amount": {
+        "value": -43.34,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T12:57:42Z",
+      "category": {
+        "id": "5c5c0fa3-0028-8000-8000-000000000000",
+        "name": "Business trips",
+        "group": {
+          "id": "transportation",
+          "name": "Transportation"
+        },
+        "color": "#8A9BB1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T17:20:56.081Z",
+      "updatedAt": "2026-06-21T21:04:17.346Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "be5580b9-d3cc-4d1d-8ebb-4f29dcc279ef",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Carryout Off License Carryout Off Licens",
+      "amount": {
+        "value": -17.1,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T12:43:52Z",
+      "category": {
+        "id": "5c5c177b-003c-8000-8000-000000000000",
+        "name": "Alcohol, tobacco",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T09:28:28.603Z",
+      "updatedAt": "2026-06-21T13:19:17.327Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "0bb2144a-5c73-4a78-aabf-1cc3eda44394",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Boat House Cafe",
+      "amount": {
+        "value": -43.75,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T11:03:35Z",
+      "category": {
+        "id": "5c5c1779-003c-8000-8000-000000000000",
+        "name": "Holidays, trips, hotels",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T09:28:35.668Z",
+      "updatedAt": "2026-06-21T13:19:17.327Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "ade9de1d-01be-4a00-aa2f-d70867a40a7c",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Boat House Cafe",
+      "amount": {
+        "value": -15.75,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T10:50:46Z",
+      "category": {
+        "id": "5c5c1779-003c-8000-8000-000000000000",
+        "name": "Holidays, trips, hotels",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T09:28:35.668Z",
+      "updatedAt": "2026-06-21T13:19:17.327Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "b37eb14c-d29f-474b-8f45-1c4eee570660",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Acs*38146717 Three",
+      "amount": {
+        "value": -20,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T08:11:20Z",
+      "category": {
+        "id": "5c5c1b59-0046-8000-8000-000000000000",
+        "name": "Phone, cell phones",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T09:28:35.668Z",
+      "updatedAt": "2026-06-21T13:19:17.327Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "c80f3fad-94ea-4e8d-94cc-198c49254caf",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Circle K Tralee",
+      "amount": {
+        "value": -2.35,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T07:40:33Z",
+      "category": {
+        "id": "5c5c1388-0032-8000-8000-000000000000",
+        "name": "Fuel",
+        "group": {
+          "id": "vehicle",
+          "name": "Vehicle"
+        },
+        "color": "#4BB5C1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-23T09:27:49.436Z",
+      "updatedAt": "2026-06-23T10:09:25.648Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "db7b845d-7dc4-4fe2-acae-04dc82120661",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Gala Oak Park",
+      "amount": {
+        "value": -23.6,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-20T06:28:31Z",
+      "category": {
+        "id": "5c5c03eb-000a-8000-8000-000000000000",
+        "name": "Food & Drinks",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-21T09:28:28.603Z",
+      "updatedAt": "2026-06-21T13:19:17.327Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "7d2297cb-8bf8-495d-b48a-4c9c7218061a",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Flahives Bar",
+      "amount": {
+        "value": -5.6,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-19T19:13:11Z",
+      "category": {
+        "id": "5c5c0fa3-0028-8000-8000-000000000000",
+        "name": "Business trips",
+        "group": {
+          "id": "transportation",
+          "name": "Transportation"
+        },
+        "color": "#8A9BB1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-20T17:21:10.243Z",
+      "updatedAt": "2026-06-20T20:44:16.286Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "820670bb-6538-4635-8748-8092c9efe3b2",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Flahives Bar",
+      "amount": {
+        "value": -5.6,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-19T18:38:15Z",
+      "category": {
+        "id": "5c5c0fa3-0028-8000-8000-000000000000",
+        "name": "Business trips",
+        "group": {
+          "id": "transportation",
+          "name": "Transportation"
+        },
+        "color": "#8A9BB1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-20T17:21:10.243Z",
+      "updatedAt": "2026-06-20T20:44:16.286Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "eeab9d4f-0b07-4bc6-8011-e1626e52785e",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Carryout Off License Carryout Off Licens",
+      "amount": {
+        "value": -8,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-19T15:24:15Z",
+      "category": {
+        "id": "5c5c177b-003c-8000-8000-000000000000",
+        "name": "Alcohol, tobacco",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-20T17:21:10.243Z",
+      "updatedAt": "2026-06-20T20:44:16.286Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "b345cf94-cd07-45b4-b7ec-42c4028f5764",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Petmania Tralee",
+      "amount": {
+        "value": -39.98,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-19T11:46:40Z",
+      "category": {
+        "id": "5c5c07d5-0014-8000-8000-000000000000",
+        "name": "Pets & animals",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#4fC3F7"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-20T17:21:14.963Z",
+      "updatedAt": "2026-06-20T20:44:16.286Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "fdd11435-dd4f-4267-84be-1ee4453e1ea0",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Mcdonalds 7026",
+      "amount": {
+        "value": -6.85,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-19T11:12:38Z",
+      "category": {
+        "id": "5c5c03e9-000a-8000-8000-000000000000",
+        "name": "Restaurants & fast food",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-20T17:21:14.963Z",
+      "updatedAt": "2026-06-20T20:44:16.286Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "89ee0d69-1220-44bc-87a6-354c07623526",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Mcdonalds 7026",
+      "amount": {
+        "value": -22,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-19T11:03:33Z",
+      "category": {
+        "id": "5c5c03e9-000a-8000-8000-000000000000",
+        "name": "Restaurants & fast food",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-20T17:21:14.963Z",
+      "updatedAt": "2026-06-20T20:44:16.286Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "20be8e29-58fa-4b35-812a-8a9a6cee34e7",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Gousto Ireland",
+      "amount": {
+        "value": -30.78,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-19T10:30:46Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-20T17:21:14.963Z",
+      "updatedAt": "2026-06-20T20:44:16.286Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "28284902-9b9b-48c8-adce-bec34927de53",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Garveys Supervalu Tralee Garveys Supervalu Tral",
+      "amount": {
+        "value": -151.62,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-19T09:06:46Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-20T17:21:14.963Z",
+      "updatedAt": "2026-06-20T20:44:16.286Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "0e0b860f-f49c-4296-847b-6aa6c3874262",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "48months.ie",
+      "amount": {
+        "value": -12.99,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T18:43:24Z",
+      "category": {
+        "id": "5c5c1b59-0046-8000-8000-000000000000",
+        "name": "Phone, cell phones",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-19T09:28:41.055Z",
+      "updatedAt": "2026-06-19T09:33:20.214Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "61fab13b-e446-44f7-9b6c-cd65426a3d8e",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "48months.ie",
+      "amount": {
+        "value": -12.99,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T18:42:46Z",
+      "category": {
+        "id": "5c5c1b59-0046-8000-8000-000000000000",
+        "name": "Phone, cell phones",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-20T17:21:10.243Z",
+      "updatedAt": "2026-06-20T20:44:16.286Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "394ff967-bac3-4a4d-9158-3eb302ef65cb",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "48months.ie",
+      "amount": {
+        "value": -50,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T18:40:46Z",
+      "category": {
+        "id": "5c5c1b59-0046-8000-8000-000000000000",
+        "name": "Phone, cell phones",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-19T09:28:41.055Z",
+      "updatedAt": "2026-06-19T09:33:20.214Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "4810f8a6-495d-4b56-b628-61b20e3b65c4",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "48months.ie",
+      "amount": {
+        "value": -50,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T18:39:05Z",
+      "category": {
+        "id": "5c5c1b59-0046-8000-8000-000000000000",
+        "name": "Phone, cell phones",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-19T09:28:41.055Z",
+      "updatedAt": "2026-06-19T09:33:20.214Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "75542560-ee76-4fce-a08c-3f424a763c28",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Carryout Off License Carryout Off Licens",
+      "amount": {
+        "value": -37.4,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T14:46:38Z",
+      "category": {
+        "id": "5c5c177b-003c-8000-8000-000000000000",
+        "name": "Alcohol, tobacco",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-19T17:21:00.475Z",
+      "updatedAt": "2026-06-19T21:19:16.243Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "0e1938dc-8fe1-4ebc-a55c-2bd9af4222b9",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Jysk Tralee",
+      "amount": {
+        "value": -114,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T14:35:20Z",
+      "category": {
+        "id": "5c5c07d4-0014-8000-8000-000000000000",
+        "name": "Home & garden",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-19T17:21:00.475Z",
+      "updatedAt": "2026-06-19T21:19:16.243Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "17278621-6fe8-4eb0-8cfa-293a57190133",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "To Gideon d",
+      "counterParty": "Gideon de Swardt, IE42REVO99036074187520",
+      "amount": {
+        "value": -14,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T14:02:44Z",
+      "category": {
+        "id": "5c5c177d-003c-8000-8000-000000000000",
+        "name": "Life & Entertainment",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T17:21:23.534Z",
+      "updatedAt": "2026-06-18T19:44:17.33Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "3cfad449-133d-46bf-887e-86b048ca6f1b",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Cash at Nolans Garage Limited",
+      "amount": {
+        "value": -50,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T11:52:07Z",
+      "category": {
+        "id": "5c5c138a-0032-8000-8000-000000000000",
+        "name": "Vehicle maintenance",
+        "group": {
+          "id": "vehicle",
+          "name": "Vehicle"
+        },
+        "color": "#4BB5C1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-19T09:28:41.055Z",
+      "updatedAt": "2026-06-19T09:33:20.214Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "8734ab84-87df-4e5e-a221-b554179b276b",
+      "accountId": "8d510777-2aa9-4505-bf51-4537c2abfd14",
+      "note": "From Dorothea D",
+      "counterParty": "36790914",
+      "amount": {
+        "value": 7476.87,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T09:15:24Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:33.082Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Joint Savings EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "a4c2e63f-ff8d-462a-af44-fba30559271f",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "To DOROTHEA MAGDALENA DE SWARDT & GUILLAUME DE SWARDT",
+      "counterParty": "47484278",
+      "amount": {
+        "value": -7476.87,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T09:15:24Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:40.757Z",
+      "updatedAt": "2026-06-18T13:39:03.739Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "773d5bf5-6a3c-4586-a332-20df54d9fdb8",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "From Instant Access Savings",
+      "amount": {
+        "value": 7476.87,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T09:15:23Z",
+      "category": {
+        "id": "5c5c271b-0064-8000-8000-000000000000",
+        "name": "Income",
+        "group": {
+          "id": "income",
+          "name": "Income"
+        },
+        "color": "#FFCD01"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:40.757Z",
+      "updatedAt": "2026-06-18T13:39:03.671Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "9f17e968-a696-45d6-8882-dd46d5450a8f",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Budgetbakers",
+      "amount": {
+        "value": -6.09,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-18T08:34:52Z",
+      "category": {
+        "id": "5c5c1b5b-0046-8000-8000-000000000000",
+        "name": "Software, apps, games",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-19T09:28:41.055Z",
+      "updatedAt": "2026-06-19T09:33:20.214Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "4081c24f-5f27-4d7a-bb0b-9bd58d5c275d",
+      "accountId": "0cb2a46a-a6ba-45f9-b631-2812a6c7eff1",
+      "note": "SA Cash To Guillaume de Swardt",
+      "amount": {
+        "value": -10000,
+        "currencyCode": "ZAR"
+      },
+      "recordDate": "2026-06-18T08:17:43Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:45.128Z",
+      "updatedAt": "2026-06-18T13:39:03.602Z",
+      "accountName": "Guillaume - Revolut ZAR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "8f7b9b9f-3b15-4aad-9342-ef7d191074e0",
+      "accountId": "0cb2a46a-a6ba-45f9-b631-2812a6c7eff1",
+      "note": "Fee for To Guillaume de Swardt",
+      "amount": {
+        "value": -562.85,
+        "currencyCode": "ZAR"
+      },
+      "recordDate": "2026-06-18T08:17:43Z",
+      "category": {
+        "id": "5c5c1f45-0050-8000-8000-000000000000",
+        "name": "Charges, fees",
+        "group": {
+          "id": "financial_expenses",
+          "name": "Financial expenses"
+        },
+        "color": "#19BC9C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:45.128Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Guillaume - Revolut ZAR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "d1efd5ad-73b1-4a2e-9e78-eb06c8f173b7",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Carryout Off License Carryout Off Licens",
+      "amount": {
+        "value": -10,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-17T14:39:53Z",
+      "category": {
+        "id": "5c5c177b-003c-8000-8000-000000000000",
+        "name": "Alcohol, tobacco",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:40.757Z",
+      "updatedAt": "2026-06-18T13:39:03.782Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "08dbafb2-6aca-42cd-bae2-8c9752af43a3",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Gala Oak Park",
+      "amount": {
+        "value": -11.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-17T14:30:05Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.487Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "fdb7e887-cb37-4070-8fa3-c2e3517b738c",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Carryout Off License Carryout Off Licens",
+      "amount": {
+        "value": -14.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-17T14:27:49Z",
+      "category": {
+        "id": "5c5c177b-003c-8000-8000-000000000000",
+        "name": "Alcohol, tobacco",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.909Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "91a01bd6-3085-47de-8a3c-e73f72b84881",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Tkmaxx_ie",
+      "amount": {
+        "value": -26.96,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-17T10:25:00Z",
+      "category": {
+        "id": "5c5c07d4-0014-8000-8000-000000000000",
+        "name": "Home & garden",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:40.757Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "08f2fc3d-ca3f-475a-9135-6e8c2d947f89",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Oakpark Pharmacy Tralee",
+      "amount": {
+        "value": -27.93,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-16T14:12:36Z",
+      "category": {
+        "id": "5c5c07db-0014-8000-8000-000000000000",
+        "name": "Drugstore",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#4fC3F7"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:40.757Z",
+      "updatedAt": "2026-06-18T13:39:03.487Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "853ce6fa-5c74-4b11-8683-35b217c9c64f",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lidl Ireland Ltd",
+      "amount": {
+        "value": -53.74,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-16T13:34:55Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:40.757Z",
+      "updatedAt": "2026-06-18T13:39:03.693Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "244f0281-bb81-4c39-a059-c7c8bdd3d15a",
+      "accountId": "0cb2a46a-a6ba-45f9-b631-2812a6c7eff1",
+      "note": "Sent from Revolut To Sue J Klingenberg",
+      "amount": {
+        "value": -3200,
+        "currencyCode": "ZAR"
+      },
+      "recordDate": "2026-06-16T10:50:14Z",
+      "category": {
+        "id": "5c5c1770-003c-8000-8000-000000000000",
+        "name": "Health care & doctor",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:45.128Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Guillaume - Revolut ZAR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "2e2b6aa4-9681-48bd-90e5-3d14259396f4",
+      "accountId": "0cb2a46a-a6ba-45f9-b631-2812a6c7eff1",
+      "note": "Fee for To Sue J Klingenberg",
+      "amount": {
+        "value": -54.25,
+        "currencyCode": "ZAR"
+      },
+      "recordDate": "2026-06-16T10:50:14Z",
+      "category": {
+        "id": "5c5c1770-003c-8000-8000-000000000000",
+        "name": "Health care & doctor",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:45.128Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Guillaume - Revolut ZAR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "75917564-551a-4cc4-a0b8-9573e8de581e",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Exchanged to ZAR",
+      "amount": {
+        "value": -1000,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-16T10:48:28Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.671Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "9ec9ef22-ea25-4824-a00b-567797c5a81a",
+      "accountId": "0cb2a46a-a6ba-45f9-b631-2812a6c7eff1",
+      "note": "Exchanged to ZAR",
+      "amount": {
+        "value": 18705.94,
+        "currencyCode": "ZAR"
+      },
+      "recordDate": "2026-06-16T10:48:28Z",
+      "category": {
+        "id": "5c5c271b-0064-8000-8000-000000000000",
+        "name": "Income",
+        "group": {
+          "id": "income",
+          "name": "Income"
+        },
+        "color": "#FFCD01"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:45.128Z",
+      "updatedAt": "2026-06-18T13:39:03.739Z",
+      "accountName": "Guillaume - Revolut ZAR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "17be43de-5788-4751-96cc-6f8dd72d19ce",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Microsoft*store",
+      "amount": {
+        "value": -15,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-15T18:32:39Z",
+      "category": {
+        "id": "5c5c1b5b-0046-8000-8000-000000000000",
+        "name": "Software, apps, games",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "02ccb6d5-b6ed-406e-b652-cccdc8f0a951",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Banna Beach Leisure Club",
+      "amount": {
+        "value": -4,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-15T17:30:49Z",
+      "category": {
+        "id": "5c5c1772-003c-8000-8000-000000000000",
+        "name": "Active sport, fitness",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.487Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "792364cd-a82b-4789-9e9f-e27fdfffc7b7",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Epower",
+      "amount": {
+        "value": -2.55,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-15T16:59:19Z",
+      "category": {
+        "id": "5c5c1388-0032-8000-8000-000000000000",
+        "name": "Fuel",
+        "group": {
+          "id": "vehicle",
+          "name": "Vehicle"
+        },
+        "color": "#4BB5C1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.693Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "b568e9b9-3c59-44a4-be98-ef00bb5a8d53",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Lb Retailing Limited",
+      "amount": {
+        "value": -10.4,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-15T16:10:21Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "3d86ce04-c31a-4d56-9bee-19cdd0973d50",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Garveys Supervalu Tralee Garveys Supervalu Tral",
+      "amount": {
+        "value": -19.29,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-15T15:38:44Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:40.757Z",
+      "updatedAt": "2026-06-18T13:39:03.602Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "9244a5b1-dfc2-4661-9d53-282a58f5687c",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Savings: Interest Adjustment 11.06.2026",
+      "amount": {
+        "value": 0.02,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-15T15:33:29Z",
+      "category": {
+        "id": "5c5c271b-0064-8000-8000-000000000000",
+        "name": "Income",
+        "group": {
+          "id": "income",
+          "name": "Income"
+        },
+        "color": "#FFCD01"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:40.757Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "5eef4c49-2186-47d9-859f-652c68b8f031",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Pepco 1624",
+      "amount": {
+        "value": -6.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-15T15:23:03Z",
+      "category": {
+        "id": "5c5c07da-0014-8000-8000-000000000000",
+        "name": "Shopping",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:40.757Z",
+      "updatedAt": "2026-06-18T13:39:03.65Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "ddec622b-f890-4f15-b352-1803271904fa",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Mountain Warehouse Tra",
+      "amount": {
+        "value": -70.17,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-15T15:21:38Z",
+      "category": {
+        "id": "5c5c07d0-0014-8000-8000-000000000000",
+        "name": "Clothes & shoes",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.809Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "630b1c00-9ba4-4a80-acd0-d3607ee5cfc1",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Penneys Tralee",
+      "amount": {
+        "value": -24,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-15T15:09:06Z",
+      "category": {
+        "id": "5c5c07d0-0014-8000-8000-000000000000",
+        "name": "Clothes & shoes",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.65Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "f3ae5251-3a4d-43c2-bfea-82f3a4765a8b",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Microsoft*xbox Game Pa",
+      "amount": {
+        "value": -20.99,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-15T08:08:52Z",
+      "category": {
+        "id": "5c5c1b5b-0046-8000-8000-000000000000",
+        "name": "Software, apps, games",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.875Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "dbf68433-9227-4b0f-a7bb-25b04efb6e11",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Google*google Play App",
+      "amount": {
+        "value": -3.97,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-14T20:20:30Z",
+      "category": {
+        "id": "5c5c1b5b-0046-8000-8000-000000000000",
+        "name": "Software, apps, games",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.809Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "92d5a447-2d1e-459d-9f5e-5a646b9649b6",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Lb Retailing Limited",
+      "amount": {
+        "value": -37.6,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-14T18:49:21Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "a3e1660d-378b-4d0e-b71f-e57766410151",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Wl*google  Youtube",
+      "amount": {
+        "value": -15.52,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-14T16:05:37Z",
+      "category": {
+        "id": "5c5c1777-003c-8000-8000-000000000000",
+        "name": "Books, audio, subscription",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.739Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "145c7df9-32d7-4610-a821-4b93256e35b1",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "From Dorothea D",
+      "counterParty": "36790914",
+      "amount": {
+        "value": 20000,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-14T15:10:45Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.156Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "22c28b63-fcc7-4339-93ca-9e031cc90270",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "From Instant Access Savings",
+      "amount": {
+        "value": 20000,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-14T15:10:45Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "android"
+    },
+    {
+      "id": "8c51adf0-02df-42fd-aa9a-908aa4ecad53",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "To Guillaume D",
+      "counterParty": "56949858",
+      "amount": {
+        "value": -20000,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-14T15:10:45Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "c001ef94-1145-4e30-8836-8eaf99e4e1ea",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Just Eat Ireland Ltd",
+      "amount": {
+        "value": -34.39,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-14T15:07:50Z",
+      "category": {
+        "id": "5c5c03e9-000a-8000-8000-000000000000",
+        "name": "Restaurants & fast food",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.782Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "4497e68f-9c55-4b6a-976f-16ea441a2fb0",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lidl Ireland Ltd",
+      "amount": {
+        "value": -22.47,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-14T11:37:13Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.602Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "7fc25538-0eea-4a01-be4e-4bf2f7a4ce57",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Applegreen Tralee",
+      "amount": {
+        "value": -0.29,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-14T09:09:22Z",
+      "category": {
+        "id": "5c5c03eb-000a-8000-8000-000000000000",
+        "name": "Food & Drinks",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.693Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "a29b27fd-9ff6-4194-84d8-cf931dc72c13",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Applegreen Tralee",
+      "amount": {
+        "value": -19.7,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-14T09:08:35Z",
+      "category": {
+        "id": "5c5c03eb-000a-8000-8000-000000000000",
+        "name": "Food & Drinks",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.739Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "16622514-0a6b-4fc2-99f0-4a870b50c1af",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Amazon.ie",
+      "amount": {
+        "value": -6.99,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-14T08:30:43Z",
+      "category": {
+        "id": "5c5c07da-0014-8000-8000-000000000000",
+        "name": "Shopping",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "efc3e056-3e48-416b-941a-76616f5da9b0",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Sky Subscribers",
+      "amount": {
+        "value": -35,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-13T15:40:52Z",
+      "category": {
+        "id": "5c5c1b5a-0046-8000-8000-000000000000",
+        "name": "Internet",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.875Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "7743ce9b-724d-4f9c-ba3d-b0e6e887cc09",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lidl Ireland Ltd",
+      "amount": {
+        "value": -89.23,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-13T13:14:54Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.671Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "5a7a6142-b11c-4ba9-b32e-f99928bcb15b",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Flahives Bar",
+      "amount": {
+        "value": -38,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-13T11:29:08Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.65Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "18cee798-22f3-401f-8899-a97880fddc75",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "From Dorothea D",
+      "counterParty": "36790914",
+      "amount": {
+        "value": 50,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-13T11:24:55Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.156Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "20aa596f-3c6d-447f-b4f4-1b206c27b22d",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "To Guillaume D",
+      "counterParty": "56949858",
+      "amount": {
+        "value": -50,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-13T11:24:55Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "3241a3f5-3726-4bb7-b7c5-75f98ef37306",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "To Guillaume D",
+      "counterParty": "56949858",
+      "amount": {
+        "value": -50,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-13T11:24:46Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "625a149e-e179-4c7a-8ea0-6d21918f68ec",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "From Dorothea D",
+      "counterParty": "36790914",
+      "amount": {
+        "value": 50,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-13T11:24:46Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.156Z",
+      "updatedAt": "2026-06-18T13:39:03.65Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "2ed2b2bb-0666-41c1-945e-7f91ef874d0a",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Wl*google  Youtube",
+      "amount": {
+        "value": -10.99,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-13T06:20:18Z",
+      "category": {
+        "id": "5c5c1777-003c-8000-8000-000000000000",
+        "name": "Books, audio, subscription",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "15d666f9-2513-4e41-bcb9-5ae00f48df63",
+      "accountId": "0cb2a46a-a6ba-45f9-b631-2812a6c7eff1",
+      "note": "Exchanged to EUR",
+      "amount": {
+        "value": -13.64,
+        "currencyCode": "ZAR"
+      },
+      "recordDate": "2026-06-13T06:19:17Z",
+      "category": {
+        "id": "5c5c1f45-0050-8000-8000-000000000000",
+        "name": "Charges, fees",
+        "group": {
+          "id": "financial_expenses",
+          "name": "Financial expenses"
+        },
+        "color": "#19BC9C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:45.128Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Guillaume - Revolut ZAR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "4ae3f769-4b2d-4597-bbc2-6ab3f75f15f4",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Exchanged to EUR",
+      "amount": {
+        "value": 0.72,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-13T06:19:17Z",
+      "category": {
+        "id": "5c5c1f45-0050-8000-8000-000000000000",
+        "name": "Charges, fees",
+        "group": {
+          "id": "financial_expenses",
+          "name": "Financial expenses"
+        },
+        "color": "#19BC9C"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "bfd8c0e0-9bc5-4a94-8e73-4dad31eba9e5",
+      "accountId": "0cb2a46a-a6ba-45f9-b631-2812a6c7eff1",
+      "note": "Fee for Exchanged to EUR",
+      "amount": {
+        "value": -0.14,
+        "currencyCode": "ZAR"
+      },
+      "recordDate": "2026-06-13T06:19:17Z",
+      "category": {
+        "id": "5c5c1f45-0050-8000-8000-000000000000",
+        "name": "Charges, fees",
+        "group": {
+          "id": "financial_expenses",
+          "name": "Financial expenses"
+        },
+        "color": "#19BC9C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:45.128Z",
+      "updatedAt": "2026-06-18T13:39:03.782Z",
+      "accountName": "Guillaume - Revolut ZAR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "c682ec06-9d4c-49a2-bca4-83e301eddca3",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Dunnes Tralee Ncr",
+      "amount": {
+        "value": -61.34,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-12T14:08:15Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.782Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "3bdf3329-49fd-480e-9443-6ec2c65a7ac7",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "St John Dental Practise",
+      "amount": {
+        "value": -155,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-12T13:37:56Z",
+      "category": {
+        "id": "5c5c1770-003c-8000-8000-000000000000",
+        "name": "Health care & doctor",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.602Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "12314e48-531f-490e-9dad-9541ac1e2754",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Gousto Ireland",
+      "amount": {
+        "value": -27.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-12T10:25:37Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "32c15faa-9a70-4955-aa52-963b8c167172",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Pikup",
+      "amount": {
+        "value": -7.6,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-12T06:54:07Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "539b9d19-8b23-4b3e-a9e8-e4d018e69787",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "SAVINGS Payment from Mr Guillaume De Swardt",
+      "amount": {
+        "value": 1350,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-12T05:49:33Z",
+      "category": {
+        "id": "5c5c271b-0064-8000-8000-000000000000",
+        "name": "Income",
+        "group": {
+          "id": "income",
+          "name": "Income"
+        },
+        "color": "#FFCD01"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "9560da9d-cf6a-4571-9d7e-2047a79801b1",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Woodies Tralee",
+      "amount": {
+        "value": -39.48,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T17:31:46Z",
+      "category": {
+        "id": "5c5c0bbc-001e-8000-8000-000000000000",
+        "name": "Maintenance & repairs",
+        "group": {
+          "id": "housing",
+          "name": "Housing"
+        },
+        "color": "#F69743"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "6d089fac-9652-43d4-9fda-e9efb627d681",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Home Store & More",
+      "amount": {
+        "value": -16.99,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T17:19:23Z",
+      "category": {
+        "id": "5c5c07d4-0014-8000-8000-000000000000",
+        "name": "Home & garden",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.671Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "e6831253-3ce1-498f-bf99-3bc79c20ec68",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lb Retailing Limited",
+      "amount": {
+        "value": -15.28,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T16:39:44Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.809Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "5fffb527-12aa-49f8-b8d4-7c6fcdded548",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Gala Oak Park",
+      "amount": {
+        "value": -11.59,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T16:29:54Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.65Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "c8fc561d-be49-4fe0-9b01-30cac0308a6f",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "To Gideon d",
+      "counterParty": "Gideon de Swardt, IE42REVO99036074187520",
+      "amount": {
+        "value": -14,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T15:41:59Z",
+      "category": {
+        "id": "5c5c177d-003c-8000-8000-000000000000",
+        "name": "Life & Entertainment",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.782Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "b09827b5-4b05-444d-8491-3ef0cee5770f",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "From Instant Access Savings",
+      "amount": {
+        "value": 150,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T15:36:55Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "android"
+    },
+    {
+      "id": "527eef97-c6b9-4354-85d0-3d72a85af99e",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "From Dorothea D",
+      "counterParty": "36790914",
+      "amount": {
+        "value": 100,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T15:36:19Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.156Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "464861ec-2aea-4eac-b5f6-5ce98f7cbbbb",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "To Guillaume D",
+      "counterParty": "56949858",
+      "amount": {
+        "value": -100,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T15:36:18Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "d7529d04-5a40-4d90-8b8c-7413f0d12ebc",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Amia contribution to Ms Healy To Brendan O",
+      "counterParty": "Brendan O'Connor, IE26REVO99036014030639",
+      "amount": {
+        "value": -10,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T12:07:50Z",
+      "category": {
+        "id": "5c5c1776-003c-8000-8000-000000000000",
+        "name": "Education & development",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.809Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "d991a4c9-c7fe-49c0-bca1-39e9d6471fb9",
+      "accountId": "0cb2a46a-a6ba-45f9-b631-2812a6c7eff1",
+      "note": "Epower",
+      "amount": {
+        "value": -91.79,
+        "currencyCode": "ZAR"
+      },
+      "recordDate": "2026-06-11T12:00:18Z",
+      "category": {
+        "id": "5c5c1388-0032-8000-8000-000000000000",
+        "name": "Fuel",
+        "group": {
+          "id": "vehicle",
+          "name": "Vehicle"
+        },
+        "color": "#4BB5C1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:45.128Z",
+      "updatedAt": "2026-06-18T13:39:03.809Z",
+      "accountName": "Guillaume - Revolut ZAR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "af1eb886-b9c6-4a8a-a03a-3439f96924f0",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "The Tech Co",
+      "amount": {
+        "value": -25,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T10:58:03Z",
+      "category": {
+        "id": "5c5c07da-0014-8000-8000-000000000000",
+        "name": "Shopping",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "fba45d64-3cf6-4995-95e6-ae1472f1aafc",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Kerry County Council",
+      "amount": {
+        "value": -0.6,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T10:54:50Z",
+      "category": {
+        "id": "5c5c1389-0032-8000-8000-000000000000",
+        "name": "Parking",
+        "group": {
+          "id": "vehicle",
+          "name": "Vehicle"
+        },
+        "color": "#4BB5C1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.875Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "78c6940a-fa56-4d5f-ace1-68bb957877e1",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Cash at Point Cash Atm",
+      "amount": {
+        "value": -100,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-11T08:31:53Z",
+      "category": {
+        "id": "16b5702f-6fe1-4a62-9a00-64fffb706923",
+        "name": "Cash Withdrawal",
+        "group": {
+          "id": "others",
+          "name": "Others"
+        },
+        "color": "#9E9E9E"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.693Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "a5576d98-56fd-48f2-99ca-058211313cca",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Dunnes Horan Centre",
+      "amount": {
+        "value": -37.3,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-10T14:28:46Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.739Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "14b28d99-bdb5-458e-a498-bf260ad2dbaf",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Print Copy  Go",
+      "amount": {
+        "value": -0.4,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-10T12:47:09Z",
+      "category": {
+        "id": "5c5c07d8-0014-8000-8000-000000000000",
+        "name": "Stationery & tools",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "6615fbfd-31ec-4b2e-92b2-53d9dc3953fe",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "The Range - Tralee",
+      "amount": {
+        "value": -19.4,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-10T11:03:54Z",
+      "category": {
+        "id": "5c5c07da-0014-8000-8000-000000000000",
+        "name": "Shopping",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.65Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "46f67c8b-74ad-49bc-ba90-328af76397fc",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Ourclassbook Cj Fallon",
+      "amount": {
+        "value": -14,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-09T17:56:52Z",
+      "category": {
+        "id": "5c5c1776-003c-8000-8000-000000000000",
+        "name": "Education & development",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "700196db-7fe9-4b19-ac25-7ca3e5f4d597",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Gala Oak Park",
+      "amount": {
+        "value": -11.3,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-09T15:04:27Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.671Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "9f758e92-ef05-459a-b792-84e2bbc2b2f4",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Aldi",
+      "amount": {
+        "value": -31.49,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-09T08:47:20Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.739Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "f2965d6b-73b0-4cd1-9172-16d84faf1606",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Starbucks Tralee Drive",
+      "amount": {
+        "value": -4.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-09T08:34:49Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.875Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "2cbbf453-2b0b-4bd5-9f56-c1a46927eb37",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Amazon.ie",
+      "amount": {
+        "value": -45.04,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-08T19:31:42Z",
+      "category": {
+        "id": "5c5c07da-0014-8000-8000-000000000000",
+        "name": "Shopping",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "b5665d3b-3502-4ae2-aaa0-16db3c2ea281",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lb Retailing Limited",
+      "amount": {
+        "value": -11.09,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-08T16:37:06Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "1a8040cc-db2f-40dc-b8fa-e6fb59ce5a6a",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Print Copy  Go",
+      "amount": {
+        "value": -1.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-08T13:58:40Z",
+      "category": {
+        "id": "5c5c07d8-0014-8000-8000-000000000000",
+        "name": "Stationery & tools",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "73097091-b937-46d4-9de5-afbafd703745",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Ballinorig Medical Centre",
+      "amount": {
+        "value": -30,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-08T13:34:16Z",
+      "category": {
+        "id": "5c5c1770-003c-8000-8000-000000000000",
+        "name": "Health care & doctor",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.671Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "392df974-4b11-4569-864c-ba4e9054e4d1",
+      "accountId": "0cb2a46a-a6ba-45f9-b631-2812a6c7eff1",
+      "note": "Transfer to Dr Melissa S. Wylie refund",
+      "amount": {
+        "value": 125,
+        "currencyCode": "ZAR"
+      },
+      "recordDate": "2026-06-08T12:33:54Z",
+      "category": {
+        "id": "5c5c1770-003c-8000-8000-000000000000",
+        "name": "Health care & doctor",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:45.128Z",
+      "updatedAt": "2026-06-18T13:39:03.602Z",
+      "accountName": "Guillaume - Revolut ZAR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "27b95b57-dfaf-4a74-bd18-57e385107a4b",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Yuno Energy",
+      "amount": {
+        "value": -83.7,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-08T08:17:23Z",
+      "category": {
+        "id": "5c5c0bba-001e-8000-8000-000000000000",
+        "name": "Energy & utilities",
+        "group": {
+          "id": "housing",
+          "name": "Housing"
+        },
+        "color": "#F69743"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "68215183-a5fc-42be-83ab-1a757ccef076",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lb Retailing Limited",
+      "amount": {
+        "value": -16.93,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-07T13:06:34Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.65Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "d4192e07-a25e-407d-8e2d-9087ed411219",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Phone And Vape Shop",
+      "amount": {
+        "value": -15,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-07T12:01:12Z",
+      "category": {
+        "id": "5c5c177b-003c-8000-8000-000000000000",
+        "name": "Alcohol, tobacco",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.782Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "7fbe185e-b9ac-4f67-b7bf-0152565fc240",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Little Rose Buds Pamper Little Rose Buds Pa",
+      "amount": {
+        "value": -30,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-07T11:52:03Z",
+      "category": {
+        "id": "5c5c07d0-0014-8000-8000-000000000000",
+        "name": "Clothes & shoes",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.693Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "1c9364b7-b1ef-454f-9002-6744c40949a1",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Dunnes Tralee Ncr",
+      "amount": {
+        "value": -66.69,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-07T10:09:37Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "436ee249-d45f-493a-aa77-72ab53140e98",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Rent June To Rosaleen Bowler",
+      "counterParty": "Rosaleen Bowler, IE65AIBK93001606558167",
+      "amount": {
+        "value": -2250,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-07T06:30:03Z",
+      "category": {
+        "id": "5c5c0bb8-001e-8000-8000-000000000000",
+        "name": "Rent",
+        "group": {
+          "id": "housing",
+          "name": "Housing"
+        },
+        "color": "#F69743"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.602Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "e64c4bd1-958a-4c8e-98ca-900f3a87fec9",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Centra",
+      "amount": {
+        "value": -23.36,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-06T08:57:17Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.809Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "c3786274-8e7e-41b5-83e7-e4f0630dfbe3",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Google Play Apps",
+      "amount": {
+        "value": -7.49,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T23:31:24Z",
+      "category": {
+        "id": "5c5c1b5b-0046-8000-8000-000000000000",
+        "name": "Software, apps, games",
+        "group": {
+          "id": "communication_pc",
+          "name": "PC, Communication"
+        },
+        "color": "#2258FF"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.782Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "56182eaa-d44f-45a7-a883-cf49ed2289d9",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Flahives Bar",
+      "amount": {
+        "value": -6,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T20:15:51Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "a334afc9-24e7-4d0d-8b2e-9c99ba791cfa",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Centra",
+      "amount": {
+        "value": -11.15,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T20:10:43Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.739Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "70a7470c-bd6a-4b8f-935c-d06985eacc15",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Uber   *trip Ubr* Pending.uber.com",
+      "amount": {
+        "value": -173,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T17:11:41Z",
+      "category": {
+        "id": "5c5c0fa1-0028-8000-8000-000000000000",
+        "name": "Taxi",
+        "group": {
+          "id": "transportation",
+          "name": "Transportation"
+        },
+        "color": "#8A9BB1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.157Z",
+      "updatedAt": "2026-06-18T13:39:03.671Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "1b53ff45-cfd6-4af7-b1eb-8f6ed69175f2",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "From Dorothea D",
+      "counterParty": "36790914",
+      "amount": {
+        "value": 140,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T17:11:29Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.156Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "987eb5a0-264d-47b4-a47c-d1c00f1e7184",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "To Guillaume D",
+      "counterParty": "56949858",
+      "amount": {
+        "value": -140,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T17:11:28Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "078c2974-ebb3-4b68-96f1-6ca0482dea9b",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "From Instant Access Savings",
+      "amount": {
+        "value": 3100,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T14:53:48Z",
+      "category": {
+        "id": "5c5c4e21-00c8-8000-8000-000000000000",
+        "name": "Transfer",
+        "group": {
+          "id": "system_categories",
+          "name": "System categories"
+        },
+        "color": "#8BC34A"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.487Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "android"
+    },
+    {
+      "id": "e4456507-e476-4e98-ac48-9c1ae1688920",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Eason  Heuston Station",
+      "amount": {
+        "value": -3.95,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T14:20:05Z",
+      "category": {
+        "id": "5c5c1777-003c-8000-8000-000000000000",
+        "name": "Books, audio, subscription",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.809Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "5ed77376-69de-4275-8ec0-d8fca6eb38bc",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Pret A Manger",
+      "amount": {
+        "value": -6.3,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T14:11:45Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.65Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "1a971b71-03eb-4591-9ef2-aade7f6f8ece",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "The Galway Hooker",
+      "amount": {
+        "value": -45.9,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T13:50:13Z",
+      "category": {
+        "id": "5c5c03e9-000a-8000-8000-000000000000",
+        "name": "Restaurants & fast food",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:55.156Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "2c6e335e-9b09-4e0e-a371-88efb066409e",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Bill Ahernes",
+      "amount": {
+        "value": -7.3,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T13:16:36Z",
+      "category": {
+        "id": "5c5c03eb-000a-8000-8000-000000000000",
+        "name": "Food & Drinks",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "14c377e2-f603-46a2-ab86-98f70f639591",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Gnib",
+      "amount": {
+        "value": -300,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T12:50:02Z",
+      "category": {
+        "id": "5c5c1f45-0050-8000-8000-000000000000",
+        "name": "Charges, fees",
+        "group": {
+          "id": "financial_expenses",
+          "name": "Financial expenses"
+        },
+        "color": "#19BC9C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "53fe62e2-1e8f-4a1a-838b-31e02630e71a",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Gala Abbey Street",
+      "amount": {
+        "value": -13.6,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T12:02:05Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "51ad762e-6d0e-4b24-b7d3-56aa344581fc",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Amia de Swardt To Laura H",
+      "counterParty": "Laura Healy, IE64REVO99036059049498",
+      "amount": {
+        "value": -10,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T10:13:46Z",
+      "category": {
+        "id": "5c5c177d-003c-8000-8000-000000000000",
+        "name": "Life & Entertainment",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "a112cb11-8563-44fa-a056-90ac484ba7d1",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Wh Smith Dublin Airp",
+      "amount": {
+        "value": -20.47,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T09:50:25Z",
+      "category": {
+        "id": "5c5c1777-003c-8000-8000-000000000000",
+        "name": "Books, audio, subscription",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.739Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "332b58a9-60a7-436b-a9b0-85fda2e65d31",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Dublin Csa",
+      "amount": {
+        "value": -20,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T09:46:01Z",
+      "category": {
+        "id": "5c5c32c9-0082-8000-8000-000000000000",
+        "name": "Unknown expense",
+        "group": {
+          "id": "unknown_records",
+          "name": "Unknown"
+        },
+        "color": "#d0d0d0"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.602Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "b273ae21-3f3e-4035-be70-952a1e88174a",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Achievefitnesstralee.i",
+      "amount": {
+        "value": -140,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T07:27:05Z",
+      "category": {
+        "id": "5c5c1772-003c-8000-8000-000000000000",
+        "name": "Active sport, fitness",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "affc41e2-bdd9-4cd4-9927-73d3d191ed79",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "The Kiosk Railway Stati The Kiosk Railway S",
+      "amount": {
+        "value": -7.7,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T06:34:27Z",
+      "category": {
+        "id": "5c5c03eb-000a-8000-8000-000000000000",
+        "name": "Food & Drinks",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "5e224c58-c2dc-4dce-8f4d-54a4f1031114",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Apcoa Ie",
+      "amount": {
+        "value": -4.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-05T06:27:52Z",
+      "category": {
+        "id": "5c5c1389-0032-8000-8000-000000000000",
+        "name": "Parking",
+        "group": {
+          "id": "vehicle",
+          "name": "Vehicle"
+        },
+        "color": "#4BB5C1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.65Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "a0eaead5-2047-4740-8594-25238a8cb623",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Corevend Limited",
+      "amount": {
+        "value": -2.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T16:11:20Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.739Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "b21999a0-303a-4388-9770-f6c9d2ac0c62",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Corevend Limited",
+      "amount": {
+        "value": -1.9,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T16:10:44Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "2a058710-0fa1-4700-ba29-332a621248d4",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Corevend Limited",
+      "amount": {
+        "value": -1.9,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T16:10:18Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "5039b62c-0ceb-45c7-a178-d62e8e720e66",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Corevend Limited",
+      "amount": {
+        "value": -1.7,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T16:09:36Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "b269572d-17e9-4b26-b684-68306a510dd0",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Corevend Limited",
+      "amount": {
+        "value": -1.9,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T16:09:12Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "747708b7-6fe0-4dfa-841d-3f60bb014239",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Banna Beach Leisure Club",
+      "amount": {
+        "value": -14,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T15:15:48Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.671Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "ac603e2a-ea04-40c7-871f-be8d6751f6c8",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Atom Bike Fixers",
+      "amount": {
+        "value": -50,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T14:07:47Z",
+      "category": {
+        "id": "5c5c0bbc-001e-8000-8000-000000000000",
+        "name": "Maintenance & repairs",
+        "group": {
+          "id": "housing",
+          "name": "Housing"
+        },
+        "color": "#F69743"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "581312f6-5be0-469d-92a1-ad6b0646c991",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "02208 To CE Vermaak",
+      "amount": {
+        "value": -174.26,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T13:48:54Z",
+      "category": {
+        "id": "5c5c1776-003c-8000-8000-000000000000",
+        "name": "Education & development",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.65Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "7f25d432-a3fa-41a9-a3ef-3addc9b0f574",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Fee for To CE Vermaak",
+      "amount": {
+        "value": -2.9,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T13:48:54Z",
+      "category": {
+        "id": "5c5c1776-003c-8000-8000-000000000000",
+        "name": "Education & development",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.693Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "25bd7219-28c6-4f8d-8214-ecfc43c70f5e",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Guillaume de Swardt To Dr Melissa S. Wylie",
+      "amount": {
+        "value": -6.65,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T13:46:01Z",
+      "category": {
+        "id": "5c5c1770-003c-8000-8000-000000000000",
+        "name": "Health care & doctor",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "88f42c37-3df9-47e6-a54a-8b5ead990a1a",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Fee for To Dr Melissa S. Wylie",
+      "amount": {
+        "value": -2.9,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T13:46:01Z",
+      "category": {
+        "id": "5c5c1770-003c-8000-8000-000000000000",
+        "name": "Health care & doctor",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "da9b23a5-5b36-43b7-94ef-c094a69f53f3",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lidl Ireland Ltd",
+      "amount": {
+        "value": -15.92,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T11:03:38Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.809Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "ab320aa7-7413-4c9b-b8ce-7e58a3d6b730",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Print Copy  Go",
+      "amount": {
+        "value": -0.8,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T10:41:25Z",
+      "category": {
+        "id": "5c5c07d8-0014-8000-8000-000000000000",
+        "name": "Stationery & tools",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "f7d26321-57c3-4570-b87e-eab9f975a06b",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Print Copy  Go",
+      "amount": {
+        "value": -1.6,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T10:39:07Z",
+      "category": {
+        "id": "5c5c07d8-0014-8000-8000-000000000000",
+        "name": "Stationery & tools",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.875Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "4320afeb-fff0-4182-87ac-09cea0592a88",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Pikup",
+      "amount": {
+        "value": -3.9,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T07:18:27Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.602Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "89c15d9e-d924-482a-8976-84933bc8cf65",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Amsterdam Vapes",
+      "amount": {
+        "value": -51,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-04T07:07:06Z",
+      "category": {
+        "id": "5c5c177b-003c-8000-8000-000000000000",
+        "name": "Alcohol, tobacco",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "48f19a91-2076-469e-8e3f-0a048e253087",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Shines Pharmacy",
+      "amount": {
+        "value": -35.95,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-03T16:16:19Z",
+      "category": {
+        "id": "5c5c07db-0014-8000-8000-000000000000",
+        "name": "Drugstore",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#4fC3F7"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "4424ff6a-fa25-4c7a-883c-8d1713dc56a3",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Sent from Revolut To Growing Minds",
+      "counterParty": "Growing Minds, IE20BOFI90583823326994",
+      "amount": {
+        "value": -444.34,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-03T15:50:40Z",
+      "category": {
+        "id": "5c5c1776-003c-8000-8000-000000000000",
+        "name": "Education & development",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:42.824Z",
+      "updatedAt": "2026-06-18T13:39:03.602Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "9a66a032-40c4-4ad4-8014-075f9c79360e",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Mr Price",
+      "amount": {
+        "value": -26.45,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-03T14:37:33Z",
+      "category": {
+        "id": "5c5c07da-0014-8000-8000-000000000000",
+        "name": "Shopping",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "660a7acd-f676-4560-9f1f-207559f7bfc3",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Print Copy  Go",
+      "amount": {
+        "value": -2.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-03T12:56:11Z",
+      "category": {
+        "id": "5c5c07d8-0014-8000-8000-000000000000",
+        "name": "Stationery & tools",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.65Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "1146d16d-631f-4069-be95-229a570a13d2",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lidl 0958 Tralee",
+      "amount": {
+        "value": -28.34,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-03T12:25:36Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.487Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "9551669a-ed63-48c8-8bc5-ba3e10148d7f",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Oakpark Pharmacy Tralee",
+      "amount": {
+        "value": -26.19,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-03T07:12:39Z",
+      "category": {
+        "id": "5c5c07db-0014-8000-8000-000000000000",
+        "name": "Drugstore",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#4fC3F7"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "cb0fca5c-10d2-4b1b-b408-dfec97d88d05",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Gala Oak Park",
+      "amount": {
+        "value": -7.45,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-02T17:47:50Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.782Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "d52bbaff-f35e-4c32-8323-481774f5e965",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Applegreen Tralee Food Co",
+      "amount": {
+        "value": -48.75,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-02T16:11:52Z",
+      "category": {
+        "id": "5c5c03eb-000a-8000-8000-000000000000",
+        "name": "Food & Drinks",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.809Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "75247fd5-cafb-40ff-93af-d72d9881f6a1",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Akira Asia Supermarket Akira Asia Supermar",
+      "amount": {
+        "value": -17,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-02T15:41:44Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.671Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "b0eea672-a8a8-4886-a9e0-36f9c9042bbf",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Lidl Ireland Ltd",
+      "amount": {
+        "value": -23.83,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-02T14:09:36Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "874613e3-ad10-43bd-afbd-5969fe50c85b",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Print Copy  Go",
+      "amount": {
+        "value": -2.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-02T13:18:19Z",
+      "category": {
+        "id": "5c5c07d8-0014-8000-8000-000000000000",
+        "name": "Stationery & tools",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.715Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "d985b047-3c2b-4fe6-b771-0d619f83138b",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "OWN ACCOUNT Payment from Mr Guillaume De Swardt",
+      "amount": {
+        "value": 600,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-02T06:03:10Z",
+      "category": {
+        "id": "5c5c271b-0064-8000-8000-000000000000",
+        "name": "Income",
+        "group": {
+          "id": "income",
+          "name": "Income"
+        },
+        "color": "#FFCD01"
+      },
+      "recordState": "cleared",
+      "recordType": "income",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.809Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "fa7dc16a-35d7-45dc-97d2-9b7df1c14217",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lb Retailing Limited",
+      "amount": {
+        "value": -11.98,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-01T18:03:46Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.875Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "a13748e4-52d2-47ba-819f-a2eb86aba9de",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lb Retailing Limited",
+      "amount": {
+        "value": -7.65,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-01T17:32:11Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.739Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "25e9d19f-9c89-4372-9a46-bb2077c99fe9",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Gala Oak Park",
+      "amount": {
+        "value": -10.6,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-01T13:36:25Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "cb843c34-05d1-4b1e-98eb-4bd9233a8260",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Shines Pharmacy",
+      "amount": {
+        "value": -34,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-01T07:47:37Z",
+      "category": {
+        "id": "5c5c07db-0014-8000-8000-000000000000",
+        "name": "Drugstore",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#4fC3F7"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.782Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "bd581e0c-fbf2-4375-ba99-6f08d491d3a5",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Dr Altaf Memon",
+      "amount": {
+        "value": -40,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-01T07:40:57Z",
+      "category": {
+        "id": "5c5c1770-003c-8000-8000-000000000000",
+        "name": "Health care & doctor",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "aadddf24-9fb8-4eb3-9f09-d0cc229c495f",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Dr.online",
+      "amount": {
+        "value": -45,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-06-01T06:13:11Z",
+      "category": {
+        "id": "5c5c1770-003c-8000-8000-000000000000",
+        "name": "Health care & doctor",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.76Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "a947f903-6e03-4465-a254-42773736e786",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Shines Pharmacy",
+      "amount": {
+        "value": -13.98,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-31T17:21:18Z",
+      "category": {
+        "id": "5c5c07db-0014-8000-8000-000000000000",
+        "name": "Drugstore",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#4fC3F7"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.739Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "d524c279-36de-4f2b-bc45-ade4057b18ed",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Il Pomo D Oro Restaurant",
+      "amount": {
+        "value": -82.9,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-31T16:31:59Z",
+      "category": {
+        "id": "5c5c03ea-000a-8000-8000-000000000000",
+        "name": "Bar cafe",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.782Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "227d6683-b3be-4e2f-8ff6-5643a48a4939",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Carryout Off License Carryout Off Licens",
+      "amount": {
+        "value": -24.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-31T11:34:04Z",
+      "category": {
+        "id": "5c5c177b-003c-8000-8000-000000000000",
+        "name": "Alcohol, tobacco",
+        "group": {
+          "id": "life_entertainment",
+          "name": "Life & Entertainment"
+        },
+        "color": "#85E029"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.576Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "3ed55ade-d524-4f30-8f3e-978c708f20a3",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Tkmaxx_ie",
+      "amount": {
+        "value": -35.95,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-31T11:17:14Z",
+      "category": {
+        "id": "5c5c07d4-0014-8000-8000-000000000000",
+        "name": "Home & garden",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.602Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "1eecff63-ca45-4e24-9b00-5f6709a6a05a",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Terrys Butchers",
+      "amount": {
+        "value": -10,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-31T09:38:23Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.548Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "477d2d5d-ef1d-4228-8dd8-0979cbeefa66",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Lidl Ireland Ltd",
+      "amount": {
+        "value": -28.7,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-30T09:45:38Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "edcda276-a148-468e-a0ba-1a8bb0097850",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Gala Oak Park",
+      "amount": {
+        "value": -5.5,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-29T16:16:57Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.875Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "6ac48eaa-98c9-4531-bb9b-f26c5a660144",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Amazon.ie",
+      "amount": {
+        "value": -22.07,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-29T15:48:37Z",
+      "category": {
+        "id": "5c5c07da-0014-8000-8000-000000000000",
+        "name": "Shopping",
+        "group": {
+          "id": "shopping",
+          "name": "Shopping"
+        },
+        "color": "#34BFF6"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.671Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "505beefd-97cf-459f-aae2-76396c624575",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Tesco Stores 3688",
+      "amount": {
+        "value": -10.63,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-29T10:56:21Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.629Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "c7626d61-0c6d-431a-95e4-0b2ba5503f00",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Kerry County Council",
+      "amount": {
+        "value": -0.6,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-29T10:29:24Z",
+      "category": {
+        "id": "5c5c1389-0032-8000-8000-000000000000",
+        "name": "Parking",
+        "group": {
+          "id": "vehicle",
+          "name": "Vehicle"
+        },
+        "color": "#4BB5C1"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.782Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "7c9f61fe-7656-4ca4-b485-77601f8c247b",
+      "accountId": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "note": "Gala Oak Park",
+      "amount": {
+        "value": -30,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-28T18:38:17Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:38.775Z",
+      "updatedAt": "2026-06-18T13:39:03.693Z",
+      "accountName": "Dorette - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "backend"
+    },
+    {
+      "id": "e778e0b5-b54c-41b7-ac8a-7e93a8739bfa",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Centra",
+      "amount": {
+        "value": -4,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-28T16:05:22Z",
+      "category": {
+        "id": "5c5c03e8-000a-8000-8000-000000000000",
+        "name": "Groceries",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.809Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    },
+    {
+      "id": "349ee5fe-25d9-497a-aa74-099b6421b33f",
+      "accountId": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "note": "Top Tralee",
+      "amount": {
+        "value": -2.36,
+        "currencyCode": "EUR"
+      },
+      "recordDate": "2026-05-28T15:08:41Z",
+      "category": {
+        "id": "5c5c03eb-000a-8000-8000-000000000000",
+        "name": "Food & Drinks",
+        "group": {
+          "id": "food_and_drinks",
+          "name": "Food & Drinks"
+        },
+        "color": "#E74C3C"
+      },
+      "recordState": "cleared",
+      "recordType": "expense",
+      "paymentType": "transfer",
+      "labels": [],
+      "createdAt": "2026-06-18T10:33:53.156Z",
+      "updatedAt": "2026-06-18T13:39:03.602Z",
+      "accountName": "Guillaume - Revolut EUR",
+      "accountIsBankSync": true,
+      "source": "web"
+    }
+  ]
+}

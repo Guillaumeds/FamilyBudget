@@ -1,0 +1,11 @@
+# Local OAuth credentials
+client_secret.json
+.clasprc.json
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Dependencies / editor state
+node_modules/
+.vscode/

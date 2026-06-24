@@ -1,0 +1,4 @@
+"path","types","examples"
+"_id","string","_design/security"
+"_rev","string","1-77754795eb80117a701ac788112581b5"
+"validate_doc_update","string","function(new_doc, old_doc, userCtx) { if (userCtx.name != 'b0ee4a3d-f3f3-4a44-9b49-d7a5a14f7a04' && userCtx.roles.indexO"

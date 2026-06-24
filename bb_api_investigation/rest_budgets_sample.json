@@ -1,0 +1,25 @@
+{
+  "budgets": [
+    {
+      "id": "b8d405c9-5def-4a8f-91e8-db5eaff8f0fd",
+      "closed": false,
+      "limit": 500,
+      "currencyCode": "EUR",
+      "labelIds": [
+        "7da4b2c4-c3e6-4c78-924f-f968b66ceb83"
+      ],
+      "name": "Groceries",
+      "createdAt": "2026-06-18T13:32:07.365Z",
+      "updatedAt": "2026-06-18T13:39:03.474Z",
+      "accountIds": [],
+      "categoryIds": [
+        "5c5c03e8-000a-8000-8000-000000000000"
+      ],
+      "type": "BUDGET_INTERVAL_WEEK",
+      "limitOverrides": [],
+      "pastLimitOverrides": []
+    }
+  ],
+  "limit": 10,
+  "offset": 0
+}

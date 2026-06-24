@@ -1,0 +1,17 @@
+{
+  "scriptId": "1iutsjpB5mfUhMk-1zGaeFcGZ0ST5MEGE2d7llx-ky1Av46hWgRcLYfiM",
+  "rootDir": "",
+  "projectId": "family-budget-script-499911",
+  "scriptExtensions": [
+    ".js",
+    ".gs"
+  ],
+  "htmlExtensions": [
+    ".html"
+  ],
+  "jsonExtensions": [
+    ".json"
+  ],
+  "filePushOrder": [],
+  "skipSubdirectories": false
+}

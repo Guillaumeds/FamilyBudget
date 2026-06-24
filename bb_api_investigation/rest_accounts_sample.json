@@ -1,0 +1,191 @@
+{
+  "accounts": [
+    {
+      "id": "6ca6f169-97af-4b83-9920-50087fee14e7",
+      "archived": false,
+      "color": "#26c6da",
+      "name": "Cash",
+      "createdAt": "2026-06-18T09:28:24.492Z",
+      "updatedAt": "2026-06-23T09:15:52.569Z",
+      "accountType": "Cash",
+      "initialBalance": {
+        "value": 0,
+        "currencyCode": "EUR"
+      },
+      "excludeFromStats": false,
+      "isBankSync": false,
+      "isInvestmentAccount": false,
+      "recordStats": {
+        "recordCount": 0,
+        "totalIncomes": 0,
+        "totalExpenses": 0
+      },
+      "balance": {
+        "initial": 0,
+        "currencyCode": "EUR",
+        "rawCurrentBalance": 0,
+        "currentBalance": 0,
+        "formula": "initial + totalIncomes - totalExpenses",
+        "balanceMode": "standard"
+      }
+    },
+    {
+      "id": "3e8313a7-c581-4184-a6dc-0bd39ef72402",
+      "archived": false,
+      "color": "#6d4c41",
+      "name": "Dorette - Revolut EUR",
+      "createdAt": "2026-06-18T10:33:32.014Z",
+      "updatedAt": "2026-06-23T10:09:25.606Z",
+      "accountType": "CurrentAccount",
+      "initialBalance": {
+        "value": 0,
+        "currencyCode": "EUR"
+      },
+      "excludeFromStats": false,
+      "bankAccountNumber": "36790914",
+      "isBankSync": true,
+      "isInvestmentAccount": false,
+      "recordStats": {
+        "recordCount": 277,
+        "recordDate": {
+          "min": "2026-04-04T06:46:06Z",
+          "max": "2026-06-22T13:49:50Z"
+        },
+        "createdAt": {
+          "min": "2026-06-18T10:33:32Z",
+          "max": "2026-06-23T09:27:50Z"
+        },
+        "totalIncomes": 85886.6,
+        "totalExpenses": 85525.23,
+        "lastUpdatedAt": "2026-06-23T10:09:25.648Z"
+      },
+      "balance": {
+        "initial": 0,
+        "currencyCode": "EUR",
+        "rawCurrentBalance": 361.3700000000099,
+        "currentBalance": 361.3700000000099,
+        "formula": "initial + totalIncomes - totalExpenses",
+        "balanceMode": "standard"
+      }
+    },
+    {
+      "id": "2b01e537-1052-4b73-8207-7570423e39f4",
+      "archived": false,
+      "color": "#AD1457",
+      "name": "Guillaume - Revolut EUR",
+      "createdAt": "2026-06-18T10:33:23.938Z",
+      "updatedAt": "2026-06-23T10:09:25.606Z",
+      "accountType": "CurrentAccount",
+      "initialBalance": {
+        "value": 13569.22,
+        "currencyCode": "EUR"
+      },
+      "excludeFromStats": false,
+      "bankAccountNumber": "56949858",
+      "isBankSync": true,
+      "isInvestmentAccount": false,
+      "recordStats": {
+        "recordCount": 463,
+        "recordDate": {
+          "min": "2026-03-20T07:00:57Z",
+          "max": "2026-06-23T07:41:50Z"
+        },
+        "createdAt": {
+          "min": "2026-06-18T10:33:24Z",
+          "max": "2026-06-23T09:27:50Z"
+        },
+        "totalIncomes": 33652.51,
+        "totalExpenses": 47192.43,
+        "lastUpdatedAt": "2026-06-23T10:09:25.648Z"
+      },
+      "balance": {
+        "initial": 13569.22,
+        "currencyCode": "EUR",
+        "rawCurrentBalance": 29.30000000000291,
+        "currentBalance": 29.30000000000291,
+        "formula": "initial + totalIncomes - totalExpenses",
+        "balanceMode": "standard"
+      }
+    },
+    {
+      "id": "0cb2a46a-a6ba-45f9-b631-2812a6c7eff1",
+      "archived": false,
+      "color": "#455A64",
+      "name": "Guillaume - Revolut ZAR",
+      "createdAt": "2026-06-18T10:33:23.938Z",
+      "updatedAt": "2026-06-23T10:09:25.606Z",
+      "accountType": "CurrentAccount",
+      "initialBalance": {
+        "value": 0,
+        "currencyCode": "ZAR"
+      },
+      "excludeFromStats": false,
+      "bankAccountNumber": "56949858",
+      "isBankSync": true,
+      "isInvestmentAccount": false,
+      "recordStats": {
+        "recordCount": 10,
+        "recordDate": {
+          "min": "2026-06-08T12:33:54Z",
+          "max": "2026-06-22T09:13:12Z"
+        },
+        "createdAt": {
+          "min": "2026-06-18T10:33:45Z",
+          "max": "2026-06-23T09:27:52Z"
+        },
+        "totalIncomes": 18830.94,
+        "totalExpenses": 15380.43,
+        "lastUpdatedAt": "2026-06-23T10:09:25.648Z"
+      },
+      "balance": {
+        "initial": 0,
+        "currencyCode": "ZAR",
+        "rawCurrentBalance": 3450.5099999999984,
+        "currentBalance": 3450.5099999999984,
+        "formula": "initial + totalIncomes - totalExpenses",
+        "balanceMode": "standard"
+      }
+    },
+    {
+      "id": "8d510777-2aa9-4505-bf51-4537c2abfd14",
+      "archived": false,
+      "color": "#d32f2f",
+      "name": "Joint Savings EUR",
+      "createdAt": "2026-06-18T10:33:23.938Z",
+      "updatedAt": "2026-06-23T10:09:25.606Z",
+      "accountType": "CurrentAccount",
+      "initialBalance": {
+        "value": 0,
+        "currencyCode": "EUR"
+      },
+      "excludeFromStats": false,
+      "bankAccountNumber": "47484278",
+      "isBankSync": true,
+      "isInvestmentAccount": false,
+      "recordStats": {
+        "recordCount": 2,
+        "recordDate": {
+          "min": "2026-06-18T09:15:24Z",
+          "max": "2026-06-23T07:41:50Z"
+        },
+        "createdAt": {
+          "min": "2026-06-18T10:33:33Z",
+          "max": "2026-06-23T09:27:54Z"
+        },
+        "totalIncomes": 25476.87,
+        "totalExpenses": 0,
+        "lastUpdatedAt": "2026-06-23T10:09:25.648Z"
+      },
+      "balance": {
+        "initial": 0,
+        "currencyCode": "EUR",
+        "rawCurrentBalance": 25476.87,
+        "currentBalance": 25476.87,
+        "formula": "initial + totalIncomes - totalExpenses",
+        "balanceMode": "standard"
+      }
+    }
+  ],
+  "limit": 10,
+  "offset": 0
+}
