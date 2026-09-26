@@ -11,6 +11,7 @@ import {
 	AI_DISABLED_REPLY,
 	HELP_REPLY,
 	type InboundMessage,
+	PENDING_APPROVAL_REPLY,
 	handleWebhookGet,
 	handleWebhookPost,
 	processWebhookPayload,
@@ -396,7 +397,25 @@ describe('processWebhookPayload: household routing', () => {
 	beforeEach(async () => {
 		await setSettings(HH2, { whatsapp_to_numbers: BOB, dry_run: '0', stale_seconds: '300' });
 		await replaceRecipients(db, 2, [BOB]);
+		// These tests exercise routing isolation, so household 2 is owner-approved here; the
+		// unapproved case has its own test below.
+		await updateHousehold(db, 2, { waApproved: 1 });
 		vi.mocked(buildDailyBriefText).mockImplementation(async (t) => `BRIEF of household ${t.hid}`);
+	});
+
+	it('replies with the pending-approval notice (and nothing else) while the household is unapproved', async () => {
+		await updateHousehold(db, 2, { waApproved: 0 });
+		const spy = mockGraph();
+		const payload = payloadWith({
+			messages: [{ from: BOB.slice(1), id: 'wamid.PEND', timestamp: String(NOW_S - 5), type: 'text', text: { body: 'Budget' } }],
+		});
+		await processWebhookPayload(waEnv, db, payload, NOW);
+
+		expect(vi.mocked(buildDailyBriefText)).not.toHaveBeenCalled();
+		const sent = spy.mock.calls.map(([, init]) => JSON.parse(String((init as RequestInit).body)));
+		expect(sent).toHaveLength(1);
+		expect(sent[0].text.body).toBe(PENDING_APPROVAL_REPLY);
+		expect(await getMessageLogByWaId(db, 'wamid.PEND')).toMatchObject({ status: 'COMPLETED', errorCode: 'ERR_NOT_APPROVED', householdId: 2 });
 	});
 
 	it("routes each sender to its own household (brief, window key, message_log)", async () => {

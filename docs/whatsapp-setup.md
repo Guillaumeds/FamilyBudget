@@ -4,6 +4,8 @@ This guide connects Wallet Budget Companion to the **WhatsApp Cloud API**. Once 
 
 WhatsApp is optional. The dashboard and sync work without it.
 
+The WhatsApp sender belongs to the whole deployment: the **owner** sets it up once (steps 1–8), and every household's brief goes out from that number. Each household then configures its own recipients (step 9), and its brief only starts once the owner has approved the household in the owner console.
+
 Meta changes its dashboards often. The steps below were checked against Meta's documentation in September 2026, and each section links the official page. If a menu name differs from what you see, the linked page is authoritative.
 
 **You will end up with four secrets and a few settings:**
@@ -14,7 +16,8 @@ Meta changes its dashboards often. The steps below were checked against Meta's d
 | Worker secret | `WHATSAPP_PHONE_NUMBER_ID` | API Setup panel (step 4) |
 | Worker secret | `META_APP_SECRET` | App settings → Basic (step 5) |
 | Worker secret | `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | Any random string you choose (step 6) |
-| Dashboard setting | `whatsapp_to_numbers`, `wa_template_name`, `wa_template_lang`, `whatsapp_enabled`, `dry_run` | Steps 7–9 |
+| Owner console (global setting) | `wa_template_name`, `wa_template_lang` | Steps 8–9 |
+| Household setting | `whatsapp_to_numbers`, `whatsapp_enabled`, `dry_run` | Step 9 |
 
 Set the secrets with `npm run setup` (it offers the WhatsApp secrets, and can generate the verify token) or one at a time:
 
@@ -100,7 +103,7 @@ If no events arrive after you switch to a real WhatsApp Business Account, check 
 
 Meta retries failed webhook deliveries for up to 7 days ([Webhooks overview](https://developers.facebook.com/documentation/business-messaging/whatsapp/webhooks/overview)). The Worker answers `200` immediately, does the work in the background, and ignores duplicates by message ID. It also ignores messages older than the `stale_seconds` setting (default 300), so a burst of retries after an outage doesn't produce a burst of replies.
 
-**Only numbers listed in the `whatsapp_to_numbers` setting may talk to the bot.** Messages from any other number are logged as `IGNORED_SENDER` and never answered. An empty list allows nobody.
+**Only numbers listed in some household's `whatsapp_to_numbers` setting may talk to the bot.** The webhook uses the sender's number to find the household, so a number can belong to one household only. Messages from any other number, or to a suspended household, are logged as `IGNORED_SENDER` and never answered. An empty list allows nobody.
 
 ## 7. The 24-hour window, and why you need a template
 
@@ -176,10 +179,15 @@ Notes:
 
 ## 9. Configure the app and test safely
 
-In the dashboard, open **Settings** (or the WhatsApp step of the setup wizard):
+As the owner (login name `owner`), open the **owner console**:
 
-1. **Recipients** (`whatsapp_to_numbers`): international format with `+`, comma-separated, e.g. `+15550100001,+15550100002`. These numbers receive the brief, and they are the only ones allowed to use the bot.
-2. **Template name / language** (`wa_template_name`, `wa_template_lang`): exactly as approved, e.g. `daily_budget_update` / `en`. The language code must match the template's language (`en` is not the same as `en_US`).
+- **Template name / language** (`wa_template_name`, `wa_template_lang`): exactly as approved, e.g. `daily_budget_update` / `en`. The language code must match the template's language (`en` is not the same as `en_US`). These are shared by every household.
+- **Approve WhatsApp** for each household that should get the brief. Until then its brief is skipped as "pending owner approval".
+
+Then, in the household's dashboard, open **Settings** (or the WhatsApp step of the setup wizard):
+
+1. **Recipients** (`whatsapp_to_numbers`): international format with `+`, comma-separated, e.g. `+15550100001,+15550100002`. These numbers receive the brief, and they are the only ones allowed to use the bot. A number another household already uses is rejected.
+2. Check that the WhatsApp step shows the household as approved.
 3. **Brief hour** (`brief_hour_local`) and **timezone**.
 4. Turn on **WhatsApp** (`whatsapp_enabled`).
 5. Leave **dry run** (`dry_run`) **on** at first. Briefs and replies are then built and written to the message log with status `DRY_RUN`, but not sent. Compare them with the dashboard's **Brief** page, which shows the exact text and the template parameters. The log is under **Settings → Logs**.
@@ -204,7 +212,8 @@ Other symptoms:
 - **Webhook verification fails**: the Worker isn't deployed, `WHATSAPP_WEBHOOK_VERIFY_TOKEN` isn't set, or it differs from the value typed in Meta's form.
 - **Messages arrive at Meta but the bot never answers**:
   - The run log shows `META_APP_SECRET is not set` or rejected signatures: check the app secret.
-  - It shows `IGNORED_SENDER`: add the number to `whatsapp_to_numbers`.
+  - It shows `IGNORED_SENDER`: add the number to a household's `whatsapp_to_numbers`, and check that the household isn't suspended.
   - Also make sure the `messages` field is subscribed.
-- **"Free-text questions are disabled"**: Claude Q&A needs both the `ANTHROPIC_API_KEY` secret and the `ai_enabled` setting.
+- **"Free-text questions are disabled"**: turn on the household's `ai_enabled` setting. Claude Q&A also needs the household's own Anthropic API key (setup wizard, or **Settings → Connections**); without one, the bot replies with a hint to add it.
+- **The brief is skipped with "pending owner approval"**: the owner has to approve WhatsApp for the household in the owner console.
 - **Test number send fails with "recipient not in allowed list"**: add the recipient in API Setup (step 2).

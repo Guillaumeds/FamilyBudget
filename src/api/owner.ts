@@ -16,7 +16,7 @@ import { encryptSecret, pbkdf2Hash } from '../lib/crypto';
 import { type AuthResult, MIN_PASSWORD_LENGTH } from './auth';
 import { HttpError, errorJson, intParam, json, readJsonObject } from './http';
 
-/** Env plus TOKEN_ENCRYPTION_KEY (not yet part of src/env.d.ts). */
+/** Alias kept for readability; TOKEN_ENCRYPTION_KEY is declared in src/env.d.ts. */
 export type OwnerEnv = Env & { TOKEN_ENCRYPTION_KEY?: string };
 export type OwnerParams = Record<string, string>;
 export type OwnerHandler = (request: Request, env: OwnerEnv, auth: AuthResult, params?: OwnerParams) => Promise<Response>;

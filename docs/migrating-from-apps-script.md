@@ -20,11 +20,12 @@ Nothing personal needs to be committed anywhere. Targets and history travel as C
 
 ## 1. Deploy and run the wizard
 
-Follow the [Quickstart](../README.md#quickstart): `npm install`, `npm run setup`, then open the Worker URL.
+Follow the [Quickstart](../README.md#quickstart): `npm install`, `npm run setup`, then open the Worker URL and log in as household **`guillaume`** with your `DASHBOARD_PASSWORD`. That first login makes it the household's password. Your family's data will live in this household.
 
-- You can reuse the secrets the old script used (its Script Properties): the Wallet token, WhatsApp token and phone number ID.
+- You can reuse the secrets the old script used (its Script Properties). The WhatsApp token and phone number ID go into `npm run setup`. The Wallet token is pasted in the wizard's first step instead.
 - The old script also used a webhook verify token. You can reuse it as `WHATSAPP_WEBHOOK_VERIFY_TOKEN` or create a new one. You'll re-enter it in Meta in step 7 anyway.
-- The old Claude agent/vault properties (`CLAUDE_AGENT_ID`, `CLAUDE_ENV_ID`, …) are **not** needed. The Worker calls the Messages API directly with `ANTHROPIC_API_KEY`.
+- The old Claude agent/vault properties (`CLAUDE_AGENT_ID`, `CLAUDE_ENV_ID`, …) are **not** needed. The Worker calls the Messages API directly with an Anthropic API key that you paste in the wizard (or later in **Settings → Connections**).
+- Household `guillaume` is approved for WhatsApp from the start. Households that sign up later need the owner's approval.
 
 In the wizard, match the old configuration:
 
@@ -38,6 +39,23 @@ In the wizard, match the old configuration:
 | First year of transactions in the Sheet | `sync_backfill_from` (**History starts on**) |
 
 **Keep `dry_run` on and `whatsapp_enabled` off for now.** The old script is still the one sending messages.
+
+When the household works, give the owner its own password: set `DASHBOARD_PASSWORD` to a new value that is **different** from the household's password (`npx wrangler secret put DASHBOARD_PASSWORD`). The household keeps the password it adopted, and the new value only opens the owner console (login name `owner`). The Worker logs a warning while the two are the same.
+
+### Upgrading a single-household Worker
+
+If you already ran an earlier, single-household version of this Worker, deploying the current version (`npm run setup`, or the GitHub deploy workflow) applies migrations `0002` and `0003`, which move all your data into household 1, `guillaume`. Take a backup first: `npx wrangler d1 export wallet-budget-companion --remote --output backup.sql`. Then:
+
+1. Add the new secrets before deploying: `npx wrangler secret put TOKEN_ENCRYPTION_KEY` (base64 of 32 random bytes, e.g. `openssl rand -base64 32`; `npm run setup` can generate it) and optionally `TURNSTILE_SECRET` (see the README's [secrets table](../README.md#secrets)).
+2. Log in again (the old session cookies are no longer valid) as household `guillaume` with your existing `DASHBOARD_PASSWORD`. That password becomes the household's password.
+3. Your `WALLET_API_TOKEN` and `ANTHROPIC_API_KEY` Worker secrets are encrypted into household 1 the first time they are used (the Wallet token at the next hourly sync, the Anthropic key at the next Claude question), or right away with **Adopt env secrets** in the owner console. Check that the owner console's household list shows the Wallet and AI keys as stored for `guillaume` (the household's **Settings → Connections** already says "configured" while the key is only in the Worker secret, so it doesn't prove the adoption), or look for the "Adopted the … Worker secret" entry in the household's logs. Then delete them:
+
+   ```sh
+   npx wrangler secret delete WALLET_API_TOKEN
+   npx wrangler secret delete ANTHROPIC_API_KEY
+   ```
+
+4. Rotate `DASHBOARD_PASSWORD` to a distinct, owner-only value, as described above.
 
 ## 2. FX backfill and full sync
 
@@ -66,7 +84,7 @@ Then open **Settings → Import CSV** in the dashboard and upload it as *budget 
 ```sh
 # log in once (stores the session cookie), then upload
 curl -c cookies.txt -H "Content-Type: application/json" \
-  -d '{"password":"<DASHBOARD_PASSWORD>"}' https://<your-worker>/api/auth/login
+  -d '{"household":"guillaume","password":"<your household password>"}' https://<your-worker>/api/auth/login
 curl -b cookies.txt -H "Content-Type: text/csv" --data-binary @budget.csv \
   https://<your-worker>/api/admin/import/budgets
 ```
@@ -160,7 +178,7 @@ With `dry_run` still on:
 1. Open the dashboard's **Brief** page. It renders exactly the text and template parameters that would be sent today.
 2. Compare it with the brief the old script sent this morning: yesterday's expenses, overall spent/remaining/forecast, and the per-category lines you marked *Include in Report*.
 3. Differences usually come from targets or flags that differ, from FX, or from records edited in Wallet after the Sheet's last refresh.
-4. Optionally set up WhatsApp now (recipients, template name and language; see [whatsapp-setup.md](whatsapp-setup.md)), turn on `whatsapp_enabled` and press **Send brief now**. With dry run on, this only writes to **Settings → Logs**.
+4. Optionally set up WhatsApp now (recipients in Settings; the template name and language in the owner console; see [whatsapp-setup.md](whatsapp-setup.md)), turn on `whatsapp_enabled` and press **Send brief now**. With dry run on, this only writes to **Settings → Logs**.
 
 ## 7. Point the Meta webhook at the Worker
 

@@ -46,7 +46,7 @@ export const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile
 const ACTION = 'auth';
 const encoder = new TextEncoder();
 
-/** Env plus the Turnstile secret/site key (not yet part of src/env.d.ts). */
+/** Alias kept for readability; the Turnstile secret/site key are declared in src/env.d.ts. */
 export type AuthEnv = Env & {
 	TURNSTILE_SECRET?: string;
 	TURNSTILE_SITE_KEY?: string;

@@ -7,19 +7,22 @@
  *   2. D1          — create the `wallet-budget-companion` database (or reuse it) and write its id
  *                    into wrangler.jsonc.
  *   3. Migrations  — `wrangler d1 migrations apply wallet-budget-companion --remote`.
- *   4. Secrets     — `wrangler secret put <NAME>`, value piped through stdin.
+ *   4. Secrets     — `wrangler secret put <NAME>`, value piped through stdin. Only deployment-wide
+ *                    secrets: each household pastes its own BudgetBakers token (and, optionally, its
+ *                    own Anthropic key) in the dashboard's setup wizard, stored encrypted in D1.
  *   5. Deploy      — `wrangler deploy`, then print the workers.dev URL.
- *   6. Next steps.
+ *   6. Next steps (first login, owner console, optional task queue).
  *
  * Flags:
- *   --yes    Non-interactive where possible: keep existing secrets, generate SESSION_SECRET, skip
- *            optional secrets unless they are set as environment variables of the same name.
+ *   --yes    Non-interactive where possible: keep existing secrets, generate SESSION_SECRET and
+ *            TOKEN_ENCRYPTION_KEY, skip optional secrets unless they are set as environment variables
+ *            of the same name.
  *   --local  Local development only: create .dev.vars from .dev.vars.example and apply the migrations
  *            to the local D1 database. Needs no Cloudflare login.
  *   --help   Show this help.
  *
  * Any secret can also be supplied as an environment variable with the same name
- * (e.g. `WALLET_API_TOKEN=... npm run setup -- --yes`); it is then used without prompting.
+ * (e.g. `DASHBOARD_PASSWORD=... npm run setup -- --yes`); it is then used without prompting.
  *
  * No dependencies: node:readline, node:child_process, node:fs, node:crypto only.
  */
@@ -44,22 +47,24 @@ const YES = args.has('--yes') || args.has('-y');
 const LOCAL = args.has('--local');
 const INTERACTIVE = Boolean(process.stdin.isTTY);
 
+// `generate`: 'hex' | 'base64' — offer a random 32-byte value in that encoding.
 const SECRETS = [
-	{
-		name: 'WALLET_API_TOKEN',
-		required: true,
-		help: 'BudgetBakers Wallet REST API token: open the Wallet web app → Settings → REST API and create a token (Premium plan required).',
-	},
 	{
 		name: 'DASHBOARD_PASSWORD',
 		required: true,
-		help: 'Password for the web dashboard login. Choose a long one — the dashboard is on the public internet.',
+		help: 'Owner password: log in with the name "owner" to reach the owner console (approve WhatsApp, suspend households, reset passwords). On a fresh install it also opens the first household, "guillaume", once. Choose a long one — the dashboard is on the public internet.',
 	},
 	{
 		name: 'SESSION_SECRET',
 		required: true,
-		generate: true,
+		generate: 'hex',
 		help: 'Random key that signs dashboard session cookies. Best generated.',
+	},
+	{
+		name: 'TOKEN_ENCRYPTION_KEY',
+		required: true,
+		generate: 'base64',
+		help: 'AES-256 key (base64 of 32 random bytes) that encrypts each household\'s BudgetBakers token and Anthropic key in D1. Best generated. Keep it: replacing it makes the stored tokens unreadable, and every household must paste them again.',
 	},
 	{
 		name: 'WHATSAPP_ACCESS_TOKEN',
@@ -74,7 +79,7 @@ const SECRETS = [
 	{
 		name: 'WHATSAPP_WEBHOOK_VERIFY_TOKEN',
 		group: 'whatsapp',
-		generate: true,
+		generate: 'hex',
 		help: 'Any random string. Paste the same value into the "Verify token" field of the Meta webhook configuration.',
 	},
 	{
@@ -83,9 +88,9 @@ const SECRETS = [
 		help: 'Meta App secret (App Dashboard → App settings → Basic). Used to verify webhook signatures; without it the webhook rejects every message.',
 	},
 	{
-		name: 'ANTHROPIC_API_KEY',
-		group: 'ai',
-		help: 'Anthropic API key (console.anthropic.com) for the optional Claude Q&A over WhatsApp.',
+		name: 'TURNSTILE_SECRET',
+		group: 'turnstile',
+		help: 'Cloudflare Turnstile secret key for the signup page (dashboard → Turnstile → Add widget). Also put the widget\'s site key in wrangler.jsonc → vars → TURNSTILE_SITE_KEY and redeploy. Without Turnstile, signups still work but without a CAPTCHA; you can close signups in the owner console.',
 	},
 ];
 
@@ -282,6 +287,8 @@ function existingSecrets() {
 }
 
 async function setSecrets() {
+	info('The BudgetBakers token and the Anthropic key are not asked here: each household pastes its own');
+	info('in the dashboard setup wizard, and they are stored encrypted in D1 (TOKEN_ENCRYPTION_KEY).');
 	const existing = existingSecrets();
 	const groups = {};
 	const skipped = [];
@@ -299,7 +306,10 @@ async function setSecrets() {
 		// Optional features are offered once per group.
 		if (secret.group && !fromEnv) {
 			if (groups[secret.group] === undefined) {
-				const label = secret.group === 'whatsapp' ? 'the WhatsApp daily brief (needs a Meta app — see docs/whatsapp-setup.md)' : 'Claude Q&A over WhatsApp';
+				const label =
+					secret.group === 'whatsapp'
+						? 'the WhatsApp daily brief (needs a Meta app — see docs/whatsapp-setup.md)'
+						: 'Cloudflare Turnstile (a CAPTCHA on the public signup page)';
 				groups[secret.group] = YES ? false : await confirm(`Set up ${label} now? You can also do it later.`, false);
 			}
 			if (!groups[secret.group]) {
@@ -312,7 +322,7 @@ async function setSecrets() {
 		let value = fromEnv;
 		if (value) info(`Using ${name} from the environment.`);
 		else if (secret.generate && (await confirm('Generate a random value?', true))) {
-			value = randomBytes(32).toString('hex');
+			value = randomBytes(32).toString(secret.generate);
 			if (name === 'WHATSAPP_WEBHOOK_VERIFY_TOKEN') info(`Generated. Paste this into Meta's "Verify token" field: ${bold(value)}`);
 			else ok('Generated a random value.');
 		} else if (INTERACTIVE) value = await askSecret(`Enter ${name}:`);
@@ -361,19 +371,33 @@ ${bold('⚠ Secrets NOT set during this run')} — the matching features stay of
 ${skipped.map((name) => `     npx wrangler secret put ${name}`).join('\n')}
    (Each command prompts for the value and activates it immediately — no redeploy needed.
     WHATSAPP_* and META_APP_SECRET are needed for the daily brief and inbound messages;
-    ANTHROPIC_API_KEY only for Claude Q&A.)`);
+    TURNSTILE_SECRET only for the CAPTCHA on the signup page.)`);
 	}
 	console.log(`
 ${bold('Done! Next steps')}
 
-  1. Open ${bold(base)} and log in with your DASHBOARD_PASSWORD.
-  2. The first-run setup wizard walks you through: testing the Wallet connection, timezone /
-     base currency / budget-month start day, the historical backfill, and (optionally) WhatsApp.
+  1. Open ${bold(base)} and log in as household ${bold('guillaume')} with your DASHBOARD_PASSWORD.
+     Every database starts with that one household, and its first login adopts whatever
+     password matches DASHBOARD_PASSWORD as its own. Do this once, right away. Then either
+     keep using it (and give it its own password: owner console → Reset password), or create
+     your real household with "Sign up" and suspend "guillaume" in the owner console.
+  2. In a household, the setup wizard asks for its BudgetBakers Wallet token (Wallet web app →
+     Settings → REST API, Premium), timezone / base currency / budget-month start day, runs the
+     historical backfill, and optionally sets up WhatsApp and the household's own Anthropic key.
      Right after a Wallet token is created BudgetBakers runs an initial sync; if the wizard says
      so, wait a few minutes and retry.
-  3. WhatsApp daily brief: follow docs/whatsapp-setup.md. Your webhook URL is
+  3. Owner console: log in with the name ${bold('owner')} and your DASHBOARD_PASSWORD. There you approve
+     WhatsApp per household (briefs are sent from your Meta number), suspend households, reset
+     passwords, close signups and set the shared message template.
+  4. WhatsApp daily brief: follow docs/whatsapp-setup.md. Your webhook URL is
      ${bold(`${base}/webhook`)}
-  4. Optional — deploy automatically from GitHub on every push to main. In your repository's
+  5. Optional — per-household task queue. Without it, the hourly cron runs every household's
+     sync / brief / capture inline, one after another, which is fine for a handful of households.
+     To give each household its own queued run (see the comment in wrangler.jsonc):
+       npx wrangler queues create household-tasks
+       npx wrangler queues create household-tasks-dlq
+     then uncomment the "queues" block in wrangler.jsonc and redeploy (npm run deploy).
+  6. Optional — deploy automatically from GitHub on every push to main. In your repository's
      Settings → Secrets and variables → Actions, add:
        • variable CLOUDFLARE_ACCOUNT_ID  (your Cloudflare account id)
        • secret   CLOUDFLARE_API_TOKEN   (token from the "Edit Cloudflare Workers" template, plus D1: Edit)
@@ -386,11 +410,12 @@ function setupLocal() {
 	if (existsSync(DEV_VARS)) {
 		ok('.dev.vars already exists — leaving it untouched.');
 	} else {
-		const sessionSecret = randomBytes(32).toString('hex');
-		const text = readFileSync(DEV_VARS_EXAMPLE, 'utf8').replace(/^SESSION_SECRET=$/m, `SESSION_SECRET=${sessionSecret}`);
+		const text = readFileSync(DEV_VARS_EXAMPLE, 'utf8')
+			.replace(/^SESSION_SECRET=$/m, `SESSION_SECRET=${randomBytes(32).toString('hex')}`)
+			.replace(/^TOKEN_ENCRYPTION_KEY=$/m, `TOKEN_ENCRYPTION_KEY=${randomBytes(32).toString('base64')}`);
 		writeFileSync(DEV_VARS, text);
-		ok('Created .dev.vars from .dev.vars.example (with a generated SESSION_SECRET).');
-		info(`Fill in at least ${bold('WALLET_API_TOKEN')} and ${bold('DASHBOARD_PASSWORD')}.`);
+		ok('Created .dev.vars from .dev.vars.example (with a generated SESSION_SECRET and TOKEN_ENCRYPTION_KEY).');
+		info(`Fill in at least ${bold('DASHBOARD_PASSWORD')}. The Wallet token is pasted in the dashboard's setup wizard.`);
 	}
 
 	step('Local D1 database');
@@ -398,6 +423,8 @@ function setupLocal() {
 
 	console.log(`
 ${bold('Done!')} Start the dev server with ${bold('npm run dev')} and open the URL it prints.
+Log in as household ${bold('guillaume')} with your DASHBOARD_PASSWORD (its first login adopts it), sign up a
+new household, or use the name ${bold('owner')} for the owner console.
 While it runs, trigger the hourly cron with
 ${bold('curl "http://localhost:8787/cdn-cgi/local/scheduled?cron=0+*+*+*+*"')}.
 `);
@@ -412,7 +439,8 @@ function printHelp() {
   --local     Only prepare local development (.dev.vars + local D1). No Cloudflare login needed.
   --help, -h  Show this help.
 
-Secrets: ${SECRETS.map((secret) => secret.name).join(', ')}`);
+Secrets: ${SECRETS.map((secret) => secret.name).join(', ')}
+(Each household's BudgetBakers token and Anthropic key are pasted in the dashboard wizard, not here.)`);
 }
 
 // ---------------------------------------------------------------------------------------------

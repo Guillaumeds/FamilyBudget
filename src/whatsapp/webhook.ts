@@ -32,6 +32,7 @@ const LOG_BODY_MAX_CHARS = 4000;
 
 export const HELP_REPLY = 'Send *Budget* for the daily brief, or ask a question about your budget.';
 export const AI_DISABLED_REPLY = 'I can send the daily brief — reply *Budget*. Free-text questions are disabled.';
+export const PENDING_APPROVAL_REPLY = 'This household is waiting for the site owner to approve WhatsApp messaging. You can keep using the web dashboard meanwhile.';
 export function codedErrorReply(code: string): string {
 	return `⚠️ Something went wrong (${code}). Please try again.`;
 }
@@ -300,7 +301,12 @@ async function handleInboundMessage(
 	try {
 		let reply: string;
 		let resultCode: string | null = null;
-		if (!text.trim()) {
+		if (context.household.waApproved !== 1) {
+			// Replies go out from the deployment owner's WhatsApp number, so they are gated by the same
+			// owner approval as the daily brief. One polite pointer instead of silence.
+			reply = PENDING_APPROVAL_REPLY;
+			resultCode = 'ERR_NOT_APPROVED';
+		} else if (!text.trim()) {
 			reply = HELP_REPLY;
 			resultCode = 'ERR_UNSUPPORTED_MESSAGE';
 		} else if (text.trim().toLowerCase() === 'budget') {

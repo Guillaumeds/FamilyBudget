@@ -1,12 +1,28 @@
 # Local secrets for `wrangler dev` and tests. Copy to `.dev.vars` (git-ignored) and fill in.
 # In production set each one with `wrangler secret put <NAME>` (or `npm run setup`).
-# Only WALLET_API_TOKEN, DASHBOARD_PASSWORD and SESSION_SECRET are needed for the dashboard + sync;
-# WhatsApp and Claude features switch on only when their secrets (and settings flags) are present.
+# Only DASHBOARD_PASSWORD, SESSION_SECRET and TOKEN_ENCRYPTION_KEY are needed for the dashboard + sync;
+# WhatsApp and Turnstile switch on only when their secrets (and settings flags) are present.
+#
+# The BudgetBakers Wallet token and the Anthropic API key are no longer secrets: each household pastes
+# its own in the dashboard (setup wizard, or Settings -> Connections), stored encrypted in D1.
+# The old WALLET_API_TOKEN / ANTHROPIC_API_KEY secrets are only read for household 1, which adopts
+# them on first use (upgrade path for single-household installs) - leave them out.
 
-# BudgetBakers Wallet REST API token (Wallet web app -> Settings -> REST API; Premium plan required).
-WALLET_API_TOKEN=
+# Owner password: log in with the name "owner" for the owner console. On a fresh database it also
+# opens household "guillaume" the first time (that household adopts it as its password).
+DASHBOARD_PASSWORD=
+# Random string (32+ bytes) used to sign dashboard session cookies, e.g. `openssl rand -base64 32`.
+SESSION_SECRET=
+# AES-256 key for the per-household secrets stored in D1: base64 of exactly 32 random bytes,
+# e.g. `openssl rand -base64 32`. Changing it makes the stored tokens unreadable.
+TOKEN_ENCRYPTION_KEY=
 
-# WhatsApp Cloud API (Meta for Developers -> your app -> WhatsApp -> API Setup).
+# Cloudflare Turnstile secret key for the signup page (optional). Pair it with the widget's site key in
+# wrangler.jsonc -> vars -> TURNSTILE_SITE_KEY. Empty = signups work without a CAPTCHA.
+TURNSTILE_SECRET=
+
+# WhatsApp Cloud API (Meta for Developers -> your app -> WhatsApp -> API Setup). One sender for the
+# whole deployment; every household's brief goes out from this number.
 # Permanent System User access token with whatsapp_business_messaging permission.
 WHATSAPP_ACCESS_TOKEN=
 # Phone number ID of the sending business number (not the phone number itself).
@@ -15,11 +31,3 @@ WHATSAPP_PHONE_NUMBER_ID=
 WHATSAPP_WEBHOOK_VERIFY_TOKEN=
 # Meta app secret (App settings -> Basic); used to verify the X-Hub-Signature-256 webhook header.
 META_APP_SECRET=
-
-# Anthropic API key for the optional Claude Q&A over WhatsApp.
-ANTHROPIC_API_KEY=
-
-# Password for the web dashboard login form.
-DASHBOARD_PASSWORD=
-# Random string (32+ bytes) used to sign dashboard session cookies, e.g. `openssl rand -base64 32`.
-SESSION_SECRET=
