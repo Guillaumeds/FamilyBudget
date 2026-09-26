@@ -1,0 +1,22 @@
+{
+	"name": "wallet-budget-companion",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Budget tracking, a web dashboard and a daily WhatsApp brief on top of BudgetBakers Wallet — a Cloudflare Worker.",
+	"license": "MIT",
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy",
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit && tsc --noEmit -p test",
+		"cf-typegen": "wrangler types",
+		"setup": "node scripts/setup.mjs"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-plugin": "^1.2.8",
+		"typescript": "^7.0.2",
+		"vitest": "~4.1.11",
+		"wrangler": "^4.141.0"
+	}
+}

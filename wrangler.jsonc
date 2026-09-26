@@ -1,0 +1,44 @@
+/**
+ * Wrangler configuration — https://developers.cloudflare.com/workers/wrangler/configuration/
+ * After changing bindings or vars, regenerate types with `npm run cf-typegen`.
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "wallet-budget-companion",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-09-25",
+	"observability": {
+		"enabled": true,
+	},
+
+	// One hourly UTC cron. Everything local-time based (daily brief, cash-flow capture, weekly full
+	// re-sync) is dispatched in code from the `timezone` setting, which keeps it DST-safe.
+	"triggers": {
+		"crons": ["0 * * * *"],
+	},
+
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "wallet-budget-companion",
+			// Replaced by `npm run setup` (or paste the id printed by `wrangler d1 create wallet-budget-companion`).
+			"database_id": "REPLACE_WITH_D1_DATABASE_ID",
+			"migrations_dir": "migrations",
+		},
+	],
+
+	// Dashboard static files. The Worker only runs first for the API and the WhatsApp webhook;
+	// every other path is served straight from ./public.
+	"assets": {
+		"directory": "./public",
+		"binding": "ASSETS",
+		"run_worker_first": ["/api/*", "/webhook*"],
+	},
+
+	// Non-secret configuration. Secrets live in `.dev.vars` locally (see `.dev.vars.example`) and are
+	// set in production with `wrangler secret put <NAME>`.
+	"vars": {
+		"WALLET_API_BASE_URL": "https://rest.budgetbakers.com/wallet",
+		"WHATSAPP_API_VERSION": "v26.0",
+	},
+}

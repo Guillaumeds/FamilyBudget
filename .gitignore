@@ -1,4 +1,4 @@
-# Local OAuth credentials
+# Local OAuth credentials (legacy Apps Script / clasp)
 client_secret.json
 .clasprc.json
 
@@ -6,6 +6,20 @@ client_secret.json
 *.log
 *.tmp
 
-# Dependencies / editor state
+# Dependencies / build output / editor state
 node_modules/
+dist/
+coverage/
 .vscode/
+
+# Cloudflare Wrangler local state and local secrets
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.env
+.env.*
+
+# Personal data — never commit spreadsheets or Wallet API audit dumps
+*.xlsx
+wallet-api-audit/
