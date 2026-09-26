@@ -1,5 +1,6 @@
 // Admin actions shared by the Settings page and the setup wizard: sync, FX backfill, capture,
-// CSV imports, test brief. Each returns the API result and a short human summary.
+// CSV imports, test brief, the household's Wallet token / Anthropic key. Each returns the API
+// result and a short human summary.
 import { api, badge, callout, h, keyValues, money, readFileText } from './lib.js';
 
 const n = (value) => Number(value ?? 0).toLocaleString();
@@ -101,6 +102,7 @@ export async function importCsv(kind, file) {
 const SKIP_REASONS = {
 	whatsapp_disabled: 'WhatsApp sending is switched off (Send the daily brief on WhatsApp).',
 	no_recipients: 'No recipients are configured.',
+	not_approved: 'WhatsApp for this household is waiting for the site owner’s approval. The brief starts once it is approved.',
 };
 
 const MODE_LABELS = { text: 'free-form text', template: 'template', dry: 'dry run (logged only)' };
@@ -138,4 +140,63 @@ export async function sendBrief() {
 /** Renders an action outcome in place (a callout with optional details). */
 export function outcome({ kind, summary, details, note }) {
 	return callout(kind === 'error' ? 'error' : kind, h('div', {}, summary), note && h('div', { class: 'small' }, note), details);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Connections: the household's BudgetBakers token and Anthropic key (stored encrypted server-side)
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * POST /api/wallet-token {token}: stores (or, with '', removes) the household's Wallet token and
+ * tests it. Resolves with a callout describing the outcome; a 409 (BudgetBakers still running its
+ * initial import) is reported kindly instead of as an error.
+ */
+export async function saveWalletToken(token) {
+	try {
+		const result = await api('/api/wallet-token', { method: 'POST', body: { token } });
+		if (!token) return { ok: true, cleared: true, el: callout('ok', 'The Wallet token was removed. Syncing stops until you connect again.') };
+		return { ok: true, test: result.test, el: walletOutcome(result.test ?? { ok: true }, { saved: true }) };
+	} catch (error) {
+		if (error.status === 409 || error.code === 'WALLET_SYNC_IN_PROGRESS') {
+			return { ok: false, el: walletOutcome({ ok: false, code: 'WALLET_SYNC_IN_PROGRESS', message: error.message }) };
+		}
+		throw error;
+	}
+}
+
+/** POST /api/admin/test-wallet: checks the stored token (doesn't count towards Wallet API usage). */
+export async function testWallet() {
+	const result = await api('/api/admin/test-wallet', { method: 'POST' });
+	return { ok: !!result.ok, el: walletOutcome(result) };
+}
+
+/** Plain-language outcome of a Wallet token check ({ ok, code?, message? }). */
+export function walletOutcome(result, { saved = false } = {}) {
+	const savedNote = saved ? 'The token was saved. ' : '';
+	if (result.ok) return callout('ok', h('strong', {}, 'Connected. '), saved ? 'Your Wallet token was saved and works.' : 'Your Wallet token works.');
+	if (result.code === 'WALLET_SYNC_IN_PROGRESS') {
+		return callout(
+			'warn',
+			h('strong', {}, 'Almost there. '),
+			savedNote,
+			'BudgetBakers is still preparing your data after the token was created. This usually takes a few minutes — continue with the next steps and run the import shortly.',
+		);
+	}
+	if (result.code === 'WALLET_AUTH') {
+		return callout(
+			'error',
+			h('strong', {}, 'The token was rejected. '),
+			saved ? 'It was saved, but BudgetBakers doesn’t accept it. ' : '',
+			'Create a new one in the Wallet web app (Settings → API, Premium plan) and paste it again.',
+			result.message && h('div', { class: 'small muted' }, result.message),
+		);
+	}
+	if (result.code === 'WALLET_RATE_LIMIT') return callout('warn', h('strong', {}, 'Rate limited. '), savedNote, 'The Wallet API allows 300 requests per hour. Wait a bit and try again.');
+	return callout('error', h('strong', {}, 'Connection failed. '), savedNote, result.message ?? 'Unknown error.');
+}
+
+/** POST /api/ai-key {key}: stores (or, with '', removes) the household's Anthropic API key. */
+export async function saveAiKey(key) {
+	await api('/api/ai-key', { method: 'POST', body: { key } });
+	return key ? 'Anthropic key saved.' : 'Anthropic key removed.';
 }

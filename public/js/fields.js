@@ -36,14 +36,6 @@ export const FIELDS = {
 		help: 'International format, comma-separated. Only these numbers receive the brief and may message the bot.',
 	},
 	brief_hour_local: { group: 'WhatsApp', label: 'Brief hour (local time)', type: 'hour', help: 'The brief is sent once a day at this hour.' },
-	wa_template_name: {
-		group: 'WhatsApp',
-		label: 'Template name',
-		type: 'text',
-		placeholder: 'daily_budget_update',
-		help: 'Approved WhatsApp template used outside the 24-hour service window.',
-	},
-	wa_template_lang: { group: 'WhatsApp', label: 'Template language', type: 'text', placeholder: 'en', help: 'e.g. en or en_US — must match the approved template.' },
 	dry_run: { group: 'WhatsApp', label: 'Dry run (log messages instead of sending)', type: 'flag' },
 	stale_seconds: {
 		group: 'WhatsApp',
@@ -69,9 +61,42 @@ export const FIELDS = {
 		type: 'hour',
 		help: 'On the last day of each budget period, account balances are captured at this hour.',
 	},
+
+	// Global settings (shared by every household): edited only in the owner console. `global: true`
+	// keeps them out of the household Settings page and the setup wizard (PUT /api/settings rejects
+	// them with GLOBAL_KEY).
+	wa_template_name: {
+		group: 'Global',
+		global: true,
+		label: 'WhatsApp template name',
+		type: 'text',
+		placeholder: 'daily_budget_update',
+		help: 'Approved WhatsApp template used outside the 24-hour service window (all households).',
+	},
+	wa_template_lang: {
+		group: 'Global',
+		global: true,
+		label: 'Template language',
+		type: 'text',
+		placeholder: 'en',
+		help: 'e.g. en or en_US — must match the approved template.',
+	},
+	signup_enabled: {
+		group: 'Global',
+		global: true,
+		label: 'Allow new households to sign up',
+		type: 'flag',
+		help: 'When off, the sign-up page says signups are closed. Existing households are unaffected.',
+	},
 };
 
+/** Household setting groups shown on the Settings page (global keys are owner-only). */
 export const GROUPS = ['General', 'WhatsApp', 'AI assistant', 'Sync & capture'];
+
+/** Keys of a household settings group, in schema order (never the owner-only global keys). */
+export function groupKeys(group) {
+	return Object.keys(FIELDS).filter((key) => FIELDS[key].group === group && !FIELDS[key].global);
+}
 
 let timezoneList;
 function timezones() {
@@ -163,9 +188,10 @@ export function renderField(key, value) {
 
 /**
  * Saves the fields whose value differs from `current`. Shows per-field errors from the API.
- * Returns the updated settings, or null when saving failed.
+ * Returns the updated settings, or null when saving failed. `endpoint` is the household settings
+ * API by default; the owner console passes /api/owner/settings (same request/response shape).
  */
-export async function saveFields(fields, current) {
+export async function saveFields(fields, current, { endpoint = '/api/settings' } = {}) {
 	const patch = {};
 	for (const field of fields) {
 		field.error('');
@@ -173,15 +199,17 @@ export async function saveFields(fields, current) {
 	}
 	if (Object.keys(patch).length === 0) return current;
 	try {
-		const result = await api('/api/settings', { method: 'PUT', body: patch });
+		const result = await api(endpoint, { method: 'PUT', body: patch });
 		if (result.warning) toast(result.warning, 'warn');
 		Object.assign(current, result.settings);
 		for (const field of fields) field.set(current[field.key]);
 		return current;
 	} catch (error) {
-		const fieldErrors = error.body?.fields ?? {};
+		const fieldErrors = { ...(error.body?.fields ?? {}) };
+		// A recipient number that already belongs to another household.
+		if (error.code === 'RECIPIENT_TAKEN' && !fieldErrors.whatsapp_to_numbers) fieldErrors.whatsapp_to_numbers = error.message;
 		for (const field of fields) if (fieldErrors[field.key]) field.error(fieldErrors[field.key]);
-		toast(Object.keys(fieldErrors).length ? 'Please fix the highlighted fields.' : error.message, 'error');
+		toast(error.code === 'RECIPIENT_TAKEN' || !Object.keys(fieldErrors).length ? error.message : 'Please fix the highlighted fields.', 'error');
 		return null;
 	}
 }

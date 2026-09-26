@@ -13,12 +13,18 @@ export class ApiError extends Error {
 	}
 }
 
-const handlers = { unauthorized: () => {}, needsSecrets: () => {} };
+const SECRET_WRITE_PATHS = ['/api/wallet-token', '/api/ai-key'];
 
-/** Registers what happens when the session is gone (401) or the secrets are missing (503). */
-export function onAuthProblem(unauthorized, needsSecrets) {
+const handlers = { unauthorized: () => {}, needsSecrets: () => {}, suspended: () => {} };
+
+/**
+ * Registers what happens when the session is gone (401), the secrets are missing (503) or the
+ * household was suspended by the site owner (403 SUSPENDED).
+ */
+export function onAuthProblem(unauthorized, needsSecrets, suspended = () => {}) {
 	handlers.unauthorized = unauthorized;
 	handlers.needsSecrets = needsSecrets;
+	handlers.suspended = suspended;
 }
 
 /**
@@ -43,7 +49,10 @@ export async function api(path, { method = 'GET', body, csv } = {}) {
 	const data = await response.json().catch(() => ({}));
 	if (!path.startsWith('/api/auth/')) {
 		if (response.status === 401) handlers.unauthorized();
-		if (response.status === 503 && data.code === 'NEEDS_SECRETS') handlers.needsSecrets();
+		// Storing a household secret answers 503 NEEDS_SECRETS when the site lacks TOKEN_ENCRYPTION_KEY:
+		// that is shown inline, not as the "finish installing" screen.
+		if (response.status === 503 && data.code === 'NEEDS_SECRETS' && !SECRET_WRITE_PATHS.includes(path)) handlers.needsSecrets();
+		if (response.status === 403 && data.code === 'SUSPENDED') handlers.suspended();
 	}
 	if (!response.ok) throw new ApiError(response.status, data);
 	return data;
@@ -85,6 +94,18 @@ export function append(el, children) {
 		el.append(child instanceof Node ? child : String(child));
 	}
 	return el;
+}
+
+/** Lower-cases a household-name input as the user types (the server does the same), keeping the caret. */
+export function lowercaseInput(input) {
+	input.addEventListener('input', () => {
+		const lower = input.value.toLowerCase();
+		if (lower === input.value) return;
+		const { selectionStart, selectionEnd } = input;
+		input.value = lower;
+		input.setSelectionRange(selectionStart, selectionEnd);
+	});
+	return input;
 }
 
 /** Temporarily marks an element (saved / error flash). */

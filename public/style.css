@@ -1588,6 +1588,115 @@ input.switch:checked::after {
 	font-weight: 600;
 }
 
+/* ---------------------------------------------------------------- households: header, signup, owner console */
+
+.household-pill {
+	font-size: 0.82rem;
+	font-weight: 600;
+	color: var(--accent);
+	background: var(--accent-soft);
+	border-radius: 999px;
+	padding: 3px 10px;
+	white-space: nowrap;
+	max-width: 14em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.screen-foot {
+	margin: var(--space-4) 0 0;
+	text-align: center;
+}
+
+.screen-card .field-error[role='alert']:not(:empty) {
+	margin-top: var(--space-2);
+}
+
+.turnstile-box {
+	min-height: 65px; /* the Turnstile widget's height: no layout jump when it appears */
+	display: flex;
+	align-items: center;
+}
+
+.steps-list {
+	margin: 0 0 var(--space-3);
+	padding-left: 1.3em;
+}
+
+.select-sm {
+	min-height: 30px;
+	padding: 3px 8px;
+	font-size: 0.85rem;
+}
+
+.owner-table td,
+.owner-table th {
+	vertical-align: top;
+}
+
+.owner-name {
+	font-weight: 600;
+}
+
+.owner-table .is-suspended > * {
+	opacity: 0.7;
+}
+
+.owner-sync-msg {
+	max-width: 260px;
+	overflow-wrap: anywhere;
+}
+
+.owner-actions {
+	flex-wrap: nowrap;
+}
+
+.key-dot {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--muted);
+}
+
+.key-dot .dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	border: 1.5px solid var(--border-strong);
+}
+
+.key-dot.is-on {
+	color: var(--text);
+}
+
+.key-dot.is-on .dot {
+	background: var(--ok);
+	border-color: var(--ok);
+}
+
+.dialog {
+	width: min(420px, calc(100vw - 2 * var(--space-4)));
+	color: var(--text);
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: 16px;
+	box-shadow: var(--shadow-lg);
+	padding: var(--space-5);
+}
+
+.dialog::backdrop {
+	background: rgb(0 0 0 / 0.45);
+}
+
+.dialog .field {
+	margin-top: var(--space-3);
+}
+
+.dialog-actions {
+	justify-content: flex-end;
+	margin-top: var(--space-4);
+}
+
 /* ---------------------------------------------------------------- responsive */
 
 @media (max-width: 900px) {
@@ -1640,6 +1749,10 @@ input.switch:checked::after {
 	.brand-name,
 	.period-pill {
 		display: none;
+	}
+
+	.household-pill {
+		max-width: 9em;
 	}
 
 	.card {

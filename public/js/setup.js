@@ -1,10 +1,11 @@
-// First-run setup wizard (#/setup/<step>): checks → basics → data → WhatsApp → done.
-import { importCsv, outcome, runFxBackfill, runSync, sendBrief } from './actions.js';
+// First-run setup wizard (#/setup/<step>): connect Wallet → basics → data → WhatsApp (+ optional
+// Claude Q&A key) → done.
+import { importCsv, outcome, runFxBackfill, runSync, saveAiKey, saveWalletToken, sendBrief, testWallet } from './actions.js';
 import { browserTimeZone, renderField, saveFields } from './fields.js';
 import { api, badge, callout, card, errorBox, h, keyValues, spinner, toast, withBusy } from './lib.js';
 
 const STEPS = [
-	{ id: 'checks', title: 'Checks', render: checksStep },
+	{ id: 'connect', title: 'Connect', render: connectStep },
 	{ id: 'basics', title: 'Basics', render: basicsStep },
 	{ id: 'data', title: 'Data', render: dataStep },
 	{ id: 'whatsapp', title: 'WhatsApp', render: whatsappStep },
@@ -51,66 +52,89 @@ export async function render(root, ctx) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// 1. Checks
+// 1. Connect: this household's BudgetBakers token + the site-wide checks
 // ---------------------------------------------------------------------------------------------
 
-function checksStep({ status, go, footer }) {
-	const row = (ok, label, required, detail) =>
+function connectStep({ status, go, footer }) {
+	const row = (ok, label, required, detail, { pending = false } = {}) =>
 		h(
 			'li',
 			{ class: 'check' },
 			h('span', { class: `check-icon ${ok ? 'ok' : required ? 'bad' : 'off'}`, 'aria-hidden': 'true' }, ok ? '✓' : required ? '!' : '–'),
-			h('div', {}, h('div', { class: 'check-label' }, label, ' ', ok ? badge('configured', 'ok') : required ? badge('required', 'bad') : badge('optional', 'neutral')), detail && h('div', { class: 'small muted' }, detail)),
+			h(
+				'div',
+				{},
+				h('div', { class: 'check-label' }, label, ' ', ok ? badge('ready', 'ok') : pending ? badge('pending approval', 'warn') : required ? badge('required', 'bad') : badge('optional', 'neutral')),
+				detail && h('div', { class: 'small muted' }, detail),
+			),
 		);
-	const secret = (...names) => h('span', {}, 'Set ', names.map((name, i) => [i > 0 && ' and ', h('code', {}, name)]), ' with ', h('code', {}, 'wrangler secret put'), '.');
+	const secret = (...names) => h('span', {}, 'The site owner sets ', names.map((name, i) => [i > 0 && ' and ', h('code', {}, name)]), ' with ', h('code', {}, 'wrangler secret put'), '.');
 
+	// Connect BudgetBakers: paste token → POST /api/wallet-token (stores it encrypted and tests it).
+	const walletBadge = h('span', {});
+	const walletInput = h('input', { id: 'setup-wallet-token', type: 'password', autocomplete: 'off', spellcheck: 'false' });
 	const walletResult = h('div', { class: 'action-result', 'aria-live': 'polite' });
-	const test = h('button', { type: 'button', class: 'btn btn-primary', disabled: !status.walletConfigured }, 'Test Wallet connection');
+	const save = h('button', { type: 'button', class: 'btn btn-primary' }, 'Save & test');
+	const test = h('button', { type: 'button', class: 'btn' }, 'Test connection');
+	const setConnected = (on) => {
+		status.walletConfigured = on;
+		walletBadge.replaceChildren(on ? badge('connected', 'ok') : badge('not connected', 'bad'));
+		walletInput.placeholder = on ? 'Paste a new token to replace it' : 'Paste your Wallet API token';
+		test.hidden = !on;
+	};
+	setConnected(!!status.walletConfigured);
+	save.addEventListener('click', async () => {
+		const token = walletInput.value.trim();
+		if (!token) {
+			walletResult.replaceChildren(callout('warn', 'Paste the token first.'));
+			return walletInput.focus();
+		}
+		walletResult.replaceChildren();
+		try {
+			const res = await withBusy(save, () => saveWalletToken(token), { quiet: true });
+			walletResult.replaceChildren(res.el);
+			if (res.ok) {
+				walletInput.value = '';
+				setConnected(true);
+			}
+		} catch (error) {
+			walletResult.replaceChildren(callout('error', error.message));
+		}
+	});
 	test.addEventListener('click', async () => {
 		walletResult.replaceChildren();
 		try {
-			const result = await withBusy(test, () => api('/api/admin/test-wallet', { method: 'POST' }));
-			walletResult.replaceChildren(walletOutcome(result));
+			walletResult.replaceChildren((await withBusy(test, testWallet, { quiet: true })).el);
 		} catch (error) {
 			walletResult.replaceChildren(callout('error', error.message));
 		}
 	});
 
+	const approved = status.approvals?.whatsapp;
 	return [
 		card(
-			'Configuration',
-			h('p', { class: 'muted' }, 'Secrets are stored in Cloudflare, never in the dashboard. Only the Wallet token is needed to get started.'),
+			'Connect BudgetBakers',
+			h('div', { class: 'card-head' }, h('p', { class: 'muted' }, 'Your budget is built from your BudgetBakers Wallet records. Paste an API token to connect — it is stored encrypted and only used for your household’s sync.'), walletBadge),
+			h('ol', { class: 'small muted steps-list' }, h('li', {}, 'Open the Wallet web app → Settings → API (needs the Premium plan).'), h('li', {}, 'Create a token and copy it.'), h('li', {}, 'Paste it below.')),
+			h('div', { class: 'field' }, h('label', { for: 'setup-wallet-token' }, 'Wallet API token'), walletInput),
+			h('div', { class: 'button-row' }, save, test),
+			walletResult,
+			status.counts?.transactions > 0 && keyValues([['Transactions stored', status.counts.transactions.toLocaleString()], ['Categories', String(status.counts.categories)], ['Accounts', String(status.counts.accounts)]]),
+		),
+		card(
+			'Site',
+			h('p', { class: 'muted' }, 'Shared services run by the owner of this site. You don’t need them to get started.'),
 			h(
 				'ul',
 				{ class: 'checks' },
-				row(status.walletConfigured, 'BudgetBakers Wallet API token', true, status.walletConfigured ? 'Used for the hourly sync.' : secret('WALLET_API_TOKEN')),
-				row(status.dashboardSecured, 'Dashboard password', true, 'You’re signed in, so this works.'),
+				row(status.dashboardSecured !== false, 'Sign-in', true, 'You’re signed in, so this works.'),
 				row(status.whatsappConfigured, 'WhatsApp sending', false, status.whatsappConfigured ? 'The daily brief can be delivered.' : secret('WHATSAPP_ACCESS_TOKEN', 'WHATSAPP_PHONE_NUMBER_ID')),
 				row(status.webhookConfigured, 'WhatsApp replies (webhook)', false, status.webhookConfigured ? 'Replies like “Budget” are answered.' : secret('META_APP_SECRET', 'WHATSAPP_WEBHOOK_VERIFY_TOKEN')),
-				row(status.aiConfigured, 'Claude assistant', false, status.aiConfigured ? 'Free-text questions on WhatsApp can be answered.' : secret('ANTHROPIC_API_KEY')),
+				approved !== undefined && row(approved, 'WhatsApp for your household', false, approved ? 'Approved by the site owner.' : 'Waiting for the site owner’s approval — the daily brief activates once approved.', { pending: !approved }),
 			),
-		),
-		card(
-			'Wallet connection',
-			h('p', { class: 'muted' }, 'Checks the token against the BudgetBakers API (doesn’t count towards your usage).'),
-			h('div', { class: 'button-row' }, test),
-			walletResult,
-			status.counts.transactions > 0 && keyValues([['Transactions stored', status.counts.transactions.toLocaleString()], ['Categories', String(status.counts.categories)], ['Accounts', String(status.counts.accounts)]]),
 		),
 		footer(h('button', { type: 'button', class: 'btn btn-primary', onclick: go }, 'Continue →')),
 	];
-}
-
-function walletOutcome(result) {
-	if (result.ok) return callout('ok', h('strong', {}, 'Connected. '), 'Your Wallet token works.');
-	if (result.code === 'WALLET_SYNC_IN_PROGRESS') {
-		return callout('warn', h('strong', {}, 'Almost there. '), 'BudgetBakers is still preparing your data after the token was created. This usually takes a few minutes — try again shortly.');
-	}
-	if (result.code === 'WALLET_AUTH') {
-		return callout('error', h('strong', {}, 'The token was rejected. '), 'Create a new one in the Wallet web app (Settings → API, Premium plan) and set it again with ', h('code', {}, 'wrangler secret put WALLET_API_TOKEN'), '.', h('div', { class: 'small muted' }, result.message));
-	}
-	if (result.code === 'WALLET_RATE_LIMIT') return callout('warn', h('strong', {}, 'Rate limited. '), 'The Wallet API allows 300 requests per hour. Wait a bit and try again.');
-	return callout('error', h('strong', {}, 'Connection failed. '), result.message ?? 'Unknown error.');
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -202,7 +226,7 @@ function dataStep({ settings, status, go, footer }) {
 		card(
 			'1 · Import from BudgetBakers',
 			h('p', { class: 'muted' }, 'Pulls categories, accounts and every record since the start date. Large histories can take a minute.'),
-			!status.walletConfigured && callout('warn', 'The Wallet token isn’t configured yet — go back to Checks.'),
+			!status.walletConfigured && callout('warn', 'BudgetBakers isn’t connected yet — go back to step 1 (Connect) and paste your Wallet token.'),
 			historyField.el,
 			h('div', { class: 'button-row' }, syncButton),
 			syncResult,
@@ -231,7 +255,7 @@ function dataStep({ settings, status, go, footer }) {
 // ---------------------------------------------------------------------------------------------
 
 function whatsappStep({ settings, status, ctx, footer }) {
-	const keys = ['whatsapp_enabled', 'whatsapp_to_numbers', 'wa_template_name', 'wa_template_lang', 'brief_hour_local', 'dry_run'];
+	const keys = ['whatsapp_enabled', 'whatsapp_to_numbers', 'brief_hour_local', 'dry_run'];
 	const fields = keys.map((key) => renderField(key, settings[key]));
 	const byKey = Object.fromEntries(fields.map((field) => [field.key, field]));
 
@@ -264,20 +288,57 @@ function whatsappStep({ settings, status, ctx, footer }) {
 		);
 	};
 	const skip = h('button', { type: 'button', class: 'btn btn-ghost', onclick: () => finish(skip, false) }, 'Skip WhatsApp & finish');
+
+	// Optional Claude Q&A: the household's own Anthropic key (POST /api/ai-key) + the ai_enabled switch.
+	const aiEnabled = renderField('ai_enabled', settings.ai_enabled);
+	const aiBadge = h('span', {});
+	const aiInput = h('input', { id: 'setup-ai-key', type: 'password', autocomplete: 'off', spellcheck: 'false' });
+	const setAiConfigured = (on) => {
+		status.aiConfigured = on;
+		aiBadge.replaceChildren(on ? badge('key saved', 'ok') : badge('optional', 'neutral'));
+		aiInput.placeholder = on ? 'Paste a new key to replace it' : 'sk-ant-…';
+	};
+	setAiConfigured(!!status.aiConfigured);
+	const aiSave = h('button', { type: 'button', class: 'btn' }, 'Save Claude settings');
+	aiSave.addEventListener('click', async () => {
+		const key = aiInput.value.trim();
+		await withBusy(aiSave, async () => {
+			if (key) await saveAiKey(key);
+			if (!(await saveFields([aiEnabled], settings))) throw new Error('Couldn’t save the switch.');
+		}).then(
+			() => {
+				if (key) {
+					aiInput.value = '';
+					setAiConfigured(true);
+				}
+				toast(status.aiConfigured && settings.ai_enabled === '1' ? 'Claude will answer WhatsApp questions.' : 'Claude settings saved.', 'ok');
+			},
+			() => {},
+		);
+	});
 	const done = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => finish(done, true) }, 'Save & finish');
 
 	return [
 		card(
 			'Daily WhatsApp brief',
 			h('p', { class: 'muted' }, 'Optional. Every morning each recipient gets yesterday’s spending and where the budget stands.'),
+			status.approvals?.whatsapp === false &&
+				callout('warn', h('strong', {}, 'Pending owner approval. '), 'WhatsApp is switched on per household by the owner of this site. You can set everything up now — the daily brief will activate once your household is approved.'),
 			!status.whatsappConfigured &&
 				callout('info', 'WhatsApp secrets aren’t set, so sending will fail until you add ', h('code', {}, 'WHATSAPP_ACCESS_TOKEN'), ' and ', h('code', {}, 'WHATSAPP_PHONE_NUMBER_ID'), '. See docs/whatsapp-setup.md. You can skip this step and come back later.'),
 			byKey.whatsapp_enabled.el,
-			h('div', { class: 'form-grid' }, byKey.whatsapp_to_numbers.el, byKey.brief_hour_local.el, byKey.wa_template_name.el, byKey.wa_template_lang.el),
+			h('div', { class: 'form-grid' }, byKey.whatsapp_to_numbers.el, byKey.brief_hour_local.el),
 			byKey.dry_run.el,
 			h('p', { class: 'small muted' }, 'Keep dry run on for the first days: briefs are only logged (see Settings → Logs) until you turn it off.'),
 			h('div', { class: 'button-row' }, testButton),
 			testResult,
+		),
+		card(
+			'Claude Q&A (optional)',
+			h('div', { class: 'card-head' }, h('p', { class: 'muted' }, 'Ask free-text questions on WhatsApp (“How much did we spend on groceries this month?”) and Claude answers from your budget. Uses your own Anthropic API key, billed to your Anthropic account.'), aiBadge),
+			h('div', { class: 'field' }, h('label', { for: 'setup-ai-key' }, 'Anthropic API key'), aiInput, h('div', { class: 'help' }, 'Create one at console.anthropic.com → API keys. Stored encrypted; you can remove it in Settings → Connections.')),
+			aiEnabled.el,
+			h('div', { class: 'button-row' }, aiSave),
 		),
 		footer(skip, done),
 	];
