@@ -579,3 +579,19 @@ export async function pruneRunLog(db: D1Database, keepDays = 90): Promise<number
 	const result = await db.prepare('DELETE FROM run_log WHERE ts < ?').bind(cutoff).run();
 	return result.meta.changes;
 }
+
+// ---------------------------------------------------------------------------------------------
+// Appended for budget/engine.ts and cashflow/capture.ts
+// ---------------------------------------------------------------------------------------------
+
+/** Re-exported so the budget engine applies the same default flag as ensureDefaultTargets. */
+export { defaultIncludeInExpense };
+
+/**
+ * Deletes the cash-flow rows of one period written by `source` (e.g. the previous 'auto' capture
+ * before re-capturing, so accounts no longer included disappear). Returns the number deleted.
+ */
+export async function deleteCashflowRows(db: D1Database, periodEnd: string, source: CashflowRow['source']): Promise<number> {
+	const result = await db.prepare('DELETE FROM cashflow_balances WHERE period_end = ? AND source = ?').bind(periodEnd, source).run();
+	return result.meta.changes;
+}
