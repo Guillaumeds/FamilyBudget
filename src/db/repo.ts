@@ -749,3 +749,27 @@ export async function reconvertTransactionsToBase(
 	]);
 	return { updated: update!.meta.changes, stillMissing: (missing!.results[0] as { n: number } | undefined)?.n ?? 0 };
 }
+
+// ---------------------------------------------------------------------------------------------
+// Appended for scheduled.ts (queue producer)
+// ---------------------------------------------------------------------------------------------
+
+export interface SettingsRow {
+	/** GLOBAL_HID (0) for global rows. */
+	householdId: number;
+	key: string;
+	value: string;
+}
+
+/**
+ * The stored rows of `keys` for EVERY household (and the global level) in one query — the cron
+ * producer's gating read. Callers merge SETTING_DEFAULTS ← global rows ← household rows themselves.
+ */
+export async function listSettingsRows(db: D1Database, keys: readonly string[]): Promise<SettingsRow[]> {
+	if (keys.length === 0) return [];
+	const { results } = await db
+		.prepare('SELECT household_id AS householdId, key, value FROM settings WHERE key IN (SELECT value FROM json_each(?)) ORDER BY household_id')
+		.bind(JSON.stringify(keys))
+		.all<SettingsRow>();
+	return results;
+}

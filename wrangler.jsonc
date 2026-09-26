@@ -40,5 +40,33 @@
 	"vars": {
 		"WALLET_API_BASE_URL": "https://rest.budgetbakers.com/wallet",
 		"WHATSAPP_API_VERSION": "v26.0",
+		// Cloudflare Turnstile site key for the signup page (public). Empty = no CAPTCHA widget.
+		"TURNSTILE_SITE_KEY": "",
 	},
+
+	// ------------------------------------------------------------------------------------------
+	// Per-household task queue — REQUIRES WORKERS PAID (Queues are not on the Free plan, and a
+	// queue binding makes the deploy fail there). While this block stays commented out,
+	// env.HOUSEHOLD_TASKS is undefined and the hourly cron runs every household's tasks inline
+	// (src/scheduled.ts), which is fine for a handful of households.
+	// To enable (https://developers.cloudflare.com/queues/get-started/):
+	//   1. npx wrangler queues create household-tasks
+	//   2. npx wrangler queues create household-tasks-dlq
+	//   3. uncomment the block below, then redeploy (npm run deploy).
+	// ------------------------------------------------------------------------------------------
+	// "queues": {
+	// 	"producers": [{ "binding": "HOUSEHOLD_TASKS", "queue": "household-tasks" }],
+	// 	"consumers": [
+	// 		{
+	// 			"queue": "household-tasks",
+	// 			"max_batch_size": 5,
+	// 			"max_batch_timeout": 5,
+	// 			"max_retries": 3,
+	// 			"max_concurrency": 4,
+	// 			"dead_letter_queue": "household-tasks-dlq",
+	// 		},
+	// 		// Dead letters are logged to run_log (ERROR) and acked — see queueHandler in src/tasks.ts.
+	// 		{ "queue": "household-tasks-dlq" },
+	// 	],
+	// },
 }

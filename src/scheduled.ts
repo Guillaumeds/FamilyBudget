@@ -1,116 +1,135 @@
 /**
- * Hourly cron entry point ("0 * * * *", UTC — https://developers.cloudflare.com/workers/configuration/cron-triggers/).
- * Local-time work is dispatched here from the `timezone` setting, which keeps it DST-safe: the cron
- * never changes, only the local hour each tick maps to does.
+ * Hourly cron entry point ("0 * * * *", UTC — https://developers.cloudflare.com/workers/configuration/cron-triggers/)
+ * — the PRODUCER of per-household work.
  *
- * Steps run in order, each in its own try/catch so one failure never blocks the next:
- *   1. Wallet sync — incremental every hour, full re-sync on Sunday at 03:00 local.
- *   2. Daily brief — first tick at/after `brief_hour_local` each local day (guard: brief_last_sent_date).
- *   3. Cash-flow capture — on the period's last day at/after `capture_hour_local` (guard:
- *      capture_last_period_end), plus a retroactive capture of the previous period if it has no TOTAL row.
- *   4. Housekeeping — prune run_log at 04:00 local.
- * The guards make every step idempotent under cron retries/replays.
+ * The tick itself only reads D1 (active households + one bulk read of the gating settings) and
+ * decides, per household and in THAT household's timezone, which tasks are due. Local-time gating
+ * keeps it DST-safe: the cron never changes, only the local hour each tick maps to does.
+ *   - sync every tick; full-sync instead on Sunday at 03:00 local.
+ *   - brief at/after `brief_hour_local` while brief_last_sent_date ≠ today (local).
+ *   - capture on the budget period's last day at/after `capture_hour_local` while
+ *     capture_last_period_end ≠ that period end.
+ * The tasks themselves run in src/tasks.ts: one `household-tasks` queue message per household when
+ * the HOUSEHOLD_TASKS binding exists (Workers Paid), else inline, one household after another (Free
+ * plan / local dev). The consumer re-checks the guards, so replays and re-deliveries stay idempotent.
+ *
+ * Housekeeping (run_log pruning) is global and runs here at 04:00 UTC.
  */
-import { captureClosingBalances } from './cashflow/capture';
-import { listCashflowRows, listTransactionsBetween, logRun, pruneRunLog } from './db/repo';
-import { getSettings, SETTING_DEFAULTS, setSetting, type Settings } from './db/settings';
+import { listHouseholds } from './db/households';
+import { listSettingsRows, logRun, pruneRunLog } from './db/repo';
+import { SETTING_DEFAULTS } from './db/settings';
+import { GLOBAL_HID, tenant } from './db/tenant';
 import type { Env } from './env';
 import { normalizeStartDay, periodForOffset } from './lib/period';
 import { dateTextToUtcMs, localDate, localHour } from './lib/tz';
-import { WalletApiError } from './wallet/client';
-import { syncWallet } from './wallet/sync';
-import { sendDailyBrief } from './whatsapp/client';
+import { describeError, effectiveTimezone, type HouseholdTask, type HouseholdTaskMessage, runHouseholdTasks, SCHEDULED_ACTION } from './tasks';
 
-const ACTION = 'scheduled';
+const ACTION = SCHEDULED_ACTION;
 const FULL_SYNC_WEEKDAY = 0; // Sunday
 const FULL_SYNC_HOUR = 3;
-const PRUNE_HOUR = 4;
+// UTC, not local: pruning is global now that households have different timezones (it used to run at
+// 04:00 in the single household's timezone).
+const PRUNE_HOUR_UTC = 4;
 const RUN_LOG_KEEP_DAYS = 90;
+/** Queue.sendBatch accepts at most 100 messages per call. */
+const SEND_BATCH_MAX = 100;
+
+/** The settings the producer gates on, read for every household in one query. */
+export const GATING_KEYS = ['timezone', 'brief_hour_local', 'capture_hour_local', 'budget_month_start_day', 'brief_last_sent_date', 'capture_last_period_end'] as const;
+export type GatingSettings = Record<(typeof GATING_KEYS)[number], string | undefined>;
 
 /** An hour setting (0–23); falls back to its default when the stored value is not a valid hour. */
-function hourSetting(settings: Settings, key: 'brief_hour_local' | 'capture_hour_local'): number {
+function hourSetting(settings: GatingSettings, key: 'brief_hour_local' | 'capture_hour_local'): number {
 	const hour = Number(settings[key]);
 	return Number.isInteger(hour) && hour >= 0 && hour <= 23 ? hour : Number(SETTING_DEFAULTS[key]);
 }
 
-function describeError(error: unknown): string {
-	if (error instanceof WalletApiError) return `${error.code}: ${error.message}`;
-	return error instanceof Error ? error.message : String(error);
+/** Tasks due for one household at `now`, evaluated in its (valid) timezone. */
+export function dueTasks(settings: GatingSettings, timezone: string, now: Date): HouseholdTask[] {
+	const today = localDate(now, timezone);
+	const hour = localHour(now, timezone);
+	const full = new Date(dateTextToUtcMs(today)).getUTCDay() === FULL_SYNC_WEEKDAY && hour === FULL_SYNC_HOUR;
+	const tasks: HouseholdTask[] = [full ? 'full-sync' : 'sync'];
+
+	// `>=` (not `===`) lets a failed attempt retry on the next tick the same day, and covers DST days
+	// where the hour is skipped.
+	if (hour >= hourSetting(settings, 'brief_hour_local') && settings.brief_last_sent_date !== today) tasks.push('brief');
+
+	const current = periodForOffset(today, normalizeStartDay(Number(settings.budget_month_start_day)), 0);
+	if (today === current.endText && hour >= hourSetting(settings, 'capture_hour_local') && settings.capture_last_period_end !== current.endText) {
+		tasks.push('capture');
+	}
+	return tasks;
 }
+
+async function planMessages(env: Env, now: Date): Promise<HouseholdTaskMessage[]> {
+	const [households, rows] = await Promise.all([listHouseholds(env.DB), listSettingsRows(env.DB, GATING_KEYS)]);
+
+	// SETTING_DEFAULTS ← global rows ← household rows (same merge as getSettings, for every household).
+	const defaults: GatingSettings = Object.fromEntries(GATING_KEYS.map((key) => [key, (SETTING_DEFAULTS as Record<string, string>)[key]])) as GatingSettings;
+	const global: Record<string, string> = {};
+	const own = new Map<number, Record<string, string>>();
+	for (const row of rows) {
+		if (row.householdId === GLOBAL_HID) global[row.key] = row.value;
+		else {
+			const values = own.get(row.householdId) ?? {};
+			values[row.key] = row.value;
+			own.set(row.householdId, values);
+		}
+	}
+
+	const scheduledFor = now.toISOString();
+	const messages: HouseholdTaskMessage[] = [];
+	for (const household of households) {
+		if (household.status !== 'active') continue;
+		const settings: GatingSettings = { ...defaults, ...global, ...own.get(household.id) };
+		const timezone = effectiveTimezone(settings.timezone ?? SETTING_DEFAULTS.timezone, now);
+		if (timezone !== settings.timezone) {
+			await logRun(tenant(env.DB, household.id), 'WARN', ACTION, `Invalid timezone "${settings.timezone}" — scheduling in ${timezone}.`);
+		}
+		messages.push({ v: 1, householdId: household.id, tasks: dueTasks(settings, timezone, now), scheduledFor });
+	}
+	return messages;
+}
+
+const describeMessages = (messages: readonly HouseholdTaskMessage[]) => messages.map((m) => `hh${m.householdId}[${m.tasks.join(',')}]`).join(', ');
 
 export async function runScheduled(env: Env, _ctx: ExecutionContext, now: Date = new Date()): Promise<void> {
 	const db = env.DB;
 
-	let settings: Settings;
-	let today: string;
-	let hour: number;
+	let messages: HouseholdTaskMessage[] = [];
 	try {
-		settings = await getSettings(db);
-		today = localDate(now, settings.timezone);
-		hour = localHour(now, settings.timezone);
+		messages = await planMessages(env, now);
 	} catch (error) {
-		await logRun(db, 'ERROR', ACTION, `Tick at ${now.toISOString()} aborted: could not read settings/timezone: ${describeError(error)}`);
-		return;
+		await logRun(db, 'ERROR', ACTION, `Tick at ${now.toISOString()}: could not plan household tasks: ${describeError(error)}`);
 	}
 
-	// 1. Wallet sync.
-	const full = new Date(dateTextToUtcMs(today)).getUTCDay() === FULL_SYNC_WEEKDAY && hour === FULL_SYNC_HOUR;
-	try {
-		await syncWallet(env, db, full ? { full: true, now } : { now });
-	} catch (error) {
-		// Expected right after a Wallet token is created (BudgetBakers' initial sync); retried next hour.
-		const inProgress = error instanceof WalletApiError && error.code === 'WALLET_SYNC_IN_PROGRESS';
-		await logRun(db, inProgress ? 'WARN' : 'ERROR', ACTION, `${full ? 'Full' : 'Incremental'} Wallet sync failed: ${describeError(error)}`);
-	}
-
-	// 2. Daily brief — reads D1 only, so it runs even when the sync failed. `>=` (not `===`) lets a
-	// failed attempt retry on the next tick the same day, and covers DST days where the hour is skipped.
-	if (hour >= hourSetting(settings, 'brief_hour_local') && settings.brief_last_sent_date !== today) {
-		try {
-			const outcome = await sendDailyBrief(env, db, now);
-			const failed = outcome.results.filter((result) => result.error).length;
-			// Set the guard on a skip (nothing to retry) or on any successful send (retrying would
-			// double-send to the recipients that succeeded). When EVERY recipient failed nobody got the
-			// brief, so the guard stays unset and the next tick retries — as it does when building the
-			// brief threw.
-			const allFailed = outcome.results.length > 0 && failed === outcome.results.length;
-			if (!allFailed) await setSetting(db, 'brief_last_sent_date', today);
-			const detail = outcome.skippedReason
-				? `skipped (${outcome.skippedReason})`
-				: outcome.results.map((result) => `${result.to}: ${result.mode}${result.error ? ' FAILED' : ''}`).join(', ');
-			await logRun(db, failed ? 'WARN' : 'INFO', ACTION, `Daily brief for ${today}: ${detail}${allFailed ? ' — all sends failed, retrying next hour' : ''}.`);
-		} catch (error) {
-			await logRun(db, 'ERROR', ACTION, `Daily brief for ${today} failed, retrying next hour: ${describeError(error)}`);
+	if (messages.length > 0) {
+		const queue = env.HOUSEHOLD_TASKS;
+		if (queue) {
+			try {
+				for (let i = 0; i < messages.length; i += SEND_BATCH_MAX) {
+					await queue.sendBatch(messages.slice(i, i + SEND_BATCH_MAX).map((body) => ({ body, contentType: 'json' as const })));
+				}
+				await logRun(db, 'INFO', ACTION, `Enqueued ${messages.length} household task message(s): ${describeMessages(messages)}.`);
+			} catch (error) {
+				// Everything still due is re-planned on the next tick.
+				await logRun(db, 'ERROR', ACTION, `Enqueueing household tasks failed, retrying next hour: ${describeError(error)}`);
+			}
+		} else {
+			for (const message of messages) {
+				try {
+					await runHouseholdTasks(env, message.householdId, message.tasks, now);
+				} catch (error) {
+					await logRun(tenant(db, message.householdId), 'ERROR', ACTION, `Household tasks failed before running: ${describeError(error)}`);
+				}
+			}
+			await logRun(db, 'INFO', ACTION, `Queue binding absent — ran ${messages.length} household(s) inline: ${describeMessages(messages)}.`);
 		}
 	}
 
-	// 3. Cash-flow capture of the period that ends today.
-	const startDay = normalizeStartDay(Number(settings.budget_month_start_day));
-	const current = periodForOffset(today, startDay, 0);
-	if (today === current.endText && hour >= hourSetting(settings, 'capture_hour_local') && settings.capture_last_period_end !== current.endText) {
-		try {
-			await captureClosingBalances(db, settings, now);
-			await setSetting(db, 'capture_last_period_end', current.endText);
-		} catch (error) {
-			await logRun(db, 'ERROR', ACTION, `Cash-flow capture for ${current.label} failed, retrying next hour: ${describeError(error)}`);
-		}
-	}
-
-	// 3b. Catch-up: the previous period was never captured (Worker down on its last day, fresh install
-	// with synced history). Balance − movements after the period end holds for past periods too.
-	// Guarded by the TOTAL row the capture writes (an imported TOTAL counts as captured).
-	const previous = periodForOffset(today, startDay, -1);
-	try {
-		const hasTotal = (await listCashflowRows(db, previous.endText)).some((row) => row.rowType === 'TOTAL');
-		if (!hasTotal && (await listTransactionsBetween(db, previous.startText, previous.endExclusiveText)).length > 0) {
-			await captureClosingBalances(db, settings, now, -1);
-		}
-	} catch (error) {
-		await logRun(db, 'ERROR', ACTION, `Retroactive cash-flow capture for ${previous.label} failed: ${describeError(error)}`);
-	}
-
-	// 4. Housekeeping.
-	if (hour === PRUNE_HOUR) {
+	// Housekeeping.
+	if (now.getUTCHours() === PRUNE_HOUR_UTC) {
 		try {
 			const pruned = await pruneRunLog(db, RUN_LOG_KEEP_DAYS);
 			if (pruned > 0) await logRun(db, 'INFO', ACTION, `Pruned ${pruned} run_log row(s) older than ${RUN_LOG_KEEP_DAYS} days.`);

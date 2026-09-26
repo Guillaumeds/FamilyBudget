@@ -9,6 +9,7 @@ import { handleApiRequest } from './api/routes';
 import { logRun } from './db/repo';
 import type { Env } from './env';
 import { runScheduled } from './scheduled';
+import { queueHandler } from './tasks';
 import { handleWebhookGet, handleWebhookPost } from './whatsapp/webhook';
 
 export default {
@@ -42,5 +43,11 @@ export default {
 	// tick's intended time (ms since epoch, UTC), so a delayed or replayed run still dispatches correctly.
 	scheduled(controller, env, ctx): void {
 		ctx.waitUntil(runScheduled(env, ctx, new Date(controller.scheduledTime)));
+	},
+
+	// https://developers.cloudflare.com/queues/configuration/javascript-apis/#consumer — per-household
+	// scheduled tasks (`household-tasks`) and their dead-letter queue; see src/tasks.ts.
+	async queue(batch, env, ctx): Promise<void> {
+		await queueHandler(batch, env, ctx);
 	},
 } satisfies ExportedHandler<Env>;

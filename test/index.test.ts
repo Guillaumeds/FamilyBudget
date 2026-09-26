@@ -6,6 +6,7 @@ import { listRunLog } from '../src/db/repo';
 import type { Env } from '../src/env';
 import worker from '../src/index';
 import { runScheduled } from '../src/scheduled';
+import { queueHandler } from '../src/tasks';
 import { handleWebhookGet, handleWebhookPost } from '../src/whatsapp/webhook';
 import { resetDb } from './helpers';
 
@@ -17,6 +18,7 @@ import { resetDb } from './helpers';
 vi.mock('../src/api/routes', () => ({ handleApiRequest: vi.fn() }));
 vi.mock('../src/whatsapp/webhook', () => ({ handleWebhookGet: vi.fn(), handleWebhookPost: vi.fn() }));
 vi.mock('../src/scheduled', () => ({ runScheduled: vi.fn() }));
+vi.mock('../src/tasks', () => ({ queueHandler: vi.fn() }));
 
 // Correctly-typed Request for calling worker.fetch() directly (pattern from the official template).
 const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
@@ -129,5 +131,25 @@ describe('scheduled', () => {
 		expect(passedEnv).toBe(testEnv);
 		expect(passedCtx).toBe(ctx);
 		expect(now).toEqual(scheduledTime);
+	});
+});
+
+describe('queue', () => {
+	it('hands the batch to queueHandler and awaits it', async () => {
+		let finished = false;
+		vi.mocked(queueHandler).mockImplementation(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 10));
+			finished = true;
+		});
+		const batch = { queue: 'household-tasks', messages: [], ackAll: vi.fn(), retryAll: vi.fn() } as unknown as MessageBatch<unknown>;
+		const ctx = createExecutionContext();
+
+		await worker.queue(batch, testEnv, ctx);
+		expect(finished).toBe(true);
+
+		const [passedBatch, passedEnv, passedCtx] = vi.mocked(queueHandler).mock.calls[0]!;
+		expect(passedBatch).toBe(batch);
+		expect(passedEnv).toBe(testEnv);
+		expect(passedCtx).toBe(ctx);
 	});
 });
