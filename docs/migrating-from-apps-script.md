@@ -81,7 +81,7 @@ It is detected by the `RowType` and `Category` headers. These columns are used; 
 | --- | --- |
 | `RowType` | `CATEGORY` rows become category targets and `TYPE` rows become category-group targets. `OVERALL` and blank rows are skipped, because the overall line is always a rollup. |
 | `CategoryId`, `Path`, `Category` | The category match, tried in that order: BudgetBakers id, then full path (`Parent > Child`), then name. `TYPE` rows match a group name. |
-| `BudgetEUR` (any `Budget` + up to 3 letters, e.g. `BudgetUSD`) | The target. A blank cell means "no target". |
+| `BudgetEUR` (any `Budget` + up to 3 letters, e.g. `BudgetUSD`) | The target. A blank cell means "no target". On a `TYPE` row a value becomes the group's own budget, which replaces the sum of its categories. Leave it blank to keep the automatic sum. |
 | `Forecast Type` | `Day-to-day` or `Recurring`. |
 | `Include in Report?` | `TRUE`/`FALSE`: show this line in the WhatsApp brief. |
 | `Include in Expense Calculations` | `TRUE`/`FALSE`: count this line in the group and overall totals. |

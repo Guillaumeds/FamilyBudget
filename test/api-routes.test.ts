@@ -221,6 +221,30 @@ describe('PUT /api/targets/:entityType/:entityId', () => {
 		expect(body.lines.find((l: any) => l.id === 'c-rest')).toMatchObject({ budget: 100, forecast: 100, remaining: 70 });
 		expect(body.lines.find((l: any) => l.rowType === 'TYPE' && l.id === 'food').budget).toBe(500);
 	});
+
+	it('sets a manual group budget that overrides the category sum, and null restores the sum', async () => {
+		const foodBudget = async () => ((await getJson('/api/summary')).lines as any[]).find((l) => l.rowType === 'TYPE' && l.id === 'food');
+		const sum = (await foodBudget()).budget;
+
+		let response = await put('group/food', { budget: 1234.567, forecastType: 'recurring' });
+		expect(response.status).toBe(200);
+		expect(((await response.json()) as any).target).toMatchObject({ entityType: 'group', entityId: 'food', budget: 1234.57, forecastType: 'recurring' });
+		expect(await getTarget(db, 'group', 'food')).toMatchObject({ budget: 1234.57, forecastType: 'recurring' });
+		const body = await getJson('/api/summary');
+		expect(body.targets['group:food']).toEqual({ budget: 1234.57, period: 'monthly' });
+		expect(body.lines.find((l: any) => l.rowType === 'TYPE' && l.id === 'food')).toMatchObject({ budget: 1234.57, forecast: 1234.57, forecastType: 'recurring' });
+
+		response = await put('group/food', { budget: null });
+		expect(response.status).toBe(200);
+		expect(await getTarget(db, 'group', 'food')).toMatchObject({ budget: null, forecastType: 'recurring' });
+		expect((await foodBudget()).budget).toBe(sum);
+	});
+
+	it.each([[{ budget: -5 }], [{ budget: 'lots' }], [{ forecastType: 'monthly' }]])('400s on an invalid group target %j', async (json) => {
+		const response = await put('group/food', json);
+		expect(response.status).toBe(400);
+		expect(await response.json()).toMatchObject({ code: 'VALIDATION' });
+	});
 });
 
 describe('GET /api/settings, PUT /api/settings', () => {

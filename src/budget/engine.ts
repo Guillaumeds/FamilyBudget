@@ -33,7 +33,10 @@ export interface BudgetLine {
 	groupId: string;
 	groupName: string;
 	forecastType: 'day_to_day' | 'recurring';
-	/** Manual target for categories; filtered rollup of children for TYPE/OVERALL. */
+	/**
+	 * Manual target for categories; for TYPE rows the group's own target when set, else the filtered
+	 * rollup of its children; filtered rollup of TYPE rows for OVERALL.
+	 */
 	budget: number;
 	/** Positive spend in base currency this period (expenses only; exact category match). */
 	spent: number;
@@ -124,6 +127,8 @@ function sum(lines: readonly BudgetLine[], pick: (line: BudgetLine) => number): 
 /**
  * TYPE/OVERALL rollup: budget, spent and baselines over `included` lines; forecast over
  * `forecastLines` (POC formulaTypeColumnRollupExpression with requireExpenseCalculation=false for J).
+ * A TYPE line whose group target has its own budget replaces the rolled-up budget and forecast
+ * (see computeBudget); spent and baselines always stay the factual sums.
  */
 function rollup(included: readonly BudgetLine[], forecastLines: readonly BudgetLine[]) {
 	return {
@@ -183,6 +188,9 @@ export function computeBudget(input: EngineInput): BudgetComputation {
 	const currentSpend = spendByCategory(input.current);
 	const baselineSpend = input.baselineTransactions.map(spendByCategory);
 	const elapsed = elapsedDays(period, todayLocal);
+	// POC formulaForecast: recurring → budget; day-to-day → spent / elapsedDays × periodDays.
+	const forecast = (forecastType: BudgetLine['forecastType'], budget: number, spent: number) =>
+		forecastType === 'recurring' ? roundCurrency(budget) : roundCurrency((spent / elapsed) * period.periodDays);
 
 	// Group the active categories by BudgetBakers category group (the POC's "TYPE").
 	const groups = new Map<string, { id: string; name: string; categories: CategoryRow[] }>();
@@ -216,8 +224,7 @@ export function computeBudget(input: EngineInput): BudgetComputation {
 				forecastType,
 				budget,
 				spent,
-				// POC formulaForecast: recurring → budget; day-to-day → spent / elapsedDays × periodDays.
-				forecast: forecastType === 'recurring' ? roundCurrency(budget) : roundCurrency((spent / elapsed) * period.periodDays),
+				forecast: forecast(forecastType, budget, spent),
 				baselines: baselineSpend.map((spend) => roundCurrency(spend.get(category.id) ?? 0)) as Baselines,
 				includeInReport: target ? target.includeInReport === 1 : false,
 				includeInExpense: target ? target.includeInExpense === 1 : defaultIncludeInExpense(category.groupName) === 1,
@@ -225,6 +232,16 @@ export function computeBudget(input: EngineInput): BudgetComputation {
 		});
 
 		const target = targets.get(targetKey('group', group.id));
+		const forecastType = target?.forecastType ?? 'day_to_day';
+		const totals = rollup(
+			categoryLines.filter((line) => line.includeInExpense),
+			categoryLines,
+		);
+		// A manual group budget overrides the sum of its categories and is forecast like a category.
+		if (target?.budget != null) {
+			totals.budget = target.budget;
+			totals.forecast = forecast(forecastType, target.budget, totals.spent);
+		}
 		const typeLine = finishLine({
 			rowType: 'TYPE',
 			id: group.id,
@@ -233,11 +250,8 @@ export function computeBudget(input: EngineInput): BudgetComputation {
 			depth: 0,
 			groupId: group.id,
 			groupName: group.name,
-			forecastType: target?.forecastType ?? 'day_to_day',
-			...rollup(
-				categoryLines.filter((line) => line.includeInExpense),
-				categoryLines,
-			),
+			forecastType,
+			...totals,
 			includeInReport: target ? target.includeInReport === 1 : false,
 			includeInExpense: target ? target.includeInExpense === 1 : defaultIncludeInExpense(group.name) === 1,
 		});

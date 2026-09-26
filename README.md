@@ -17,7 +17,7 @@ BudgetBakers is still where you manage categories and fix transactions. New or r
 ## Features
 
 - **Hourly sync** of categories, accounts and records from Wallet, plus a full re-sync every Sunday at 03:00 local time that catches old edits and deletions.
-- **Budget table** with inline-editable targets, forecast types (day-to-day or recurring) and include flags. It shows 3-period baselines and group/overall rollups, and supports a **custom budget month** (for example the 25th to the 24th, to match your payday).
+- **Budget table** with inline-editable targets on categories, sub-categories and groups (a group without its own target sums its categories), forecast types (day-to-day or recurring) and include flags. It shows 3-period baselines and group/overall rollups, and supports a **custom budget month** (for example the 25th to the 24th, to match your payday).
 - **Daily WhatsApp brief** at the hour you choose. If the recipient messaged the bot in the last 24 hours, they get the full brief as free-form text. Otherwise the bot sends your **approved message template**, as WhatsApp's rules require (see [docs/whatsapp-setup.md](docs/whatsapp-setup.md)).
 - **"Budget" command**: reply `Budget` on WhatsApp at any time to get the full brief. Replying also reopens the 24-hour window.
 - **Claude Q&A** (optional): free-text questions are answered by Claude, which uses read-only tools over your synced data.

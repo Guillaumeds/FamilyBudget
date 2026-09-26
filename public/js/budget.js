@@ -221,59 +221,75 @@ export async function render(root, ctx) {
 		return input;
 	}
 
-	function categoryRow(line) {
-		const key = `category:${line.id}`;
-		const stored = summary.targets[key];
-		const budget = h('input', {
+	/**
+	 * Inline budget editor for a category or group target. Empty = no target (null), 0 is a real zero.
+	 * `sync()` re-reads the stored target after a refresh unless the input has focus.
+	 */
+	function budgetInput(entityType, line) {
+		const key = `${entityType}:${line.id}`;
+		const stored = () => summary.targets[key]?.budget;
+		const input = h('input', {
 			type: 'number',
 			class: 'budget-input',
 			min: '0',
 			step: '0.01',
 			inputmode: 'decimal',
 			placeholder: '—',
-			value: stored?.budget ?? '',
+			value: stored() ?? '',
 			'aria-label': `Budget for ${line.path}`,
 		});
-		let saved = budget.value;
+		let saved = input.value;
 		const commit = () => {
-			const text = budget.value.trim();
+			const text = input.value.trim();
 			if (text === saved) return;
 			// badInput: the browser couldn't parse the text (value then reads as '' — must not clear the target).
-			if (budget.validity?.badInput || (text !== '' && !(Number.isFinite(Number(text)) && Number(text) >= 0))) {
-				flash(budget, 'error');
+			if (input.validity?.badInput || (text !== '' && !(Number.isFinite(Number(text)) && Number(text) >= 0))) {
+				flash(input, 'error');
 				toast('Budget must be a number ≥ 0 (leave empty for no target).', 'error');
-				budget.value = saved;
+				input.value = saved;
 				return;
 			}
 			const value = text === '' ? null : Math.round(Number(text) * 100) / 100;
 			const before = saved;
 			saved = value === null ? '' : String(value);
-			budget.value = saved;
-			save('category', line.id, { budget: value }, budget, () => {
+			input.value = saved;
+			save(entityType, line.id, { budget: value }, input, () => {
 				saved = before;
-				budget.value = before;
+				input.value = before;
 			});
 		};
-		budget.addEventListener('change', commit);
-		budget.addEventListener('keydown', (event) => {
-			if (event.key === 'Enter') budget.blur();
+		input.addEventListener('change', commit);
+		input.addEventListener('keydown', (event) => {
+			if (event.key === 'Enter') input.blur();
 			if (event.key === 'Escape') {
-				budget.value = saved;
-				budget.blur();
+				input.value = saved;
+				input.blur();
 			}
 		});
+		const sync = () => {
+			if (document.activeElement === input) return;
+			saved = stored() == null ? '' : String(stored());
+			input.value = saved;
+		};
+		return { input, sync, hasTarget: () => stored() != null };
+	}
 
-		const type = h('select', { 'aria-label': `Forecast type for ${line.path}` }, FORECAST_TYPES.map(([value, label]) => h('option', { value, selected: value === line.forecastType }, label)));
-		let savedType = line.forecastType;
-		type.addEventListener('change', () => {
-			const before = savedType;
-			savedType = type.value;
-			save('category', line.id, { forecastType: type.value }, type, () => {
-				savedType = before;
-				type.value = before;
+	function forecastSelect(entityType, line) {
+		const select = h('select', { 'aria-label': `Forecast type for ${line.path}` }, FORECAST_TYPES.map(([value, label]) => h('option', { value, selected: value === line.forecastType }, label)));
+		let saved = line.forecastType;
+		select.addEventListener('change', () => {
+			const before = saved;
+			saved = select.value;
+			save(entityType, line.id, { forecastType: select.value }, select, () => {
+				saved = before;
+				select.value = before;
 			});
 		});
+		return select;
+	}
 
+	function categoryRow(line) {
+		const budget = budgetInput('category', line);
 		const cells = numberCells();
 		const name = h('th', { scope: 'row', class: 'sticky-col name', style: { '--depth': String(Math.max(0, line.depth - 1)) }, title: line.path }, line.name);
 		const report = flagInput(line, 'category', 'includeInReport', 'Include in brief');
@@ -282,24 +298,21 @@ export async function render(root, ctx) {
 			'tr',
 			{ class: `row-category depth-${Math.min(line.depth, 3)}` },
 			name,
-			h('td', { class: 'num' }, budget),
+			h('td', { class: 'num' }, budget.input),
 			cells.spent,
 			cells.remaining,
 			cells.used,
 			cells.forecast,
 			cells.baseline,
-			h('td', {}, type),
+			h('td', {}, forecastSelect('category', line)),
 			h('td', { class: 'center' }, report),
 			h('td', { class: 'center' }, expense),
 		);
 		const update = (next) => {
 			updateNumbers(cells, next);
-			tr.classList.toggle('is-empty', !(next.budget > 0) && !(next.spent > 0) && summary.targets[key]?.budget == null);
+			tr.classList.toggle('is-empty', !(next.budget > 0) && !(next.spent > 0) && !budget.hasTarget());
 			tr.classList.toggle('is-excluded', !next.includeInExpense);
-			if (document.activeElement !== budget) {
-				saved = summary.targets[key]?.budget == null ? '' : String(summary.targets[key].budget);
-				budget.value = saved;
-			}
+			budget.sync();
 			report.checked = next.includeInReport;
 			expense.checked = next.includeInExpense;
 		};
@@ -307,28 +320,43 @@ export async function render(root, ctx) {
 		return { tr, update };
 	}
 
+	/** Sum of the budgets of the group's categories counted in expenses — the group budget when it has none of its own. */
+	function categorySum(groupId) {
+		const total = summary.lines.filter((l) => l.rowType === 'CATEGORY' && l.groupId === groupId && l.includeInExpense).reduce((acc, l) => acc + l.budget, 0);
+		return Math.round(total * 100) / 100;
+	}
+
 	function groupRow(line) {
 		const cells = numberCells();
-		const budget = h('td', { class: 'num', title: 'Sum of the category budgets counted in this group' });
+		// The ungrouped bucket (id '') has no target to edit: its budget stays the sum.
 		const editable = line.id !== '';
+		const budget = editable ? budgetInput('group', line) : null;
+		if (budget) budget.input.title = 'Empty = sum of this group’s category budgets. Type an amount to set the group budget directly.';
+		const budgetCell = h('td', { class: 'num' }, budget?.input);
+		if (!budget) budgetCell.title = 'Sum of the category budgets counted in this group';
 		const report = editable ? flagInput(line, 'group', 'includeInReport', 'Include group in brief') : null;
 		const expense = editable ? flagInput(line, 'group', 'includeInExpense', 'Count group in overall') : null;
 		const tr = h(
 			'tr',
 			{ class: 'row-group' },
 			h('th', { scope: 'row', class: 'sticky-col name' }, line.name),
-			budget,
+			budgetCell,
 			cells.spent,
 			cells.remaining,
 			cells.used,
 			cells.forecast,
 			cells.baseline,
-			h('td', { class: 'muted small' }, 'Group total'),
+			editable ? h('td', { title: 'Applies when the group has its own budget; otherwise the forecast is the sum of its categories’ forecasts.' }, forecastSelect('group', line)) : h('td', { class: 'muted small' }, 'Group total'),
 			h('td', { class: 'center' }, report ?? '—'),
 			h('td', { class: 'center' }, expense ?? '—'),
 		);
 		const update = (next) => {
-			budget.textContent = money(next.budget, summary.currency);
+			if (budget) {
+				budget.input.placeholder = `Σ ${categorySum(next.id).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+				budget.sync();
+			} else {
+				budgetCell.textContent = money(next.budget, summary.currency);
+			}
 			updateNumbers(cells, next);
 			tr.classList.toggle('is-excluded', !next.includeInExpense);
 			if (report) report.checked = next.includeInReport;

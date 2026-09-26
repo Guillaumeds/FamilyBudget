@@ -22,7 +22,7 @@
 			"binding": "DB",
 			"database_name": "wallet-budget-companion",
 			// Replaced by `npm run setup` (or paste the id printed by `wrangler d1 create wallet-budget-companion`).
-			"database_id": "REPLACE_WITH_D1_DATABASE_ID",
+			"database_id": "82f80059-73d3-44ab-9457-0280cbdb1e6f",
 			"migrations_dir": "migrations",
 		},
 	],

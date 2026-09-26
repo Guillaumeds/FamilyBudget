@@ -222,6 +222,58 @@ describe('computeBudget', () => {
 		});
 	});
 
+	describe('manual group budgets', () => {
+		const withGroupTargets = (food: Partial<BudgetTargetRow>, veh: Partial<BudgetTargetRow>) =>
+			computeBudget(
+				input({
+					targets: TARGETS.map((t) =>
+						t.entityType === 'group' && t.entityId === 'food' ? { ...t, ...food } : t.entityType === 'group' && t.entityId === 'veh' ? { ...t, ...veh } : t,
+					),
+				}),
+			);
+		const manual = withGroupTargets({ budget: 1000 }, { budget: 150, forecastType: 'recurring' });
+		const mType = (id: string) => byId(manual.lines, 'TYPE', id);
+
+		it('overrides the sum of the category budgets; spent and baselines stay the factual sums', () => {
+			expect(mType('food')).toMatchObject({
+				budget: 1000, // not 900 (600 + 100 + 200)
+				spent: 165,
+				remaining: 835,
+				usedPct: 165 / 1000,
+				forecastType: 'day_to_day',
+				baselines: [100, 210, 300],
+				baselineAvg: 203.33,
+			});
+			// Category lines are untouched.
+			expect(byId(manual.lines, 'CATEGORY', 'cat-groc')).toEqual(cat('cat-groc'));
+		});
+
+		it('forecasts a manual day-to-day group as group spent / elapsed days × period days', () => {
+			// 165 / 11 × 31 = 465 (not the 496 sum of child forecasts, which includes the excluded Bar).
+			expect(mType('food')).toMatchObject({ forecast: 465, forecastVsBudget: -535 });
+		});
+
+		it('forecasts a manual recurring group as its budget', () => {
+			expect(mType('veh')).toMatchObject({ forecastType: 'recurring', budget: 150, spent: 100, forecast: 150, forecastVsBudget: 0 });
+		});
+
+		it('treats a manual 0 as a real budget', () => {
+			const zero = withGroupTargets({ budget: 0 }, {});
+			expect(byId(zero.lines, 'TYPE', 'food')).toMatchObject({ budget: 0, usedPct: 0, remaining: -165, forecast: 465 });
+		});
+
+		it('rolls OVERALL over the effective group budgets and forecasts', () => {
+			expect(manual.overall).toMatchObject({ budget: 1150, spent: 265, forecast: 615, remaining: 885, forecastVsBudget: -535 });
+		});
+
+		it('falls back to the rollup when the group budget is null (forecast type is shown but unused)', () => {
+			const fallback = withGroupTargets({ budget: null, forecastType: 'recurring' }, { budget: null });
+			expect(byId(fallback.lines, 'TYPE', 'food')).toEqual({ ...type('food'), forecastType: 'recurring' });
+			expect(byId(fallback.lines, 'TYPE', 'veh')).toEqual(type('veh'));
+			expect(fallback.overall).toEqual(result.overall);
+		});
+	});
+
 	it('treats a category whose parent is in another group as a root, and handles empty input', () => {
 		const moved = computeBudget(
 			input({ categories: [...CATEGORIES, category('cat-kids', 'Kids food', 'veh', 'Vehicle', { parentId: 'cat-groc', fullPath: 'Vehicle > Kids food' })] }),

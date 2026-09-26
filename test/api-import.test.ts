@@ -123,6 +123,7 @@ describe('POST /api/admin/import/budgets — legacy Google Sheet export', () => 
 		expect(await target('category', 'c-bar')).toMatchObject({ forecastType: 'recurring', budget: 45, includeInReport: 0, includeInExpense: 1 });
 		expect(await target('category', 'c-rent')).toMatchObject({ forecastType: 'recurring', budget: 1500, includeInReport: 1 });
 		expect(await target('category', 'c-energy')).toMatchObject({ budget: null, includeInReport: 0 });
+		// TYPE rows: BudgetEUR becomes the manual group budget; a blank one stays null (auto-sum of the categories).
 		expect(await target('group', 'food')).toMatchObject({ budget: 2000, includeInReport: 1, includeInExpense: 1 });
 		expect(await target('group', 'housing')).toMatchObject({ budget: null, forecastType: 'recurring', includeInReport: 0, includeInExpense: 1 });
 		expect(await target('category', 'c-salary')).toBeNull();
