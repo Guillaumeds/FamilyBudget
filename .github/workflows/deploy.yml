@@ -1,0 +1,50 @@
+name: Deploy
+
+# Deploys to Cloudflare on every push to main.
+#
+# Required repository configuration (Settings → Secrets and variables → Actions):
+#   * Variable CLOUDFLARE_ACCOUNT_ID — your Cloudflare account id (dash → Workers → right sidebar).
+#   * Secret   CLOUDFLARE_API_TOKEN  — API token with Workers Scripts:Edit and D1:Edit.
+# Forks and clones without these simply skip the deploy job, so CI stays green out of the box.
+# Runtime app secrets (Wallet token, WhatsApp, Anthropic, ...) are NOT set here — they live in
+# Workers secrets via `wrangler secret put` (see README).
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ vars.CLOUDFLARE_ACCOUNT_ID != '' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      - name: Apply D1 migrations
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 migrations apply wallet-budget-companion --remote
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
