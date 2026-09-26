@@ -5,11 +5,16 @@
  * run_log (action 'api'). State-changing requests must be same-origin when the browser sends an
  * Origin header (defence in depth next to the SameSite=Lax session cookie).
  *
+ * Every signed-in request is scoped to its household (`Tenant` from the session, see ./auth.ts).
+ * The site owner (hid 0) has no household data: household routes answer it 403 OWNER_HAS_NO_DATA,
+ * and /api/owner/* (./owner.ts) answers households 403 FORBIDDEN.
+ *
  * Endpoint reference (all JSON):
- *   GET  /api/auth/status                 { authenticated, setupComplete, needsSecrets }   (no session needed)
- *   POST /api/auth/login  {password}      sets the session cookie                         (no session needed)
- *   POST /api/auth/logout                 clears it                                        (no session needed)
- *   GET  /api/status                      configuration + counts + last runs
+ *   GET  /api/auth/status                 see ./auth.ts                                     (no session needed)
+ *   POST /api/auth/login  {household, password} | signup | logout                           (no session needed)
+ *   GET  /api/status                      configuration + counts + last runs + approvals
+ *   POST /api/wallet-token {token}        store (encrypted) + live test; '' clears
+ *   POST /api/ai-key {key}                store the household's Anthropic key (encrypted); '' clears
  *   GET  /api/summary?offset=0            budget table for a period
  *   PUT  /api/targets/:entityType/:id     edit one budget target
  *   GET  /api/transactions?from&to&q&limit
@@ -19,7 +24,8 @@
  *   GET  /api/settings | PUT /api/settings
  *   POST /api/admin/sync {full?, force?} | capture | send-brief | test-wallet | fx-backfill {from?, all?}
  *   POST /api/admin/import/budgets (text/csv) | import/cashflow (text/csv)
- *   GET  /api/admin/logs?type=run|message&limit
+ *   GET  /api/admin/logs?type=run|message&limit   (this household's rows only)
+ *   /api/owner/*                          owner console, see ./owner.ts
  */
 import { loadBudgetComputation, listYesterdayExpenses } from '../budget/engine';
 import { buildBriefData, renderBriefText, renderTemplateParams } from '../budget/brief';
@@ -29,7 +35,6 @@ import {
 	type CashflowRow,
 	type EntityType,
 	type Flag,
-	clearFxRates,
 	countCoreRows,
 	defaultIncludeInExpense,
 	getTarget,
@@ -46,48 +51,72 @@ import {
 	reconvertTransactionsToBase,
 	upsertTarget,
 } from '../db/repo';
+import { replaceRecipients } from '../db/households';
 import { SETTING_DEFAULTS, getSettings, setSettings } from '../db/settings';
+import { type Tenant, tenant } from '../db/tenant';
 import type { Env } from '../env';
+import { CryptoError } from '../lib/crypto';
 import { roundCurrency } from '../lib/format';
 import { ensureRates } from '../lib/fx';
 import { normalizeStartDay, periodForOffset } from '../lib/period';
 import { addDays, localDate } from '../lib/tz';
 import { WalletApiError, testWalletAuth } from '../wallet/client';
 import { syncWallet } from '../wallet/sync';
-import { sendDailyBrief } from '../whatsapp/client';
-import { handleAuthRequest, requireAuth, secretsMissing } from './auth';
+import { ENV_ADOPTION_HID, getWalletToken, setAiKey, setWalletToken } from '../wallet/token';
+import { parseRecipients, sendDailyBrief } from '../whatsapp/client';
+import { type AuthResult, handleAuthRequest, requireAuth, secretsMissing } from './auth';
 import { importBudgetsCsv, importCashflowCsv } from './imports';
 import { HttpError, errorJson, errorMessage, httpErrorResponse, intParam, isDateText, json, readJsonObject, readText } from './http';
-import { validateSettingsPatch } from './settings';
+import { ownerRoutes } from './owner';
+import { isGlobalKey, validateSettingsPatch } from './settings';
 
 interface RouteContext {
 	request: Request;
 	env: Env;
 	ctx: ExecutionContext;
-	db: D1Database;
+	/** The signed-in household's scope (hid 0 only on owner routes). */
+	t: Tenant;
+	auth: AuthResult;
 	url: URL;
 	params: Record<string, string>;
 }
 
-type Handler = (c: RouteContext) => Promise<Response>;
+/** RouteContext of a household route: the household row is always present. */
+type HouseholdContext = RouteContext & { auth: AuthResult & { household: NonNullable<AuthResult['household']> } };
+
+type Handler = (c: HouseholdContext) => Promise<Response>;
 
 interface Route {
 	method: 'GET' | 'POST' | 'PUT';
 	pattern: RegExp;
 	keys: string[];
-	handler: Handler;
+	/** Owner console route (owner only) instead of a household-data route (households only). */
+	owner: boolean;
+	handler: (c: RouteContext) => Promise<Response>;
 }
 
 const routes: Route[] = [];
 
-function route(method: Route['method'], path: string, handler: Handler): void {
+function addRoute(method: Route['method'], path: string, owner: boolean, handler: Route['handler']): void {
 	const keys: string[] = [];
 	const source = path.replace(/:([a-zA-Z]+)/g, (_, key: string) => {
 		keys.push(key);
 		return '([^/]+)';
 	});
-	routes.push({ method, pattern: new RegExp(`^${source}/?$`), keys, handler });
+	routes.push({ method, pattern: new RegExp(`^${source}/?$`), keys, owner, handler });
 }
+
+/** A household-data route (the owner gets 403 OWNER_HAS_NO_DATA). */
+function route(method: Route['method'], path: string, handler: Handler): void {
+	addRoute(method, path, false, (c) => handler(c as HouseholdContext));
+}
+
+// Owner console (./owner.ts handlers check isOwner themselves as well).
+for (const entry of ownerRoutes) {
+	addRoute(entry.method, `/api/owner/${entry.path}`, true, ({ request, env, auth, params }) => entry.handler(request, env, auth, params));
+}
+
+const OWNER_PREFIX = '/api/owner/';
 
 /** run_log actions summarised by GET /api/status (sync, brief, capture, cron dispatcher). */
 const LAST_RUN_ACTIONS = { sync: 'walletSync', brief: 'whatsapp.brief', capture: 'capture', scheduled: 'scheduled' } as const;
@@ -116,8 +145,11 @@ export async function handleApiRequest(request: Request, env: Env, ctx: Executio
 			return (await handleAuthRequest(request, env, pathname)) ?? errorJson(404, 'Not found.', 'NOT_FOUND');
 		}
 
-		const denied = await requireAuth(request, env);
-		if (denied) return denied;
+		const auth = await requireAuth(request, env);
+		if (auth instanceof Response) return auth;
+		if (!auth.isOwner && (pathname === '/api/owner' || pathname.startsWith(OWNER_PREFIX))) {
+			return errorJson(403, 'Only the site owner can do this.', 'FORBIDDEN');
+		}
 
 		let methodMismatch = false;
 		for (const candidate of routes) {
@@ -127,9 +159,16 @@ export async function handleApiRequest(request: Request, env: Env, ctx: Executio
 				methodMismatch = true;
 				continue;
 			}
+			if (auth.isOwner && !candidate.owner) {
+				return errorJson(
+					403,
+					'The owner account has no household data. Sign in as a household to use the dashboard.',
+					'OWNER_HAS_NO_DATA',
+				);
+			}
 			const params: Record<string, string> = {};
 			candidate.keys.forEach((key, i) => (params[key] = decodeURIComponent(match[i + 1]!)));
-			return await candidate.handler({ request, env, ctx, db: env.DB, url, params });
+			return await candidate.handler({ request, env, ctx, t: tenant(env.DB, auth.hid), auth, url, params });
 		}
 		return methodMismatch ? errorJson(405, 'Method not allowed.', 'METHOD_NOT_ALLOWED') : errorJson(404, 'Not found.', 'NOT_FOUND');
 	} catch (error) {
@@ -144,8 +183,9 @@ export async function handleApiRequest(request: Request, env: Env, ctx: Executio
 // Status, summary, targets
 // ---------------------------------------------------------------------------------------------
 
-route('GET', '/api/status', async ({ env, db }) => {
-	const [settings, counts, latest] = await Promise.all([getSettings(db), countCoreRows(db), latestRunLogByAction(db, Object.values(LAST_RUN_ACTIONS))]);
+route('GET', '/api/status', async ({ env, t, auth }) => {
+	const { household } = auth;
+	const [settings, counts, latest] = await Promise.all([getSettings(t), countCoreRows(t), latestRunLogByAction(t, Object.values(LAST_RUN_ACTIONS))]);
 	const lastRun = Object.fromEntries(
 		Object.entries(LAST_RUN_ACTIONS).map(([name, action]) => {
 			const row = latest.get(action);
@@ -153,12 +193,16 @@ route('GET', '/api/status', async ({ env, db }) => {
 		}),
 	);
 	return json({
+		householdName: household.name,
 		setupComplete: settings.setup_complete === '1',
-		walletConfigured: !!env.WALLET_API_TOKEN?.trim(),
+		// Household 1 still counts as configured while its token only lives in the transitional env
+		// secret (adopted into the row on first use, see wallet/token.ts).
+		walletConfigured: !!household.walletTokenEnc || (household.id === ENV_ADOPTION_HID && !!env.WALLET_API_TOKEN?.trim()),
 		whatsappConfigured: !!(env.WHATSAPP_ACCESS_TOKEN?.trim() && env.WHATSAPP_PHONE_NUMBER_ID?.trim()),
 		webhookConfigured: !!(env.META_APP_SECRET?.trim() && env.WHATSAPP_WEBHOOK_VERIFY_TOKEN?.trim()),
-		aiConfigured: !!env.ANTHROPIC_API_KEY?.trim(),
+		aiConfigured: !!household.anthropicKeyEnc || (household.id === ENV_ADOPTION_HID && !!env.ANTHROPIC_API_KEY?.trim()),
 		dashboardSecured: !secretsMissing(env),
+		approvals: { whatsapp: household.waApproved === 1 },
 		baseCurrency: settings.base_currency,
 		timezone: settings.timezone,
 		counts,
@@ -166,10 +210,10 @@ route('GET', '/api/status', async ({ env, db }) => {
 	});
 });
 
-route('GET', '/api/summary', async ({ db, url }) => {
+route('GET', '/api/summary', async ({ t, url }) => {
 	const offset = intParam(url, 'offset', 0, -240, 24);
-	const settings = await getSettings(db);
-	const [computation, targets] = await Promise.all([loadBudgetComputation(db, settings, new Date(), offset), listTargets(db)]);
+	const settings = await getSettings(t);
+	const [computation, targets] = await Promise.all([loadBudgetComputation(t, settings, new Date(), offset), listTargets(t)]);
 	return json({
 		offset,
 		period: computation.period,
@@ -185,7 +229,7 @@ route('GET', '/api/summary', async ({ db, url }) => {
 
 const TARGET_FIELDS = new Set(['budget', 'forecastType', 'includeInReport', 'includeInExpense', 'period']);
 
-route('PUT', '/api/targets/:entityType/:entityId', async ({ request, db, params }) => {
+route('PUT', '/api/targets/:entityType/:entityId', async ({ request, t, params }) => {
 	const entityType = params.entityType as EntityType;
 	const entityId = params.entityId!;
 	if (entityType !== 'category' && entityType !== 'group') {
@@ -223,7 +267,7 @@ route('PUT', '/api/targets/:entityType/:entityId', async ({ request, db, params 
 		throw new HttpError(400, Object.values(fields).join(' '), 'VALIDATION', { fields });
 	}
 
-	const [existing, categories] = await Promise.all([getTarget(db, entityType, entityId), listCategories(db)]);
+	const [existing, categories] = await Promise.all([getTarget(t, entityType, entityId), listCategories(t)]);
 	const owner =
 		entityType === 'category' ? categories.find((c) => c.id === entityId) : categories.find((c) => c.groupId === entityId);
 	if (!existing && !owner) throw new HttpError(404, `Unknown ${entityType} "${entityId}".`, 'NOT_FOUND');
@@ -242,7 +286,7 @@ route('PUT', '/api/targets/:entityType/:entityId', async ({ request, db, params 
 		entityType,
 		entityId,
 	};
-	await upsertTarget(db, target);
+	await upsertTarget(t, target);
 	return json({ target });
 });
 
@@ -250,8 +294,8 @@ route('PUT', '/api/targets/:entityType/:entityId', async ({ request, db, params 
 // Transactions, yesterday, cash flow, brief
 // ---------------------------------------------------------------------------------------------
 
-route('GET', '/api/transactions', async ({ db, url }) => {
-	const settings = await getSettings(db);
+route('GET', '/api/transactions', async ({ t, url }) => {
+	const settings = await getSettings(t);
 	const today = localDate(new Date(), settings.timezone);
 	const current = periodForOffset(today, normalizeStartDay(Number(settings.budget_month_start_day)), 0);
 	const from = url.searchParams.get('from') || current.startText;
@@ -261,7 +305,7 @@ route('GET', '/api/transactions', async ({ db, url }) => {
 	const limit = intParam(url, 'limit', 200, 1, 500);
 	const q = (url.searchParams.get('q') ?? '').trim().toLowerCase();
 
-	const [rows, categories] = await Promise.all([listTransactionsBetween(db, from, addDays(to, 1)), listCategories(db)]);
+	const [rows, categories] = await Promise.all([listTransactionsBetween(t, from, addDays(to, 1)), listCategories(t)]);
 	const byId = new Map(categories.map((category) => [category.id, category]));
 	const enriched = rows
 		.map((row) => {
@@ -297,10 +341,10 @@ route('GET', '/api/transactions', async ({ db, url }) => {
 	});
 });
 
-route('GET', '/api/yesterday', async ({ db }) => {
-	const settings = await getSettings(db);
+route('GET', '/api/yesterday', async ({ t }) => {
+	const settings = await getSettings(t);
 	const now = new Date();
-	const expenses = await listYesterdayExpenses(db, settings, now);
+	const expenses = await listYesterdayExpenses(t, settings, now);
 	return json({
 		date: addDays(localDate(now, settings.timezone), -1),
 		currency: settings.base_currency,
@@ -309,8 +353,8 @@ route('GET', '/api/yesterday', async ({ db }) => {
 	});
 });
 
-route('GET', '/api/cashflow', async ({ db }) => {
-	const [settings, totalRows, allRows] = await Promise.all([getSettings(db), listCashflowTotals(db, 25), listCashflowRows(db)]);
+route('GET', '/api/cashflow', async ({ t }) => {
+	const [settings, totalRows, allRows] = await Promise.all([getSettings(t), listCashflowTotals(t, 25), listCashflowRows(t)]);
 	const closing = (row: CashflowRow) => row.closingBalanceBase ?? row.closingBalance;
 	// Newest first; the 25th row only provides the "change" of the 24th.
 	const totals = totalRows.slice(0, 24).map((row, index) => {
@@ -327,9 +371,9 @@ route('GET', '/api/cashflow', async ({ db }) => {
 	return json({ currency: settings.base_currency, totals, accounts });
 });
 
-route('GET', '/api/brief/preview', async ({ db }) => {
-	const settings = await getSettings(db);
-	const data = await buildBriefData(db, settings, new Date());
+route('GET', '/api/brief/preview', async ({ t }) => {
+	const settings = await getSettings(t);
+	const data = await buildBriefData(t, settings, new Date());
 	return json({ text: renderBriefText(data), params: renderTemplateParams(data), data });
 });
 
@@ -337,31 +381,91 @@ route('GET', '/api/brief/preview', async ({ db }) => {
 // Settings
 // ---------------------------------------------------------------------------------------------
 
-route('GET', '/api/settings', async ({ db }) => {
-	return json({ settings: await getSettings(db), defaults: SETTING_DEFAULTS });
+route('GET', '/api/settings', async ({ t }) => {
+	return json({ settings: await getSettings(t), defaults: SETTING_DEFAULTS });
 });
 
-route('PUT', '/api/settings', async ({ request, db }) => {
+route('PUT', '/api/settings', async ({ request, t }) => {
 	const body = await readJsonObject(request);
 	if (Object.keys(body).length === 0) throw new HttpError(400, 'Nothing to update.', 'VALIDATION');
+	const globalKeys = Object.keys(body).filter(isGlobalKey);
+	if (globalKeys.length > 0) {
+		const message = 'Shared by every household; only the site owner can change it.';
+		throw new HttpError(400, `${globalKeys.join(', ')}: ${message}`, 'GLOBAL_KEY', {
+			fields: Object.fromEntries(globalKeys.map((key) => [key, message])),
+		});
+	}
 	const { values, errors } = validateSettingsPatch(body);
 	if (Object.keys(errors).length > 0) {
 		throw new HttpError(400, Object.entries(errors).map(([key, message]) => `${key}: ${message}`).join(' '), 'VALIDATION', { fields: errors });
 	}
 
-	const before = await getSettings(db);
-	await setSettings(db, values);
+	// Inbound WhatsApp messages are routed by number (household_recipients). Claim the numbers first:
+	// RECIPIENT_TAKEN (400) aborts the whole update before any setting is written.
+	if (values.whatsapp_to_numbers !== undefined) await replaceRecipients(t.db, t.hid, parseRecipients(values.whatsapp_to_numbers));
+
+	const before = await getSettings(t);
+	await setSettings(t, values);
 
 	let warning: string | undefined;
 	if (values.base_currency && values.base_currency !== before.base_currency.toUpperCase()) {
-		await clearFxRates(db);
+		// The FX cache is shared and keyed by base currency, so nothing is cleared here.
 		warning =
-			`Base currency changed from ${before.base_currency} to ${values.base_currency}: cached exchange rates were cleared. ` +
+			`Base currency changed from ${before.base_currency} to ${values.base_currency}. ` +
 			'Run an FX backfill with "re-convert all" (or a full sync) so stored amounts are converted to the new currency. ' +
 			'Budget targets and cash-flow history keep their old values.';
-		await logRun(db, 'WARN', 'settings', warning);
+		await logRun(t, 'WARN', 'settings', warning);
 	}
-	return json({ settings: await getSettings(db), ...(warning ? { warning } : {}) });
+	return json({ settings: await getSettings(t), ...(warning ? { warning } : {}) });
+});
+
+// ---------------------------------------------------------------------------------------------
+// Household secrets (Wallet token, Anthropic key) — stored encrypted, never returned
+// ---------------------------------------------------------------------------------------------
+
+const MAX_SECRET_LENGTH = 4096;
+
+/** The trimmed string field `key` of `body` ('' clears); 400 for anything else. */
+function secretField(body: Record<string, unknown>, key: string): string {
+	const value = body[key];
+	if (typeof value !== 'string') throw new HttpError(400, `"${key}" must be a string ('' removes it).`, 'VALIDATION');
+	const trimmed = value.trim();
+	if (trimmed.length > MAX_SECRET_LENGTH || /\s/.test(trimmed)) throw new HttpError(400, `"${key}" does not look like an API key.`, 'VALIDATION');
+	return trimmed;
+}
+
+/** Runs a secret write, turning a missing/invalid TOKEN_ENCRYPTION_KEY into 503 NEEDS_SECRETS. */
+async function storeSecret(write: () => Promise<void>): Promise<void> {
+	try {
+		await write();
+	} catch (error) {
+		if (!(error instanceof CryptoError)) throw error;
+		throw new HttpError(503, `Secrets cannot be stored: ${error.message} Ask the site owner to set TOKEN_ENCRYPTION_KEY.`, 'NEEDS_SECRETS');
+	}
+}
+
+route('POST', '/api/wallet-token', async ({ request, env, t }) => {
+	const token = secretField(await readJsonObject(request), 'token');
+	await storeSecret(() => setWalletToken(env, t.db, t.hid, token));
+	if (!token) {
+		await logRun(t, 'INFO', 'secrets', 'Wallet API token removed.');
+		return json({ ok: true, cleared: true, test: null });
+	}
+	const test = await testWalletAuth(env, token);
+	await logRun(
+		t,
+		test.ok ? 'INFO' : 'WARN',
+		'secrets',
+		test.ok ? 'Wallet API token saved and works.' : `Wallet API token saved, but the check failed: ${test.code}: ${test.message}`,
+	);
+	return json({ ok: true, cleared: false, test });
+});
+
+route('POST', '/api/ai-key', async ({ request, env, t }) => {
+	const key = secretField(await readJsonObject(request), 'key');
+	await storeSecret(() => setAiKey(env, t.db, t.hid, key));
+	await logRun(t, 'INFO', 'secrets', key ? 'Anthropic API key saved.' : 'Anthropic API key removed.');
+	return json({ ok: true, cleared: !key });
 });
 
 // ---------------------------------------------------------------------------------------------
@@ -377,12 +481,12 @@ function optionalBoolean(body: Record<string, unknown>, url: URL, key: string): 
 	throw new HttpError(400, `"${key}" must be true or false.`, 'VALIDATION');
 }
 
-route('POST', '/api/admin/sync', async ({ request, env, db, url }) => {
+route('POST', '/api/admin/sync', async ({ request, env, t, url }) => {
 	const body = await readJsonObject(request);
 	const full = optionalBoolean(body, url, 'full');
 	const force = optionalBoolean(body, url, 'force');
 	try {
-		const result = await syncWallet(env, db, { full, force });
+		const result = await syncWallet(env, t, { full, force });
 		return json({ ok: true, full, ...result });
 	} catch (error) {
 		if (!(error instanceof WalletApiError)) throw error;
@@ -394,15 +498,15 @@ route('POST', '/api/admin/sync', async ({ request, env, db, url }) => {
 	}
 });
 
-route('POST', '/api/admin/capture', async ({ db }) => {
-	const settings = await getSettings(db);
-	return json({ ok: true, ...(await captureClosingBalances(db, settings, new Date())) });
+route('POST', '/api/admin/capture', async ({ t }) => {
+	const settings = await getSettings(t);
+	return json({ ok: true, ...(await captureClosingBalances(t, settings, new Date())) });
 });
 
-route('POST', '/api/admin/send-brief', async ({ env, db }) => {
-	const settings = await getSettings(db);
+route('POST', '/api/admin/send-brief', async ({ env, t }) => {
+	const settings = await getSettings(t);
 	const dryRun = settings.dry_run === '1';
-	const outcome = await sendDailyBrief(env, db, new Date());
+	const outcome = await sendDailyBrief(env, t, new Date());
 	return json({
 		ok: !outcome.results.some((result) => result.error),
 		dryRun,
@@ -413,10 +517,11 @@ route('POST', '/api/admin/send-brief', async ({ env, db }) => {
 	});
 });
 
-route('POST', '/api/admin/test-wallet', async ({ env, db }) => {
-	const result = await testWalletAuth(env);
+route('POST', '/api/admin/test-wallet', async ({ env, t, auth }) => {
+	const token = await getWalletToken(env, t.db, auth.household);
+	const result = await testWalletAuth(env, token ?? '');
 	await logRun(
-		db,
+		t,
 		result.ok ? 'INFO' : 'WARN',
 		'testWallet',
 		result.ok ? 'Wallet API token works.' : `Wallet API token check failed: ${result.code}: ${result.message}`,
@@ -424,9 +529,9 @@ route('POST', '/api/admin/test-wallet', async ({ env, db }) => {
 	return json(result);
 });
 
-route('POST', '/api/admin/fx-backfill', async ({ request, db, url }) => {
+route('POST', '/api/admin/fx-backfill', async ({ request, t, url }) => {
 	const body = await readJsonObject(request);
-	const settings = await getSettings(db);
+	const settings = await getSettings(t);
 	const base = settings.base_currency.toUpperCase();
 	const today = localDate(new Date(), settings.timezone);
 	const from = typeof body.from === 'string' && body.from ? body.from : (url.searchParams.get('from') ?? settings.sync_backfill_from);
@@ -434,18 +539,18 @@ route('POST', '/api/admin/fx-backfill', async ({ request, db, url }) => {
 	if (from > today) throw new HttpError(400, '"from" must not be in the future.', 'VALIDATION');
 	const all = optionalBoolean(body, url, 'all');
 
-	const currencies = (await listDistinctCurrencies(db)).filter((currency) => currency !== base);
+	const currencies = (await listDistinctCurrencies(t)).filter((currency) => currency !== base);
 	let ratesFetched = 0;
 	try {
-		ratesFetched = currencies.length > 0 ? await ensureRates(db, base, currencies, from, today) : 0;
+		ratesFetched = currencies.length > 0 ? await ensureRates(t.db, base, currencies, from, today) : 0;
 	} catch (error) {
-		await logRun(db, 'ERROR', 'fxBackfill', `Fetching rates failed: ${errorMessage(error)}`);
+		await logRun(t, 'ERROR', 'fxBackfill', `Fetching rates failed: ${errorMessage(error)}`);
 		return errorJson(502, `Could not fetch exchange rates: ${errorMessage(error)}`, 'FX_ERROR');
 	}
-	const { updated, stillMissing } = await reconvertTransactionsToBase(db, base, { all });
+	const { updated, stillMissing } = await reconvertTransactionsToBase(t, base, { all });
 	const reconverted = Math.max(0, updated - stillMissing);
 	await logRun(
-		db,
+		t,
 		stillMissing ? 'WARN' : 'INFO',
 		'fxBackfill',
 		`FX backfill from ${from} for ${currencies.join(', ') || 'no foreign currencies'}: ${ratesFetched} rate(s) fetched, ` +
@@ -461,19 +566,19 @@ function csvBody(request: Request): Promise<string> {
 	});
 }
 
-route('POST', '/api/admin/import/budgets', async ({ request, db }) => {
-	return json({ ok: true, ...(await importBudgetsCsv(db, await csvBody(request))) });
+route('POST', '/api/admin/import/budgets', async ({ request, t }) => {
+	return json({ ok: true, ...(await importBudgetsCsv(t, await csvBody(request))) });
 });
 
-route('POST', '/api/admin/import/cashflow', async ({ request, db }) => {
+route('POST', '/api/admin/import/cashflow', async ({ request, t }) => {
 	const csv = await csvBody(request);
-	return json({ ok: true, ...(await importCashflowCsv(db, await getSettings(db), csv)) });
+	return json({ ok: true, ...(await importCashflowCsv(t, await getSettings(t), csv)) });
 });
 
-route('GET', '/api/admin/logs', async ({ db, url }) => {
+route('GET', '/api/admin/logs', async ({ t, url }) => {
 	const type = url.searchParams.get('type') ?? 'run';
 	if (type !== 'run' && type !== 'message') throw new HttpError(400, 'type must be "run" or "message".', 'VALIDATION');
 	const limit = intParam(url, 'limit', 50, 1, 200);
-	const rows = type === 'run' ? await listRunLog(db, limit) : await listMessageLog(db, limit);
+	const rows = type === 'run' ? await listRunLog(t.db, limit, t.hid) : await listMessageLog(t.db, limit, t.hid);
 	return json({ type, rows });
 });

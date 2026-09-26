@@ -1,6 +1,8 @@
 import { env } from 'cloudflare:workers';
 import { type HouseholdPatch, secretAad } from '../src/db/households';
-import { type Tenant, tenant } from '../src/db/tenant';
+import { SESSION_COOKIE, createSessionValue } from '../src/api/auth';
+import { GLOBAL_HID, type Tenant, tenant } from '../src/db/tenant';
+import type { Env } from '../src/env';
 import { encryptSecret, pbkdf2Hash } from '../src/lib/crypto';
 
 const TABLES = [
@@ -64,4 +66,21 @@ export async function resetDb(): Promise<void> {
 	await env.DB.batch(TABLES.map((table) => env.DB.prepare(`DELETE FROM ${table}`)));
 	await seedHousehold(1, 'guillaume', { waApproved: 1 }, { walletToken: TEST_WALLET_TOKEN, aiKey: TEST_AI_KEY });
 	await seedHousehold(2, 'testers');
+}
+
+/**
+ * Cookie header (`__Host-session=<value>`) of a valid 1-hour session for household `hid`.
+ * `credential` defaults to TEST_PASSWORD_HASH (the stored hash of every seeded household).
+ */
+export async function sessionCookieFor(
+	sessionEnv: Pick<Env, 'SESSION_SECRET'>,
+	hid: number,
+	credential: string = TEST_PASSWORD_HASH,
+): Promise<string> {
+	return `${SESSION_COOKIE}=${await createSessionValue(sessionEnv, hid, credential, Date.now() + 3_600_000)}`;
+}
+
+/** Cookie header of a valid 1-hour owner session (hid 0, bound to DASHBOARD_PASSWORD). */
+export async function ownerCookieFor(sessionEnv: Pick<Env, 'SESSION_SECRET' | 'DASHBOARD_PASSWORD'>): Promise<string> {
+	return sessionCookieFor(sessionEnv, GLOBAL_HID, sessionEnv.DASHBOARD_PASSWORD!);
 }

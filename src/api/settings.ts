@@ -1,12 +1,22 @@
 /**
- * Validation for PUT /api/settings. Only keys of SETTING_DEFAULTS are writable from the dashboard
- * (runtime state such as brief_last_sent_date is not). Each validator returns the normalised value
- * to store or throws a message shown next to the field.
+ * Validation for PUT /api/settings. Only household keys of SETTING_DEFAULTS are writable from the
+ * dashboard: runtime state such as brief_last_sent_date is not, and GLOBAL_KEYS belong to the site
+ * owner (validated in ./owner.ts). Each validator returns the normalised value to store or throws a
+ * message shown next to the field.
  */
-import { SETTING_DEFAULTS, type SettingKey } from '../db/settings';
+import { GLOBAL_KEYS, SETTING_DEFAULTS, type SettingKey } from '../db/settings';
 import { isDateText } from './http';
 
 type Validator = (value: string) => string;
+
+/** Settings owned by the site owner (stored at GLOBAL_HID). */
+export type GlobalSettingKey = (typeof GLOBAL_KEYS)[number];
+/** Settings a household may write. */
+export type HouseholdSettingKey = Exclude<SettingKey, GlobalSettingKey>;
+
+export function isGlobalKey(key: string): key is GlobalSettingKey {
+	return (GLOBAL_KEYS as readonly string[]).includes(key);
+}
 
 const FLAG_KEYS = new Set<SettingKey>(['whatsapp_enabled', 'dry_run', 'ai_enabled', 'setup_complete']);
 
@@ -27,7 +37,7 @@ const flag: Validator = (value) => {
 /** E.164: '+', country code not starting with 0, at most 15 digits in total. */
 const E164 = /^\+[1-9]\d{6,14}$/;
 
-const VALIDATORS: Record<SettingKey, Validator> = {
+const VALIDATORS: Record<HouseholdSettingKey, Validator> = {
 	timezone: (value) => {
 		if (!value) throw new Error('Enter an IANA time zone, e.g. Europe/Dublin.');
 		try {
@@ -61,14 +71,6 @@ const VALIDATORS: Record<SettingKey, Validator> = {
 		if (bad.length > 0) throw new Error(`Not in international format (+<country code><number>): ${bad.join(', ')}`);
 		return [...new Set(numbers)].join(',');
 	},
-	wa_template_name: (value) => {
-		if (value && !/^[A-Za-z0-9_]{1,512}$/.test(value)) throw new Error('Template names only contain letters, digits and underscores.');
-		return value;
-	},
-	wa_template_lang: (value) => {
-		if (!/^[a-z]{2,3}(_[A-Za-z]{2,4})?$/.test(value)) throw new Error('Use a WhatsApp language code such as en or en_US.');
-		return value;
-	},
 	dry_run: flag,
 	ai_enabled: flag,
 	ai_model: (value) => {
@@ -88,18 +90,26 @@ export function isSettingKey(key: string): key is SettingKey {
 	return Object.hasOwn(SETTING_DEFAULTS, key);
 }
 
+export function isHouseholdSettingKey(key: string): key is HouseholdSettingKey {
+	return isSettingKey(key) && !isGlobalKey(key);
+}
+
 /**
  * Validates a `{ key: value }` patch. Values may be strings, finite numbers, or booleans (flags
  * only). Returns the normalised values and a per-key error map (empty when everything is valid).
  */
 export function validateSettingsPatch(patch: Record<string, unknown>): {
-	values: Partial<Record<SettingKey, string>>;
+	values: Partial<Record<HouseholdSettingKey, string>>;
 	errors: Record<string, string>;
 } {
-	const values: Partial<Record<SettingKey, string>> = {};
+	const values: Partial<Record<HouseholdSettingKey, string>> = {};
 	const errors: Record<string, string> = {};
 	for (const [key, raw] of Object.entries(patch)) {
-		if (!isSettingKey(key)) {
+		if (isGlobalKey(key)) {
+			errors[key] = 'This setting is shared by every household and can only be changed by the site owner.';
+			continue;
+		}
+		if (!isHouseholdSettingKey(key)) {
 			errors[key] = 'Unknown setting.';
 			continue;
 		}

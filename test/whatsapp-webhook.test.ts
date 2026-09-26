@@ -1,8 +1,9 @@
 import { createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
 import { env } from 'cloudflare:workers';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { answerQuestion } from '../src/ai/assistant';
+import { AssistantError, answerQuestion } from '../src/ai/assistant';
 import { buildDailyBriefText } from '../src/budget/brief';
+import { replaceRecipients, updateHousehold } from '../src/db/households';
 import { getMessageLogByWaId, listMessageLog, listRunLog } from '../src/db/repo';
 import { getSetting, setSettings, waWindowKey } from '../src/db/settings';
 import type { Env } from '../src/env';
@@ -15,7 +16,7 @@ import {
 	processWebhookPayload,
 	verifySignature,
 } from '../src/whatsapp/webhook';
-import { resetDb } from './helpers';
+import { HH1, HH2, resetDb } from './helpers';
 
 // Implemented in parallel / tested separately — never run the real bodies here.
 vi.mock('../src/budget/brief', () => ({
@@ -24,7 +25,10 @@ vi.mock('../src/budget/brief', () => ({
 	renderTemplateParams: vi.fn(),
 	buildDailyBriefText: vi.fn(),
 }));
-vi.mock('../src/ai/assistant', () => ({ answerQuestion: vi.fn() }));
+vi.mock('../src/ai/assistant', async (importOriginal) => ({
+	...(await importOriginal<typeof import('../src/ai/assistant')>()),
+	answerQuestion: vi.fn(),
+}));
 
 const db = env.DB;
 const APP_SECRET = 'test-app-secret';
@@ -93,7 +97,8 @@ function sentBodies(spy: ReturnType<typeof mockGraph>): string[] {
 beforeEach(async () => {
 	await resetDb();
 	vi.clearAllMocks();
-	await setSettings(db, { whatsapp_to_numbers: ALICE, dry_run: '0', stale_seconds: '300' });
+	await setSettings(HH1, { whatsapp_to_numbers: ALICE, dry_run: '0', stale_seconds: '300' });
+	await replaceRecipients(db, 1, [ALICE]);
 	vi.mocked(buildDailyBriefText).mockResolvedValue('*Family Budget Brief*\nBRIEF');
 });
 
@@ -191,8 +196,8 @@ describe('processWebhookPayload', () => {
 		await processWebhookPayload(waEnv, db, inbound({ type: 'button', text: undefined, button: { text: ' BUDGET ' } }), NOW);
 
 		// Compare bindings by identity: vitest cannot pretty-print D1 objects in matcher messages.
-		const [briefDb, briefSettings, briefNow] = vi.mocked(buildDailyBriefText).mock.calls[0]!;
-		expect(briefDb === db).toBe(true);
+		const [briefT, briefSettings, briefNow] = vi.mocked(buildDailyBriefText).mock.calls[0]!;
+		expect(briefT.db === db && briefT.hid === 1).toBe(true);
 		expect(briefSettings.whatsapp_to_numbers).toBe(ALICE);
 		expect(briefNow).toBe(NOW);
 		expect(sentBodies(spy)).toEqual(['*Family Budget Brief*\nBRIEF']);
@@ -205,17 +210,18 @@ describe('processWebhookPayload', () => {
 			body: ' BUDGET ',
 			errorCode: null,
 			outboundMessageId: 'wamid.OUT1',
+			householdId: 1,
 		});
 	});
 
 	it('records the inbound time as the 24h window for the sender', async () => {
 		mockGraph();
 		await processWebhookPayload(waEnv, db, inbound(), NOW);
-		expect(await getSetting(db, waWindowKey(ALICE))).toBe(new Date((NOW_S - 10) * 1000).toISOString());
+		expect(await getSetting(HH1, waWindowKey(ALICE))).toBe(new Date((NOW_S - 10) * 1000).toISOString());
 
 		// An older (out-of-order) delivery never moves the window back.
 		await processWebhookPayload(waEnv, db, inbound({ id: 'wamid.OLD', timestamp: String(NOW_S - 60) }), NOW);
-		expect(await getSetting(db, waWindowKey(ALICE))).toBe(new Date((NOW_S - 10) * 1000).toISOString());
+		expect(await getSetting(HH1, waWindowKey(ALICE))).toBe(new Date((NOW_S - 10) * 1000).toISOString());
 	});
 
 	it('de-duplicates a redelivered message id', async () => {
@@ -243,20 +249,36 @@ describe('processWebhookPayload', () => {
 		expect(await getMessageLogByWaId(db, 'wamid.IN1')).toMatchObject({ status: 'STALE_IGNORED', errorCode: 'ERR_STALE_MESSAGE' });
 	});
 
-	it('ignores senders that are not in whatsapp_to_numbers (and everyone when it is empty)', async () => {
+	it('ignores senders that belong to no household (hid NULL, no reply)', async () => {
 		const spy = mockGraph();
 		await processWebhookPayload(waEnv, db, inbound({ from: BOB.slice(1) }), NOW);
-		expect(await getMessageLogByWaId(db, 'wamid.IN1')).toMatchObject({ status: 'IGNORED_SENDER', fromNumber: '***2222', body: null });
+		expect(await getMessageLogByWaId(db, 'wamid.IN1')).toMatchObject({ status: 'IGNORED_SENDER', fromNumber: '***2222', body: null, householdId: null });
 		const [warning] = await listRunLog(db, 1);
-		expect(warning).toMatchObject({ level: 'WARN', action: 'whatsapp.webhook' });
+		expect(warning).toMatchObject({ level: 'WARN', action: 'whatsapp.webhook', householdId: null });
+		expect(warning!.message).toContain('not a recipient of any household');
 
-		await setSettings(db, { whatsapp_to_numbers: '' });
+		// Removing the number from the household's recipients locks it out too.
+		await replaceRecipients(db, 1, []);
 		await processWebhookPayload(waEnv, db, inbound({ id: 'wamid.IN2' }), NOW);
-		expect(await getMessageLogByWaId(db, 'wamid.IN2')).toMatchObject({ status: 'IGNORED_SENDER' });
+		expect(await getMessageLogByWaId(db, 'wamid.IN2')).toMatchObject({ status: 'IGNORED_SENDER', householdId: null });
 
 		expect(spy).not.toHaveBeenCalled();
 		expect(buildDailyBriefText).not.toHaveBeenCalled();
-		expect(await getSetting(db, waWindowKey(BOB))).toBeNull();
+		expect(await getSetting(HH1, waWindowKey(BOB))).toBeNull();
+		expect(await getSetting(HH1, waWindowKey(ALICE))).toBeNull();
+	});
+
+	it('ignores senders of a suspended household like unknown senders', async () => {
+		const spy = mockGraph();
+		await updateHousehold(db, 1, { status: 'suspended' });
+		await processWebhookPayload(waEnv, db, inbound(), NOW);
+		expect(await getMessageLogByWaId(db, 'wamid.IN1')).toMatchObject({ status: 'IGNORED_SENDER', householdId: 1 });
+		const [warning] = await listRunLog(db, 1);
+		expect(warning).toMatchObject({ level: 'WARN', action: 'whatsapp.webhook' });
+		expect(warning!.message).toContain('household 1 is suspended');
+		expect(spy).not.toHaveBeenCalled();
+		expect(buildDailyBriefText).not.toHaveBeenCalled();
+		expect(await getSetting(HH1, waWindowKey(ALICE))).toBeNull();
 	});
 
 	it('answers other text with the static reply when AI is disabled', async () => {
@@ -270,12 +292,12 @@ describe('processWebhookPayload', () => {
 	it('relays other text to Claude when AI is enabled', async () => {
 		const spy = mockGraph();
 		vi.mocked(answerQuestion).mockResolvedValue('*€123.45* on groceries so far.');
-		await setSettings(db, { ai_enabled: '1' });
-		const aiEnv = { ...waEnv, ANTHROPIC_API_KEY: 'sk-test' };
+		await setSettings(HH1, { ai_enabled: '1' });
+		const aiEnv = { ...waEnv, ANTHROPIC_API_KEY: undefined };
 
 		await processWebhookPayload(aiEnv, db, inbound({ text: { body: 'How much on groceries?' } }), NOW);
-		const [aiEnvArg, aiDb, question, aiNow] = vi.mocked(answerQuestion).mock.calls[0]!;
-		expect(aiEnvArg === aiEnv && aiDb === db).toBe(true);
+		const [aiEnvArg, aiT, question, aiNow] = vi.mocked(answerQuestion).mock.calls[0]!;
+		expect(aiEnvArg === aiEnv && aiT.db === db && aiT.hid === 1).toBe(true);
 		expect([question, aiNow]).toEqual(['How much on groceries?', NOW]);
 		expect(sentBodies(spy)).toEqual(['*€123.45* on groceries so far.']);
 		expect(await getMessageLogByWaId(db, 'wamid.IN1')).toMatchObject({ status: 'COMPLETED', outboundMessageId: 'wamid.OUT1' });
@@ -289,7 +311,7 @@ describe('processWebhookPayload', () => {
 			clock += 295_000; // 10 s old + 295 s thinking > 300 s
 			return 'late answer';
 		});
-		await setSettings(db, { ai_enabled: '1' });
+		await setSettings(HH1, { ai_enabled: '1' });
 
 		await processWebhookPayload({ ...waEnv, ANTHROPIC_API_KEY: 'sk-test' }, db, inbound({ text: { body: 'Question?' } }), NOW);
 		expect(spy).not.toHaveBeenCalled();
@@ -322,7 +344,7 @@ describe('processWebhookPayload', () => {
 	it('uses the code of coded errors, and only logs when the error reply cannot be sent either', async () => {
 		mockGraph(() => Response.json({ error: { message: 'down' } }, { status: 503 }));
 		vi.mocked(answerQuestion).mockRejectedValue(Object.assign(new Error('rate limited'), { code: 'ERR_AI_RATE_LIMIT' }));
-		await setSettings(db, { ai_enabled: '1' });
+		await setSettings(HH1, { ai_enabled: '1' });
 
 		await processWebhookPayload({ ...waEnv, ANTHROPIC_API_KEY: 'sk-test' }, db, inbound({ text: { body: 'Question?' } }), NOW);
 		expect(await getMessageLogByWaId(db, 'wamid.IN1')).toMatchObject({ status: 'FAILED', errorCode: 'ERR_AI_RATE_LIMIT', outboundMessageId: null });
@@ -332,13 +354,13 @@ describe('processWebhookPayload', () => {
 
 	it('dry run: logs the reply instead of sending it', async () => {
 		const spy = mockGraph();
-		await setSettings(db, { dry_run: '1' });
+		await setSettings(HH1, { dry_run: '1' });
 		await processWebhookPayload(waEnv, db, inbound(), NOW);
 
 		expect(spy).not.toHaveBeenCalled();
 		const rows = await listMessageLog(db, 10);
 		expect(rows.find((row) => row.direction === 'in')).toMatchObject({ status: 'COMPLETED', outboundMessageId: null });
-		expect(rows.find((row) => row.direction === 'out')).toMatchObject({ status: 'DRY_RUN', fromNumber: '***1111', body: '*Family Budget Brief*\nBRIEF' });
+		expect(rows.find((row) => row.direction === 'out')).toMatchObject({ status: 'DRY_RUN', fromNumber: '***1111', body: '*Family Budget Brief*\nBRIEF', householdId: 1 });
 	});
 
 	it('logs delivery status events (failed → ERROR with details)', async () => {
@@ -367,5 +389,102 @@ describe('processWebhookPayload', () => {
 		expect(rows[0]!.message).toBe('messageId=wamid.A recipient=***1111 status=delivered');
 		expect(rows[1]!.message).toContain('errors=131047 Re-engagement message Re-engagement message More than 24 hours');
 		expect(rows[1]!.message).not.toContain('15550002222');
+	});
+});
+
+describe('processWebhookPayload: household routing', () => {
+	beforeEach(async () => {
+		await setSettings(HH2, { whatsapp_to_numbers: BOB, dry_run: '0', stale_seconds: '300' });
+		await replaceRecipients(db, 2, [BOB]);
+		vi.mocked(buildDailyBriefText).mockImplementation(async (t) => `BRIEF of household ${t.hid}`);
+	});
+
+	it("routes each sender to its own household (brief, window key, message_log)", async () => {
+		const spy = mockGraph();
+		const payload = payloadWith({
+			messages: [
+				{ from: ALICE.slice(1), id: 'wamid.A', timestamp: String(NOW_S - 10), type: 'text', text: { body: 'Budget' } },
+				{ from: BOB.slice(1), id: 'wamid.B', timestamp: String(NOW_S - 5), type: 'text', text: { body: 'budget' } },
+			],
+		});
+		await processWebhookPayload(waEnv, db, payload, NOW);
+
+		expect(vi.mocked(buildDailyBriefText).mock.calls.map(([t, settings]) => [t.hid, settings.whatsapp_to_numbers])).toEqual([
+			[1, ALICE],
+			[2, BOB],
+		]);
+		const sent = spy.mock.calls.map(([, init]) => JSON.parse(String(init?.body))).map((body) => [body.to, body.text.body]);
+		expect(sent).toEqual([
+			[ALICE, 'BRIEF of household 1'],
+			[BOB, 'BRIEF of household 2'],
+		]);
+		expect(await getMessageLogByWaId(db, 'wamid.A')).toMatchObject({ status: 'COMPLETED', householdId: 1 });
+		expect(await getMessageLogByWaId(db, 'wamid.B')).toMatchObject({ status: 'COMPLETED', householdId: 2 });
+		expect(await getSetting(HH1, waWindowKey(ALICE))).toBe(new Date((NOW_S - 10) * 1000).toISOString());
+		expect(await getSetting(HH2, waWindowKey(BOB))).toBe(new Date((NOW_S - 5) * 1000).toISOString());
+		expect(await getSetting(HH1, waWindowKey(BOB))).toBeNull();
+		expect(await getSetting(HH2, waWindowKey(ALICE))).toBeNull();
+		expect((await listMessageLog(db, 10, 2)).map((row) => row.waMessageId)).toEqual(['wamid.B']);
+		const replied = (await listRunLog(db, 10)).filter((row) => row.message.startsWith('Replied to'));
+		expect(replied.map((row) => row.householdId).sort()).toEqual([1, 2]);
+	});
+
+	it("uses each household's own settings (dry_run, AI switch)", async () => {
+		const spy = mockGraph();
+		await setSettings(HH1, { ai_enabled: '1' });
+		await setSettings(HH2, { dry_run: '1' });
+		vi.mocked(answerQuestion).mockResolvedValue('AI answer');
+		const payload = payloadWith({
+			messages: [
+				{ from: ALICE.slice(1), id: 'wamid.A', timestamp: String(NOW_S - 10), type: 'text', text: { body: 'Question?' } },
+				{ from: BOB.slice(1), id: 'wamid.B', timestamp: String(NOW_S - 5), type: 'text', text: { body: 'Question?' } },
+			],
+		});
+		await processWebhookPayload(waEnv, db, payload, NOW);
+		expect(vi.mocked(answerQuestion).mock.calls.map(([, t]) => t.hid)).toEqual([1]);
+		expect(sentBodies(spy)).toEqual(['AI answer']);
+		const dry = (await listMessageLog(db, 10, 2)).find((row) => row.direction === 'out');
+		expect(dry).toMatchObject({ status: 'DRY_RUN', body: AI_DISABLED_REPLY, householdId: 2 });
+	});
+
+	it('replies with the setup hint when the household has no Anthropic key (ERR_AI_CONFIG)', async () => {
+		const spy = mockGraph();
+		await setSettings(HH2, { ai_enabled: '1' });
+		const hint = 'No Anthropic API key is configured for this household. Add your own Anthropic API key in Settings.';
+		vi.mocked(answerQuestion).mockRejectedValue(new AssistantError('ERR_AI_CONFIG', hint));
+		await processWebhookPayload(waEnv, db, inbound({ from: BOB.slice(1), text: { body: 'Question?' } }), NOW);
+
+		expect(sentBodies(spy)).toEqual([hint]);
+		expect(await getMessageLogByWaId(db, 'wamid.IN1')).toMatchObject({ status: 'COMPLETED', errorCode: 'ERR_AI_CONFIG', householdId: 2 });
+		const warning = (await listRunLog(db, 10, 2)).find((row) => row.level === 'WARN');
+		expect(warning!.message).toContain('no usable Anthropic API key');
+	});
+
+	it("ai_enabled '0' answers with the static reply without calling Claude, whatever keys exist", async () => {
+		const spy = mockGraph();
+		await setSettings(HH1, { ai_enabled: '0' });
+		await processWebhookPayload({ ...waEnv, ANTHROPIC_API_KEY: 'sk-env' }, db, inbound({ text: { body: 'Question?' } }), NOW);
+		expect(answerQuestion).not.toHaveBeenCalled();
+		expect(sentBodies(spy)).toEqual([AI_DISABLED_REPLY]);
+	});
+
+	it('de-duplicates message ids globally, across households', async () => {
+		const spy = mockGraph();
+		await processWebhookPayload(waEnv, db, inbound({ id: 'wamid.SAME' }), NOW);
+		await processWebhookPayload(waEnv, db, inbound({ id: 'wamid.SAME', from: BOB.slice(1) }), NOW);
+		expect(spy).toHaveBeenCalledOnce();
+		expect(await getMessageLogByWaId(db, 'wamid.SAME')).toMatchObject({ householdId: 1 });
+		expect(await listMessageLog(db, 10, 2)).toEqual([]);
+		expect(await getSetting(HH2, waWindowKey(BOB))).toBeNull();
+	});
+
+	it('loads each household once per payload', async () => {
+		mockGraph();
+		const prepare = vi.spyOn(db, 'prepare');
+		const messages = [1, 2, 3].map((n) => ({ from: ALICE.slice(1), id: `wamid.M${n}`, timestamp: String(NOW_S - 10), type: 'text', text: { body: 'Budget' } }));
+		await processWebhookPayload(waEnv, db, payloadWith({ messages }), NOW);
+		const householdReads = prepare.mock.calls.filter(([sql]) => /FROM households WHERE id = \?/.test(sql));
+		expect(householdReads).toHaveLength(1);
+		expect(buildDailyBriefText).toHaveBeenCalledTimes(3);
 	});
 });

@@ -16,14 +16,16 @@
  * extractWhatsApp{Incoming,Status}… / getWhatsAppInboundText (~1906–1958) and
  * buildCodedWhatsAppErrorMessage (~2605).
  */
-import { answerQuestion } from '../ai/assistant';
+import { AssistantError, answerQuestion } from '../ai/assistant';
 import { buildDailyBriefText } from '../budget/brief';
+import { type HouseholdRow, getHousehold, lookupRecipient } from '../db/households';
 import { insertMessageLog, logRun, type MessageLogPatch, updateMessageLogByWaId } from '../db/repo';
 import { getSettings, SETTING_DEFAULTS, type Settings, setSetting, waWindowKey } from '../db/settings';
+import { type Tenant, tenant } from '../db/tenant';
 import type { Env } from '../env';
 import { maskPhone } from '../lib/format';
 import { isoNow } from '../lib/tz';
-import { errorCode, errorText, logMessage, normalizeE164, parseRecipients, sameNumber, sendText } from './client';
+import { errorCode, errorText, logMessage, normalizeE164, sendText } from './client';
 
 const ACTION = 'whatsapp.webhook';
 const LOG_BODY_MAX_CHARS = 4000;
@@ -178,26 +180,58 @@ async function updateLog(db: D1Database, waMessageId: string, patch: MessageLogP
 	}
 }
 
-/** Sends `text` to `to`, or only logs it when dry_run is on. */
+/** Everything an inbound message of one household needs; cached per payload by household id. */
+interface HouseholdContext {
+	t: Tenant;
+	household: HouseholdRow;
+	settings: Settings;
+}
+
+/** Household context of `hid`; null when the household does not exist. */
+async function loadHouseholdContext(
+	db: D1Database,
+	cache: Map<number, HouseholdContext | null>,
+	hid: number,
+): Promise<HouseholdContext | null> {
+	if (!cache.has(hid)) {
+		const household = await getHousehold(db, hid);
+		const t = tenant(db, hid);
+		cache.set(hid, household ? { t, household, settings: await getSettings(t) } : null);
+	}
+	return cache.get(hid)!;
+}
+
+/** Sends `text` to `to`, or only logs it when the household's dry_run is on. */
 async function deliverReply(
 	env: Env,
-	db: D1Database,
-	settings: Settings,
+	{ t, settings }: HouseholdContext,
 	to: string,
 	text: string,
 	waMessageId: string,
 ): Promise<{ messageId?: string; sentAt?: string }> {
 	if (settings.dry_run === '1') {
 		const masked = maskPhone(to);
-		await logRun(db, 'INFO', ACTION, `DRY RUN: would reply to ${masked} (${waMessageId}): ${text.slice(0, 200)}`);
-		await logMessage(db, { direction: 'out', status: 'DRY_RUN', fromNumber: masked, body: text.slice(0, LOG_BODY_MAX_CHARS) });
+		await logRun(t, 'INFO', ACTION, `DRY RUN: would reply to ${masked} (${waMessageId}): ${text.slice(0, 200)}`);
+		await logMessage(t.db, {
+			direction: 'out',
+			status: 'DRY_RUN',
+			fromNumber: masked,
+			body: text.slice(0, LOG_BODY_MAX_CHARS),
+			householdId: t.hid,
+		});
 		return {};
 	}
 	const { messageId } = await sendText(env, to, text);
 	return { messageId, sentAt: isoNow() };
 }
 
-async function handleInboundMessage(env: Env, db: D1Database, settings: Settings, message: InboundMessage, now: Date): Promise<void> {
+async function handleInboundMessage(
+	env: Env,
+	db: D1Database,
+	cache: Map<number, HouseholdContext | null>,
+	message: InboundMessage,
+	now: Date,
+): Promise<void> {
 	if (!message?.from) return;
 	const from = normalizeE164(message.from);
 	const masked = maskPhone(from);
@@ -207,13 +241,28 @@ async function handleInboundMessage(env: Env, db: D1Database, settings: Settings
 	const inboundMs = unixSeconds > 0 ? unixSeconds * 1000 : now.getTime();
 	const inboundTs = new Date(inboundMs).toISOString();
 
-	// Only configured family numbers may use the bot (an empty list allows nobody — fail closed).
-	if (!parseRecipients(settings.whatsapp_to_numbers).some((allowed) => sameNumber(allowed, from))) {
-		if (await insertMessageLog(db, { waMessageId, direction: 'in', status: 'IGNORED_SENDER', fromNumber: masked, inboundTs })) {
-			await logRun(db, 'WARN', ACTION, `Ignored message ${waMessageId} from ${masked}: not in whatsapp_to_numbers.`);
+	// Route by sender: only numbers registered as a household's recipients may use the bot, and the
+	// household must be active (fail closed for unknown numbers and suspended households).
+	const hid = from ? await lookupRecipient(db, from) : null;
+	const context = hid === null ? null : await loadHouseholdContext(db, cache, hid);
+	if (!context || context.household.status !== 'active') {
+		const suspended = context !== null;
+		if (
+			await insertMessageLog(db, {
+				waMessageId,
+				direction: 'in',
+				status: 'IGNORED_SENDER',
+				fromNumber: masked,
+				inboundTs,
+				householdId: suspended ? hid : null,
+			})
+		) {
+			const reason = suspended ? `household ${hid} is suspended` : 'not a recipient of any household';
+			await logRun(db, 'WARN', ACTION, `Ignored message ${waMessageId} from ${masked}: ${reason}.`);
 		}
 		return;
 	}
+	const { t, settings } = context;
 
 	// De-duplication: Meta retries deliveries, and the UNIQUE wa_message_id makes this insert atomic.
 	const inserted = await insertMessageLog(db, {
@@ -223,6 +272,7 @@ async function handleInboundMessage(env: Env, db: D1Database, settings: Settings
 		fromNumber: masked,
 		inboundTs,
 		body: text.slice(0, LOG_BODY_MAX_CHARS),
+		householdId: t.hid,
 	});
 	if (!inserted) {
 		console.log(`${ACTION}: duplicate delivery of ${waMessageId} ignored.`);
@@ -233,7 +283,7 @@ async function handleInboundMessage(env: Env, db: D1Database, settings: Settings
 	const windowKey = waWindowKey(from);
 	const previous = Date.parse(settings[windowKey] ?? '');
 	if (!(previous >= inboundMs)) {
-		await setSetting(db, windowKey, inboundTs);
+		await setSetting(t, windowKey, inboundTs);
 		settings[windowKey] = inboundTs;
 	}
 
@@ -243,7 +293,7 @@ async function handleInboundMessage(env: Env, db: D1Database, settings: Settings
 	const isStale = () => now.getTime() + (Date.now() - startedAt) - inboundMs > staleMs;
 	const markStale = async (when: string) => {
 		await updateLog(db, waMessageId, { status: 'STALE_IGNORED', errorCode: 'ERR_STALE_MESSAGE', errorMessage: `Message was stale ${when}.` });
-		await logRun(db, 'WARN', ACTION, `Ignored stale message ${waMessageId} from ${masked} (${when}).`);
+		await logRun(t, 'WARN', ACTION, `Ignored stale message ${waMessageId} from ${masked} (${when}).`);
 	};
 	if (isStale()) return markStale('before processing started');
 
@@ -254,50 +304,57 @@ async function handleInboundMessage(env: Env, db: D1Database, settings: Settings
 			reply = HELP_REPLY;
 			resultCode = 'ERR_UNSUPPORTED_MESSAGE';
 		} else if (text.trim().toLowerCase() === 'budget') {
-			reply = await buildDailyBriefText(db, settings, now);
-		} else if (settings.ai_enabled === '1' && env.ANTHROPIC_API_KEY) {
-			reply = await answerQuestion(env, db, text, now);
+			reply = await buildDailyBriefText(t, settings, now);
+		} else if (settings.ai_enabled === '1') {
+			try {
+				reply = await answerQuestion(env, t, text, now);
+			} catch (error) {
+				// No Anthropic key for this household: tell the user how to fix it instead of a coded error.
+				if (!(error instanceof AssistantError) || error.code !== 'ERR_AI_CONFIG') throw error;
+				await logRun(t, 'WARN', ACTION, `ai_enabled is on but the household has no usable Anthropic API key: ${error.message}`);
+				reply = error.message;
+				resultCode = error.code;
+			}
 			if (isStale()) return markStale('before the Claude reply was sent');
 		} else {
-			if (settings.ai_enabled === '1') await logRun(db, 'WARN', ACTION, 'ai_enabled is on but ANTHROPIC_API_KEY is not set.');
 			reply = AI_DISABLED_REPLY;
 		}
 
-		const outbound = await deliverReply(env, db, settings, from, reply, waMessageId);
+		const outbound = await deliverReply(env, context, from, reply, waMessageId);
 		await updateLog(db, waMessageId, {
 			status: 'COMPLETED',
 			errorCode: resultCode,
 			outboundMessageId: outbound.messageId || null,
 			outboundAt: outbound.sentAt ?? null,
 		});
-		await logRun(db, 'INFO', ACTION, `Replied to ${waMessageId} from ${masked}${settings.dry_run === '1' ? ' (dry run)' : ''}.`);
+		await logRun(t, 'INFO', ACTION, `Replied to ${waMessageId} from ${masked}${settings.dry_run === '1' ? ' (dry run)' : ''}.`);
 	} catch (error) {
 		const code = errorCode(error, 'ERR_WHATSAPP_HANDLER');
 		const message = errorText(error);
-		await logRun(db, 'ERROR', ACTION, `Failed to handle ${waMessageId} from ${masked}: ${code}: ${message}`);
+		await logRun(t, 'ERROR', ACTION, `Failed to handle ${waMessageId} from ${masked}: ${code}: ${message}`);
 		await updateLog(db, waMessageId, { status: 'FAILED', errorCode: code, errorMessage: message.slice(0, 2000) });
 		if (isStale()) return;
 		try {
-			const outbound = await deliverReply(env, db, settings, from, codedErrorReply(code), waMessageId);
+			const outbound = await deliverReply(env, context, from, codedErrorReply(code), waMessageId);
 			if (outbound.messageId) await updateLog(db, waMessageId, { outboundMessageId: outbound.messageId, outboundAt: outbound.sentAt ?? null });
 		} catch (sendError) {
-			await logRun(db, 'ERROR', ACTION, `Could not send the error reply for ${waMessageId}: ${errorCode(sendError, 'ERR_WHATSAPP_SEND')}: ${errorText(sendError)}`);
+			await logRun(t, 'ERROR', ACTION, `Could not send the error reply for ${waMessageId}: ${errorCode(sendError, 'ERR_WHATSAPP_SEND')}: ${errorText(sendError)}`);
 		}
 	}
 }
 
 /**
- * Handles one webhook payload: logs delivery-status events and answers each inbound message
- * (dedup → allowlist → window bookkeeping → stale check → Budget / Claude / help reply). Never throws.
+ * Handles one webhook payload: logs delivery-status events (global) and answers each inbound
+ * message (route sender → household, dedup, window bookkeeping, stale check, Budget / Claude / help
+ * reply — all within that household). Never throws.
  */
 export async function processWebhookPayload(env: Env, db: D1Database, payload: unknown, now: Date): Promise<void> {
 	try {
 		const values = changeValues(payload);
 		await logStatusEvents(db, values.flatMap((value) => listOf<StatusEvent>(value.statuses)));
 		const messages = values.flatMap((value) => listOf<InboundMessage>(value.messages));
-		if (messages.length === 0) return;
-		const settings = await getSettings(db);
-		for (const message of messages) await handleInboundMessage(env, db, settings, message, now);
+		const cache = new Map<number, HouseholdContext | null>();
+		for (const message of messages) await handleInboundMessage(env, db, cache, message, now);
 	} catch (error) {
 		await logRun(db, 'ERROR', ACTION, `Webhook processing failed: ${errorText(error)}`);
 	}

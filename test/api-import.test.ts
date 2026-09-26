@@ -1,7 +1,6 @@
 import { createExecutionContext } from 'cloudflare:test';
 import { env } from 'cloudflare:workers';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { SESSION_COOKIE, createSessionValue } from '../src/api/auth';
 import { parseCsv } from '../src/api/csv';
 import { parseAmount, slugify } from '../src/api/imports';
 import { handleApiRequest } from '../src/api/routes';
@@ -19,7 +18,7 @@ import {
 } from '../src/db/repo';
 import { setSettings } from '../src/db/settings';
 import type { Env } from '../src/env';
-import { resetDb } from './helpers';
+import { HH1, HH2, resetDb, sessionCookieFor } from './helpers';
 
 const db = env.DB;
 const testEnv: Env = { ...env, DASHBOARD_PASSWORD: 'pw', SESSION_SECRET: 'import-test-secret' };
@@ -29,7 +28,7 @@ let cookie = '';
 async function postCsv(path: string, csv: string): Promise<{ status: number; body: any }> {
 	const request = new Request(`https://budget.example.com/api/admin/import/${path}`, {
 		method: 'POST',
-		headers: { 'Content-Type': 'text/csv', Cookie: `${SESSION_COOKIE}=${cookie}` },
+		headers: { 'Content-Type': 'text/csv', Cookie: cookie },
 		body: csv,
 	});
 	const response = (await handleApiRequest(request, testEnv, createExecutionContext()))!;
@@ -44,9 +43,9 @@ const csvLine = (cells: Array<string | number>) => cells.map((cell) => (/[",\n]/
 
 beforeEach(async () => {
 	await resetDb();
-	cookie = await createSessionValue(testEnv, Date.now() + 3_600_000);
-	await setSettings(db, { timezone: 'Europe/Dublin', base_currency: 'EUR', budget_month_start_day: '25' });
-	await upsertCategories(db, [
+	cookie = await sessionCookieFor(testEnv, 1);
+	await setSettings(HH1, { timezone: 'Europe/Dublin', base_currency: 'EUR', budget_month_start_day: '25' });
+	await upsertCategories(HH1, [
 		category('c-food', 'Food & Drinks', 'food', 'Food & Drinks'),
 		category('c-groc', 'Groceries', 'food', 'Food & Drinks', 'Food & Drinks > Groceries'),
 		category('c-bar', 'Bar, "Café"', 'food', 'Food & Drinks', 'Food & Drinks > Bar, "Café"'),
@@ -116,7 +115,7 @@ describe('POST /api/admin/import/budgets — legacy Google Sheet export', () => 
 		expect(body.unmatched[0]).toContain('Pets > Vet');
 		expect(body.unmatched[1]).toContain('Crypto');
 
-		const target = (type: 'category' | 'group', id: string) => getTarget(db, type, id);
+		const target = (type: 'category' | 'group', id: string) => getTarget(HH1, type, id);
 		expect(await target('category', 'c-groc')).toEqual({
 			entityType: 'category', entityId: 'c-groc', period: 'monthly', forecastType: 'day_to_day', budget: 1200.5, includeInReport: 1, includeInExpense: 1,
 		});
@@ -131,11 +130,11 @@ describe('POST /api/admin/import/budgets — legacy Google Sheet export', () => 
 	});
 
 	it('keeps stored values for blank cells', async () => {
-		await upsertTarget(db, { entityType: 'category', entityId: 'c-groc', period: 'monthly', forecastType: 'recurring', budget: 99, includeInReport: 1, includeInExpense: 0 });
+		await upsertTarget(HH1, { entityType: 'category', entityId: 'c-groc', period: 'monthly', forecastType: 'recurring', budget: 99, includeInReport: 1, includeInExpense: 0 });
 		const csv = [csvLine(HEADERS), row('  Groceries', '', '250', '', '', 'c-groc', 'Food & Drinks', 1, 'Food & Drinks > Groceries', 'CATEGORY')].join('\n');
 		const { body } = await postCsv('budgets', csv);
 		expect(body).toMatchObject({ imported: 1, skipped: 0, unmatched: [] });
-		expect(await getTarget(db, 'category', 'c-groc')).toMatchObject({ budget: 250, forecastType: 'recurring', includeInReport: 1, includeInExpense: 0 });
+		expect(await getTarget(HH1, 'category', 'c-groc')).toMatchObject({ budget: 250, forecastType: 'recurring', includeInReport: 1, includeInExpense: 0 });
 	});
 });
 
@@ -158,7 +157,7 @@ describe('POST /api/admin/import/budgets — generic format', () => {
 		expect(body.unmatched).toHaveLength(3);
 		expect(body.unmatched.join('\n')).toMatch(/Nonexistent[\s\S]*invalid budget "abc"[\s\S]*invalid forecast type "weekly"/);
 
-		const targets = new Map((await listTargets(db)).map((t) => [`${t.entityType}:${t.entityId}`, t]));
+		const targets = new Map((await listTargets(HH1)).map((t) => [`${t.entityType}:${t.entityId}`, t]));
 		expect(targets.get('category:c-groc')).toMatchObject({ budget: 300, forecastType: 'recurring', includeInReport: 1, includeInExpense: 1 });
 		expect(targets.get('category:c-rent')).toMatchObject({ budget: null, forecastType: 'day_to_day', includeInReport: 0, includeInExpense: 1 });
 		expect(targets.get('category:c-energy')).toMatchObject({ budget: 80.5, includeInReport: 1 });
@@ -178,7 +177,7 @@ describe('POST /api/admin/import/cashflow', () => {
 	const summary = (rows: CashflowRow[]) => rows.map((r) => [r.periodEnd, r.rowType, r.accountKey, r.currency, r.closingBalance, r.closingBalanceBase, r.source]);
 
 	it('imports account rows, converts missing base amounts and writes a TOTAL per period', async () => {
-		await upsertFxRates(db, [{ date: '2026-04-24', currency: 'ZAR', rateToBase: 0.05 }]);
+		await upsertFxRates(db, 'EUR', [{ date: '2026-04-24', currency: 'ZAR', rateToBase: 0.05 }]);
 		const fetchSpy = vi.spyOn(globalThis, 'fetch');
 		const csv = [
 			'period_start,period_end,account_name,currency,closing_balance,closing_balance_base',
@@ -192,7 +191,7 @@ describe('POST /api/admin/import/cashflow', () => {
 		expect(body).toEqual({ ok: true, periods: 2, accounts: 4, totalsWritten: 2, totalsSkipped: 0, missingFx: 0 });
 		expect(fetchSpy).not.toHaveBeenCalled(); // the seeded rate covers the only conversion
 
-		expect(summary(await listCashflowRows(db))).toEqual([
+		expect(summary(await listCashflowRows(HH1))).toEqual([
 			['2026-05-24', 'TOTAL', 'TOTAL', 'EUR', 1500, 1500, 'import'],
 			['2026-05-24', 'ACCOUNT', 'revolut-joint', 'EUR', 1500, 1500, 'import'],
 			['2026-04-24', 'TOTAL', 'TOTAL', 'EUR', 3134.56, 3134.56, 'import'],
@@ -200,7 +199,7 @@ describe('POST /api/admin/import/cashflow', () => {
 			['2026-04-24', 'ACCOUNT', 'revolut-joint', 'EUR', 1234.56, 1234.56, 'import'],
 			['2026-04-24', 'ACCOUNT', 'us-broker', 'USD', 1000, 900, 'import'],
 		]);
-		const [total] = await listCashflowRows(db, '2026-04-24');
+		const [total] = await listCashflowRows(HH1, '2026-04-24');
 		expect(total).toMatchObject({ periodStart: '2026-03-25', accountName: 'All included accounts', notes: 'Sum of 3 imported account row(s)' });
 	});
 
@@ -210,7 +209,7 @@ describe('POST /api/admin/import/cashflow', () => {
 		const csv = ['period_start,period_end,account_name,currency,closing_balance', '2026-04-25,2026-05-24,Current,EUR,100', '2026-04-25,2026-05-24,UK Savings,GBP,50'].join('\n');
 		const { body } = await postCsv('cashflow', csv);
 		expect(body).toMatchObject({ periods: 1, accounts: 2, totalsWritten: 1, missingFx: 1 });
-		expect(summary(await listCashflowRows(db, '2026-05-24'))).toEqual([
+		expect(summary(await listCashflowRows(HH1, '2026-05-24'))).toEqual([
 			['2026-05-24', 'TOTAL', 'TOTAL', 'EUR', 100, 100, 'import'],
 			['2026-05-24', 'ACCOUNT', 'current', 'EUR', 100, 100, 'import'],
 			['2026-05-24', 'ACCOUNT', 'uk-savings', 'GBP', 50, null, 'import'],
@@ -222,7 +221,7 @@ describe('POST /api/admin/import/cashflow', () => {
 			periodStart: '2026-04-25', periodEnd: '2026-05-24', rowType, accountKey, accountName: accountKey, currency: 'EUR',
 			closingBalance: value, closingBalanceBase: value, capturedAt: stamp, source: 'auto', notes: null,
 		});
-		await upsertCashflowRows(db, [auto('TOTAL', 'TOTAL', 5000), auto('ACCOUNT', 'acc-1', 5000)]);
+		await upsertCashflowRows(HH1, [auto('TOTAL', 'TOTAL', 5000), auto('ACCOUNT', 'acc-1', 5000)]);
 		const csv = [
 			'period_start,period_end,account_name,currency,closing_balance',
 			'2026-04-25,2026-05-24,Old Bank,EUR,10',
@@ -230,19 +229,19 @@ describe('POST /api/admin/import/cashflow', () => {
 		].join('\n');
 		const { body } = await postCsv('cashflow', csv);
 		expect(body).toMatchObject({ periods: 2, accounts: 2, totalsWritten: 1, totalsSkipped: 1 });
-		expect(summary(await listCashflowRows(db, '2026-05-24'))).toEqual([
+		expect(summary(await listCashflowRows(HH1, '2026-05-24'))).toEqual([
 			['2026-05-24', 'TOTAL', 'TOTAL', 'EUR', 5000, 5000, 'auto'],
 			['2026-05-24', 'ACCOUNT', 'old-bank', 'EUR', 10, 10, 'import'], // "Old Bank" < "acc-1" (binary collation)
 			['2026-05-24', 'ACCOUNT', 'acc-1', 'EUR', 5000, 5000, 'auto'],
 		]);
-		expect((await listCashflowRows(db, '2026-04-24'))[0]).toMatchObject({ rowType: 'TOTAL', closingBalance: 20, source: 'import' });
+		expect((await listCashflowRows(HH1, '2026-04-24'))[0]).toMatchObject({ rowType: 'TOTAL', closingBalance: 20, source: 'import' });
 	});
 
 	it('re-importing replaces rows and recomputes the import TOTAL', async () => {
 		const header = 'period_start,period_end,account_name,currency,closing_balance';
 		await postCsv('cashflow', [header, '2026-04-25,2026-05-24,A,EUR,10', '2026-04-25,2026-05-24,B,EUR,20'].join('\n'));
 		await postCsv('cashflow', [header, '2026-04-25,2026-05-24,A,EUR,15'].join('\n'));
-		expect(summary(await listCashflowRows(db, '2026-05-24'))[0]).toEqual(['2026-05-24', 'TOTAL', 'TOTAL', 'EUR', 35, 35, 'import']);
+		expect(summary(await listCashflowRows(HH1, '2026-05-24'))[0]).toEqual(['2026-05-24', 'TOTAL', 'TOTAL', 'EUR', 35, 35, 'import']);
 	});
 
 	it('rejects invalid files without writing anything', async () => {
@@ -256,6 +255,44 @@ describe('POST /api/admin/import/cashflow', () => {
 		);
 		expect(bad.status).toBe(400);
 		expect(bad.body.details[0]).toMatch(/^Line 3: .*after period_end.*account_name is empty.*3-letter.*closing_balance/);
-		expect(await listCashflowRows(db)).toEqual([]);
+		expect(await listCashflowRows(HH1)).toEqual([]);
+	});
+});
+
+describe('imports are scoped to the signed-in household', () => {
+	const hh2Target = { entityType: 'category' as const, entityId: 'c-groc', period: 'monthly', forecastType: 'day_to_day' as const, budget: 7, includeInReport: 1 as const, includeInExpense: 1 as const };
+
+	beforeEach(async () => {
+		// Household 2 has the SAME BudgetBakers ids (built-in categories are identical across accounts).
+		await upsertCategories(HH2, [category('c-groc', 'Groceries', 'food', 'Food & Drinks', 'Food & Drinks > Groceries')]);
+		await upsertTarget(HH2, hh2Target);
+		await upsertCashflowRows(HH2, [
+			{ periodStart: '2026-04-25', periodEnd: '2026-05-24', rowType: 'TOTAL', accountKey: 'TOTAL', accountName: 'TOTAL', currency: 'EUR', closingBalance: 77, closingBalanceBase: 77, capturedAt: stamp, source: 'auto', notes: null },
+		]);
+	});
+
+	it("a budgets import only writes household 1's targets", async () => {
+		const csv = ['entity_type,name_or_path,budget,forecast_type,include_in_report,include_in_expense', 'category,Food & Drinks > Groceries,300,recurring,true,1'].join('\n');
+		expect((await postCsv('budgets', csv)).body).toMatchObject({ imported: 1 });
+		expect(await getTarget(HH1, 'category', 'c-groc')).toMatchObject({ budget: 300, forecastType: 'recurring' });
+		expect(await listTargets(HH2)).toEqual([hh2Target]);
+	});
+
+	it("a cashflow import only writes household 1's rows", async () => {
+		const csv = ['period_start,period_end,account_name,currency,closing_balance', '2026-04-25,2026-05-24,A,EUR,10'].join('\n');
+		expect((await postCsv('cashflow', csv)).body).toMatchObject({ accounts: 1, totalsWritten: 1 });
+		expect((await listCashflowRows(HH1, '2026-05-24')).map((r) => [r.accountKey, r.closingBalance])).toEqual([
+			['TOTAL', 10],
+			['a', 10],
+		]);
+		expect((await listCashflowRows(HH2)).map((r) => [r.accountKey, r.closingBalance, r.source])).toEqual([['TOTAL', 77, 'auto']]);
+	});
+
+	it("household 2's own import leaves household 1 alone", async () => {
+		cookie = await sessionCookieFor(testEnv, 2);
+		const csv = ['entity_type,name_or_path,budget,forecast_type,include_in_report,include_in_expense', 'category,c-groc,5,,,'].join('\n');
+		expect((await postCsv('budgets', csv)).body).toMatchObject({ imported: 1 });
+		expect(await getTarget(HH2, 'category', 'c-groc')).toMatchObject({ budget: 5 });
+		expect(await getTarget(HH1, 'category', 'c-groc')).toBeNull();
 	});
 });

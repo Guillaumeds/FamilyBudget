@@ -1,13 +1,14 @@
 import { createExecutionContext } from 'cloudflare:test';
 import { env } from 'cloudflare:workers';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SESSION_COOKIE, createSessionValue } from '../src/api/auth';
 import { handleApiRequest } from '../src/api/routes';
+import { getHousehold, lookupRecipient, replaceRecipients, secretAad } from '../src/db/households';
 import {
 	type CategoryRow,
 	type TransactionRow,
 	getTarget,
 	insertMessageLog,
+	listMessageLog,
 	listRunLog,
 	listTransactionsBetween,
 	logRun,
@@ -19,15 +20,16 @@ import {
 } from '../src/db/repo';
 import { getSetting, getSettings, setSettings } from '../src/db/settings';
 import type { Env } from '../src/env';
+import { decryptSecret } from '../src/lib/crypto';
 import { convertToBase } from '../src/lib/fx';
 import { addDays, localDate } from '../src/lib/tz';
 import { WalletApiError } from '../src/wallet/client';
 import { syncWallet } from '../src/wallet/sync';
 import { sendDailyBrief } from '../src/whatsapp/client';
-import { resetDb } from './helpers';
+import { HH1, HH2, TEST_TOKEN_ENCRYPTION_KEY, TEST_WALLET_TOKEN, ownerCookieFor, resetDb, sessionCookieFor } from './helpers';
 
 vi.mock('../src/wallet/sync', () => ({ syncWallet: vi.fn() }));
-vi.mock('../src/whatsapp/client', () => ({ sendDailyBrief: vi.fn() }));
+vi.mock('../src/whatsapp/client', async (importOriginal) => ({ ...(await importOriginal<typeof import('../src/whatsapp/client')>()), sendDailyBrief: vi.fn() }));
 
 const db = env.DB;
 const ORIGIN = 'https://budget.example.com';
@@ -49,7 +51,7 @@ const stamp = new Date().toISOString();
 
 async function call(path: string, init: RequestInit & { json?: unknown } = {}): Promise<Response> {
 	const headers = new Headers(init.headers);
-	headers.set('Cookie', `${SESSION_COOKIE}=${cookie}`);
+	headers.set('Cookie', cookie);
 	let body = init.body;
 	if (init.json !== undefined) {
 		headers.set('Content-Type', 'application/json');
@@ -94,17 +96,17 @@ beforeEach(async () => {
 	await resetDb();
 	vi.mocked(syncWallet).mockReset();
 	vi.mocked(sendDailyBrief).mockReset();
-	cookie = await createSessionValue(testEnv, Date.now() + 3_600_000);
-	await setSettings(db, { timezone: 'UTC', base_currency: 'EUR', budget_month_start_day: '1' });
-	await upsertCategories(db, [
+	cookie = await sessionCookieFor(testEnv, 1);
+	await setSettings(HH1, { timezone: 'UTC', base_currency: 'EUR', budget_month_start_day: '1' });
+	await upsertCategories(HH1, [
 		category('c-groc', 'Groceries', 'food', 'Food & Drinks', { fullPath: 'Food & Drinks > Groceries', level: 1 }),
 		category('c-rest', 'Restaurant', 'food', 'Food & Drinks', { fullPath: 'Food & Drinks > Restaurant', level: 1 }),
 		category('c-rent', 'Rent', 'housing', 'Housing'),
 		category('c-salary', 'Salary', 'income', 'Income'),
 	]);
-	await upsertTarget(db, { entityType: 'category', entityId: 'c-groc', period: 'monthly', forecastType: 'day_to_day', budget: 400, includeInReport: 1, includeInExpense: 1 });
-	await upsertTarget(db, { entityType: 'category', entityId: 'c-rent', period: 'monthly', forecastType: 'recurring', budget: 1500, includeInReport: 0, includeInExpense: 1 });
-	await upsertTransactions(db, [
+	await upsertTarget(HH1, { entityType: 'category', entityId: 'c-groc', period: 'monthly', forecastType: 'day_to_day', budget: 400, includeInReport: 1, includeInExpense: 1 });
+	await upsertTarget(HH1, { entityType: 'category', entityId: 'c-rent', period: 'monthly', forecastType: 'recurring', budget: 1500, includeInReport: 0, includeInExpense: 1 });
+	await upsertTransactions(HH1, [
 		tx('t-1', today, 'c-groc', -42.5, { note: 'Tesco weekly shop', accountName: 'Joint' }),
 		tx('t-2', today, 'c-rest', -30, { note: 'Pizza night' }),
 		tx('t-3', today, 'c-rent', -1500),
@@ -115,16 +117,18 @@ beforeEach(async () => {
 
 describe('GET /api/status', () => {
 	it('reports configuration, counts and the latest runs', async () => {
-		await logRun(db, 'INFO', 'walletSync', 'old sync');
-		await logRun(db, 'WARN', 'walletSync', 'newest sync');
-		await logRun(db, 'INFO', 'capture', 'captured');
+		await logRun(HH1, 'INFO', 'walletSync', 'old sync');
+		await logRun(HH1, 'WARN', 'walletSync', 'newest sync');
+		await logRun(HH1, 'INFO', 'capture', 'captured');
 		const body = await getJson('/api/status');
 		expect(body).toMatchObject({
+			householdName: 'guillaume',
 			setupComplete: false,
 			walletConfigured: true,
 			whatsappConfigured: true,
 			webhookConfigured: false,
-			aiConfigured: false,
+			aiConfigured: true,
+			approvals: { whatsapp: true },
 			dashboardSecured: true,
 			baseCurrency: 'EUR',
 			counts: { transactions: 5, categories: 4, accounts: 0, missingFx: 0 },
@@ -132,6 +136,19 @@ describe('GET /api/status', () => {
 		expect(body.lastRun.sync).toMatchObject({ level: 'WARN', message: 'newest sync' });
 		expect(body.lastRun.capture).toMatchObject({ message: 'captured' });
 		expect(body.lastRun.brief).toBeNull();
+	});
+
+	it("reports another household's own configuration, approvals and scoped counts", async () => {
+		cookie = await sessionCookieFor(testEnv, 2);
+		const body = await getJson('/api/status');
+		expect(body).toMatchObject({
+			householdName: 'testers',
+			walletConfigured: false,
+			aiConfigured: false,
+			approvals: { whatsapp: false },
+			counts: { transactions: 0, categories: 0 },
+		});
+		expect(body.lastRun.sync).toBeNull();
 	});
 });
 
@@ -164,7 +181,7 @@ describe('PUT /api/targets/:entityType/:entityId', () => {
 	it('updates only the given fields and preserves the rest', async () => {
 		let response = await put('category/c-rent', { budget: 1600.456 });
 		expect(response.status).toBe(200);
-		expect(await getTarget(db, 'category', 'c-rent')).toEqual({
+		expect(await getTarget(HH1, 'category', 'c-rent')).toEqual({
 			entityType: 'category',
 			entityId: 'c-rent',
 			period: 'monthly',
@@ -178,13 +195,13 @@ describe('PUT /api/targets/:entityType/:entityId', () => {
 		expect(((await response.json()) as any).target).toMatchObject({ budget: 1600.46, includeInReport: 1, forecastType: 'day_to_day' });
 
 		await put('category/c-rent', { budget: null });
-		expect(await getTarget(db, 'category', 'c-rent')).toMatchObject({ budget: null, includeInReport: 1, forecastType: 'day_to_day' });
+		expect(await getTarget(HH1, 'category', 'c-rent')).toMatchObject({ budget: null, includeInReport: 1, forecastType: 'day_to_day' });
 	});
 
 	it('creates a target with defaults when none exists (income group excluded from expenses)', async () => {
-		expect(await getTarget(db, 'group', 'income')).toBeNull();
+		expect(await getTarget(HH1, 'group', 'income')).toBeNull();
 		expect((await put('group/income', { includeInReport: true })).status).toBe(200);
-		expect(await getTarget(db, 'group', 'income')).toEqual({
+		expect(await getTarget(HH1, 'group', 'income')).toEqual({
 			entityType: 'group',
 			entityId: 'income',
 			period: 'monthly',
@@ -229,14 +246,14 @@ describe('PUT /api/targets/:entityType/:entityId', () => {
 		let response = await put('group/food', { budget: 1234.567, forecastType: 'recurring' });
 		expect(response.status).toBe(200);
 		expect(((await response.json()) as any).target).toMatchObject({ entityType: 'group', entityId: 'food', budget: 1234.57, forecastType: 'recurring' });
-		expect(await getTarget(db, 'group', 'food')).toMatchObject({ budget: 1234.57, forecastType: 'recurring' });
+		expect(await getTarget(HH1, 'group', 'food')).toMatchObject({ budget: 1234.57, forecastType: 'recurring' });
 		const body = await getJson('/api/summary');
 		expect(body.targets['group:food']).toEqual({ budget: 1234.57, period: 'monthly' });
 		expect(body.lines.find((l: any) => l.rowType === 'TYPE' && l.id === 'food')).toMatchObject({ budget: 1234.57, forecast: 1234.57, forecastType: 'recurring' });
 
 		response = await put('group/food', { budget: null });
 		expect(response.status).toBe(200);
-		expect(await getTarget(db, 'group', 'food')).toMatchObject({ budget: null, forecastType: 'recurring' });
+		expect(await getTarget(HH1, 'group', 'food')).toMatchObject({ budget: null, forecastType: 'recurring' });
 		expect((await foodBudget()).budget).toBe(sum);
 	});
 
@@ -301,22 +318,61 @@ describe('GET /api/settings, PUT /api/settings', () => {
 
 	it('writes nothing when any key is invalid', async () => {
 		expect((await put({ brief_hour_local: 7, timezone: 'Nowhere/Land' })).status).toBe(400);
-		expect(await getSetting(db, 'brief_hour_local')).toBe('9');
+		expect(await getSetting(HH1, 'brief_hour_local')).toBe('9');
 	});
 
-	it('changing base_currency clears cached FX rates and returns a warning', async () => {
-		await upsertFxRates(db, [{ date: today, currency: 'ZAR', rateToBase: 0.05 }]);
+	it('changing base_currency keeps the shared FX cache and returns a warning', async () => {
+		await upsertFxRates(db, 'EUR', [{ date: today, currency: 'ZAR', rateToBase: 0.05 }]);
+		await upsertFxRates(db, 'GBP', [{ date: today, currency: 'ZAR', rateToBase: 0.04 }]);
 		const same = (await (await put({ base_currency: 'eur' })).json()) as any;
 		expect(same.warning).toBeUndefined();
-		expect(await db.prepare('SELECT COUNT(*) AS n FROM fx_rates').first('n')).toBe(1);
 
 		const response = await put({ base_currency: 'usd' });
 		expect(response.status).toBe(200);
 		const body = (await response.json()) as any;
 		expect(body.settings.base_currency).toBe('USD');
 		expect(body.warning).toContain('EUR to USD');
-		expect(await db.prepare('SELECT COUNT(*) AS n FROM fx_rates').first('n')).toBe(0);
-		expect((await listRunLog(db, 1))[0]).toMatchObject({ level: 'WARN', action: 'settings' });
+		expect(body.warning).toContain('FX backfill');
+		expect(body.warning).not.toContain('cleared');
+		// Other households (and other bases) still rely on the cached rates.
+		expect(await db.prepare('SELECT COUNT(*) AS n FROM fx_rates').first('n')).toBe(2);
+		expect((await listRunLog(db, 1))[0]).toMatchObject({ level: 'WARN', action: 'settings', householdId: 1 });
+		expect((await getSettings(HH2)).base_currency).toBe('EUR');
+	});
+
+	it('rejects the owner-only global keys with GLOBAL_KEY and writes nothing', async () => {
+		for (const key of ['wa_template_name', 'wa_template_lang', 'signup_enabled']) {
+			const response = await put({ [key]: key === 'signup_enabled' ? '0' : 'en', brief_hour_local: 7 });
+			expect(response.status).toBe(400);
+			const body = (await response.json()) as any;
+			expect(body.code).toBe('GLOBAL_KEY');
+			expect(Object.keys(body.fields)).toEqual([key]);
+		}
+		expect(await getSetting(HH1, 'brief_hour_local')).toBe('9');
+		expect(await db.prepare("SELECT COUNT(*) AS n FROM settings WHERE key IN ('wa_template_name', 'wa_template_lang', 'signup_enabled')").first('n')).toBe(0);
+	});
+
+	it('keeps household_recipients in sync with whatsapp_to_numbers', async () => {
+		expect((await put({ whatsapp_to_numbers: '+353 87 123 4567, +27820001111' })).status).toBe(200);
+		expect(await lookupRecipient(db, '+353871234567')).toBe(1);
+		expect(await lookupRecipient(db, '+27820001111')).toBe(1);
+
+		expect((await put({ whatsapp_to_numbers: '+27820001111' })).status).toBe(200);
+		expect(await lookupRecipient(db, '+353871234567')).toBeNull();
+		expect(await lookupRecipient(db, '+27820001111')).toBe(1);
+
+		expect((await put({ whatsapp_to_numbers: '' })).status).toBe(200);
+		expect(await lookupRecipient(db, '+27820001111')).toBeNull();
+	});
+
+	it('400s RECIPIENT_TAKEN when another household owns a number, applying nothing', async () => {
+		await replaceRecipients(db, 2, ['+27820001111']);
+		const response = await put({ whatsapp_to_numbers: '+353871234567,+27820001111', brief_hour_local: 7 });
+		expect(response.status).toBe(400);
+		expect(await response.json()).toMatchObject({ code: 'RECIPIENT_TAKEN', number: '+27820001111' });
+		expect(await lookupRecipient(db, '+353871234567')).toBeNull();
+		expect(await lookupRecipient(db, '+27820001111')).toBe(2);
+		expect(await getSettings(HH1)).toMatchObject({ whatsapp_to_numbers: '', brief_hour_local: '9' });
 	});
 });
 
@@ -372,7 +428,7 @@ describe('GET /api/cashflow', () => {
 			source: 'auto' as const,
 			notes: null,
 		});
-		await upsertCashflowRows(db, [
+		await upsertCashflowRows(HH1, [
 			row('2026-07-24', 'TOTAL', 'TOTAL', 1000),
 			row('2026-08-24', 'TOTAL', 'TOTAL', 1250.5),
 			row('2026-08-24', 'ACCOUNT', 'a-1', 1250.5),
@@ -389,7 +445,7 @@ describe('GET /api/cashflow', () => {
 
 describe('GET /api/brief/preview', () => {
 	it('renders the exact brief text and the 14 template params', async () => {
-		await setSettings(db, { brief_title: 'Test Brief' });
+		await setSettings(HH1, { brief_title: 'Test Brief' });
 		const body = await getJson('/api/brief/preview');
 		expect(body.text).toContain('💰 *Test Brief*');
 		expect(body.text).toContain('Groceries');
@@ -409,7 +465,7 @@ describe('admin: sync', () => {
 		const response = await call('/api/admin/sync', { method: 'POST', json: { full: true } });
 		expect(response.status).toBe(200);
 		expect(await response.json()).toEqual({ ok: true, full: true, ...result });
-		expect(vi.mocked(syncWallet).mock.calls[0]!.slice(1)).toEqual([db, { full: true, force: false }]);
+		expect(vi.mocked(syncWallet).mock.calls[0]!.slice(1)).toEqual([HH1, { full: true, force: false }]);
 	});
 
 	it('maps the initial-sync 409 to 202 with retryAfterSeconds', async () => {
@@ -447,11 +503,11 @@ describe('admin: send-brief', () => {
 		const body = (await response.json()) as any;
 		expect(body).toMatchObject({ ok: true, dryRun: true, results: [{ to: '***4567', mode: 'dry' }] });
 		expect(body.note).toContain('dry_run is on');
-		expect(vi.mocked(sendDailyBrief).mock.calls[0]![1]).toBe(db);
+		expect(vi.mocked(sendDailyBrief).mock.calls[0]![1]).toEqual(HH1);
 	});
 
 	it('passes through skip reasons and per-recipient errors', async () => {
-		await setSettings(db, { dry_run: '0' });
+		await setSettings(HH1, { dry_run: '0' });
 		vi.mocked(sendDailyBrief).mockResolvedValue({ results: [{ to: '***1111', mode: 'template', error: 'ERR_WHATSAPP_SEND: 131047' }] });
 		const body = (await (await call('/api/admin/send-brief', { method: 'POST' })).json()) as any;
 		expect(body).toMatchObject({ ok: false, dryRun: false });
@@ -465,13 +521,13 @@ describe('admin: fx-backfill', () => {
 	it('converts transactions missing amount_base with the same semantics as convertToBase', async () => {
 		const from = addDays(today, -3);
 		// Full coverage from..today → ensureRates makes no network request.
-		await upsertFxRates(db, [
+		await upsertFxRates(db, 'EUR', [
 			{ date: from, currency: 'ZAR', rateToBase: 0.05 },
 			{ date: addDays(from, 1), currency: 'ZAR', rateToBase: 0.051 },
 			{ date: today, currency: 'ZAR', rateToBase: 0.052 },
 		]);
 		const fetchSpy = vi.spyOn(globalThis, 'fetch');
-		await upsertTransactions(db, [
+		await upsertTransactions(HH1, [
 			tx('z-1', addDays(from, 2), 'c-groc', -1000, { currency: 'ZAR', amountBase: null }), // falls back to the day before
 			tx('z-2', today, 'c-groc', -200, { currency: 'ZAR', amountBase: null }),
 			tx('z-3', addDays(from, -30), 'c-groc', -50, { currency: 'ZAR', amountBase: null }), // no rate within 14 days
@@ -483,7 +539,7 @@ describe('admin: fx-backfill', () => {
 		expect(await response.json()).toEqual({ ok: true, from, currencies: ['ZAR'], ratesFetched: 0, reconverted: 2, stillMissing: 1 });
 		expect(fetchSpy).not.toHaveBeenCalled();
 
-		const rows = new Map((await listTransactionsBetween(db, '2000-01-01', '9999-12-31')).map((row) => [row.id, row.amountBase]));
+		const rows = new Map((await listTransactionsBetween(HH1, '2000-01-01', '9999-12-31')).map((row) => [row.id, row.amountBase]));
 		expect(rows.get('z-1')).toBe(await convertToBase(db, -1000, 'ZAR', addDays(from, 2), 'EUR'));
 		expect(rows.get('z-1')).toBeCloseTo(-51);
 		expect(rows.get('z-2')).toBeCloseTo(-10.4);
@@ -493,7 +549,7 @@ describe('admin: fx-backfill', () => {
 
 		const all = (await (await call('/api/admin/fx-backfill', { method: 'POST', json: { from, all: true } })).json()) as any;
 		expect(all).toMatchObject({ reconverted: 8, stillMissing: 1 });
-		expect((await listTransactionsBetween(db, today, addDays(today, 1))).find((row) => row.id === 'z-4')!.amountBase).toBeCloseTo(-5.2);
+		expect((await listTransactionsBetween(HH1, today, addDays(today, 1))).find((row) => row.id === 'z-4')!.amountBase).toBeCloseTo(-5.2);
 		fetchSpy.mockRestore();
 	});
 
@@ -520,9 +576,11 @@ describe('admin: capture, test-wallet, logs', () => {
 	});
 
 	it('returns run and message logs newest first', async () => {
-		await logRun(db, 'INFO', 'a', 'first');
-		await logRun(db, 'INFO', 'b', 'second');
-		await insertMessageLog(db, { direction: 'out', status: 'SENT', fromNumber: '***4567', body: 'hi' });
+		await logRun(HH1, 'INFO', 'a', 'first');
+		await logRun(HH1, 'INFO', 'b', 'second');
+		await insertMessageLog(db, { direction: 'out', status: 'SENT', fromNumber: '***4567', body: 'hi', householdId: 1 });
+		await insertMessageLog(db, { direction: 'out', status: 'SENT', fromNumber: '***9999', body: 'other', householdId: 2 });
+		await logRun(HH2, 'INFO', 'c', 'other household');
 		const run = await getJson('/api/admin/logs?type=run&limit=1');
 		expect(run).toMatchObject({ type: 'run', rows: [{ action: 'b', message: 'second' }] });
 		const message = await getJson('/api/admin/logs?type=message');
@@ -540,6 +598,139 @@ describe('admin: capture, test-wallet, logs', () => {
 describe('settings read back through getSettings', () => {
 	it('setup_complete accepts booleans', async () => {
 		expect((await call('/api/settings', { method: 'PUT', json: { setup_complete: true } })).status).toBe(200);
-		expect((await getSettings(db)).setup_complete).toBe('1');
+		expect((await getSettings(HH1)).setup_complete).toBe('1');
 	});
 });
+
+describe('owner vs household routes', () => {
+	it('403s the owner on household-data routes', async () => {
+		cookie = await ownerCookieFor(testEnv);
+		for (const path of ['/api/summary', '/api/status', '/api/settings', '/api/admin/logs']) {
+			const response = await call(path);
+			expect(response.status, path).toBe(403);
+			expect(await response.json()).toMatchObject({ code: 'OWNER_HAS_NO_DATA' });
+		}
+		expect((await call('/api/wallet-token', { method: 'POST', json: { token: 'x' } })).status).toBe(403);
+	});
+
+	it('403s households on /api/owner/*, which the owner can use', async () => {
+		const denied = await call('/api/owner/households');
+		expect(denied.status).toBe(403);
+		expect(await denied.json()).toMatchObject({ code: 'FORBIDDEN' });
+		expect((await call('/api/owner/nope')).status).toBe(403);
+
+		cookie = await ownerCookieFor(testEnv);
+		const body = await getJson('/api/owner/households');
+		expect(body.households.map((h: any) => h.name)).toEqual(['guillaume', 'testers']);
+		const approved = await call('/api/owner/households/2/approve', { method: 'POST', json: { whatsapp: true } });
+		expect(approved.status).toBe(200);
+		expect((await getHousehold(db, 2))!.waApproved).toBe(1);
+		expect((await call('/api/owner/households', { method: 'POST' })).status).toBe(405);
+		expect((await call('/api/owner/nope')).status).toBe(404);
+	});
+
+	it('401s without a session', async () => {
+		cookie = '';
+		expect((await call('/api/summary')).status).toBe(401);
+	});
+});
+
+describe('POST /api/wallet-token, POST /api/ai-key', () => {
+	it('stores the Wallet token encrypted and returns the live test result', async () => {
+		cookie = await sessionCookieFor(testEnv, 2);
+		const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ ok: true }));
+		const response = await call('/api/wallet-token', { method: 'POST', json: { token: '  new-token  ' } });
+		expect(response.status).toBe(200);
+		expect(await response.json()).toEqual({ ok: true, cleared: false, test: { ok: true } });
+		const [url, init] = fetchSpy.mock.calls[0]!;
+		expect(String(url)).toContain('/v1/api/api-usage/stats');
+		expect(new Headers((init as RequestInit).headers).get('Authorization')).toBe('Bearer new-token');
+
+		const row = (await getHousehold(db, 2))!;
+		expect(row.walletTokenEnc).toMatch(/^v1\./);
+		expect(row.walletTokenEnc).not.toContain('new-token');
+		expect(await decryptSecret(row.walletTokenEnc!, TEST_TOKEN_ENCRYPTION_KEY, secretAad('wallet-token', 2))).toBe('new-token');
+		expect((await getHousehold(db, 1))!.walletTokenEnc).toBeTruthy();
+		expect((await getJson('/api/status')).walletConfigured).toBe(true);
+		fetchSpy.mockRestore();
+	});
+
+	it('reports a failing token but keeps it stored', async () => {
+		const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ error: 'unauthorized' }, { status: 401 }));
+		const body = (await (await call('/api/wallet-token', { method: 'POST', json: { token: 'bad-token' } })).json()) as any;
+		expect(body).toMatchObject({ ok: true, test: { ok: false, code: 'WALLET_AUTH' } });
+		const row = (await getHousehold(db, 1))!;
+		expect(await decryptSecret(row.walletTokenEnc!, TEST_TOKEN_ENCRYPTION_KEY, secretAad('wallet-token', 1))).toBe('bad-token');
+		fetchSpy.mockRestore();
+	});
+
+	it('clears the Wallet token with an empty value without testing it', async () => {
+		const fetchSpy = vi.spyOn(globalThis, 'fetch');
+		const body = await (await call('/api/wallet-token', { method: 'POST', json: { token: '' } })).json();
+		expect(body).toEqual({ ok: true, cleared: true, test: null });
+		expect(fetchSpy).not.toHaveBeenCalled();
+		expect((await getHousehold(db, 1))!.walletTokenEnc).toBeNull();
+		fetchSpy.mockRestore();
+	});
+
+	it('validates the body', async () => {
+		expect((await call('/api/wallet-token', { method: 'POST', json: {} })).status).toBe(400);
+		expect((await call('/api/wallet-token', { method: 'POST', json: { token: 42 } })).status).toBe(400);
+		expect((await call('/api/ai-key', { method: 'POST', json: { key: 'has space' } })).status).toBe(400);
+		expect((await getHousehold(db, 1))!.walletTokenEnc).toBeTruthy();
+	});
+
+	it('stores and clears the Anthropic key', async () => {
+		cookie = await sessionCookieFor(testEnv, 2);
+		expect(await (await call('/api/ai-key', { method: 'POST', json: { key: 'sk-ant-test' } })).json()).toEqual({ ok: true, cleared: false });
+		const row = (await getHousehold(db, 2))!;
+		expect(await decryptSecret(row.anthropicKeyEnc!, TEST_TOKEN_ENCRYPTION_KEY, secretAad('anthropic-key', 2))).toBe('sk-ant-test');
+		expect((await getJson('/api/status')).aiConfigured).toBe(true);
+
+		expect(await (await call('/api/ai-key', { method: 'POST', json: { key: '' } })).json()).toEqual({ ok: true, cleared: true });
+		expect((await getHousehold(db, 2))!.anthropicKeyEnc).toBeNull();
+		expect((await getJson('/api/status')).aiConfigured).toBe(false);
+	});
+
+	it('503s when TOKEN_ENCRYPTION_KEY is missing', async () => {
+		const response = await handleApiRequest(
+			new Request(`${ORIGIN}/api/ai-key`, {
+				method: 'POST',
+				headers: { Cookie: cookie, 'Content-Type': 'application/json' },
+				body: JSON.stringify({ key: 'sk-ant-test' }),
+			}),
+			{ ...testEnv, TOKEN_ENCRYPTION_KEY: undefined },
+			createExecutionContext(),
+		);
+		expect(response!.status).toBe(503);
+		expect(await response!.json()).toMatchObject({ code: 'NEEDS_SECRETS' });
+	});
+});
+
+describe('household scoping', () => {
+	it("test-wallet uses the household's own decrypted token", async () => {
+		const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({}));
+		expect(await (await call('/api/admin/test-wallet', { method: 'POST' })).json()).toEqual({ ok: true });
+		expect(new Headers((fetchSpy.mock.calls[0]![1] as RequestInit).headers).get('Authorization')).toBe(`Bearer ${TEST_WALLET_TOKEN}`);
+
+		cookie = await sessionCookieFor(testEnv, 2);
+		expect(await (await call('/api/admin/test-wallet', { method: 'POST' })).json()).toMatchObject({ ok: false, code: 'WALLET_AUTH' });
+		expect(fetchSpy).toHaveBeenCalledTimes(1);
+		fetchSpy.mockRestore();
+	});
+
+	it("a second household sees none of household 1's data", async () => {
+		cookie = await sessionCookieFor(testEnv, 2);
+		const summary = await getJson('/api/summary');
+		expect(summary.targets).toEqual({});
+		expect((await getJson('/api/transactions')).total).toBe(0);
+		expect((await put2('category/c-groc', { budget: 1 })).status).toBe(404);
+		const logs = await getJson('/api/admin/logs?type=message');
+		expect(logs.rows).toEqual([]);
+		expect(await listMessageLog(db, 10)).toEqual([]);
+	});
+});
+
+function put2(path: string, json: unknown): Promise<Response> {
+	return call(`/api/targets/${path}`, { method: 'PUT', json });
+}
