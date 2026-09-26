@@ -595,3 +595,96 @@ export async function deleteCashflowRows(db: D1Database, periodEnd: string, sour
 	const result = await db.prepare('DELETE FROM cashflow_balances WHERE period_end = ? AND source = ?').bind(periodEnd, source).run();
 	return result.meta.changes;
 }
+
+// ---------------------------------------------------------------------------------------------
+// Appended for api/routes.ts (dashboard)
+// ---------------------------------------------------------------------------------------------
+
+export async function getTarget(db: D1Database, entityType: EntityType, entityId: string): Promise<BudgetTargetRow | null> {
+	return db
+		.prepare(`SELECT ${selectList(TARGET_FIELDS)} FROM budget_targets WHERE entity_type = ? AND entity_id = ?`)
+		.bind(entityType, entityId)
+		.first<BudgetTargetRow>();
+}
+
+/** Bulk variant of upsertTarget (one statement per 100 rows) — used by the CSV importer. */
+export async function upsertTargets(db: D1Database, rows: readonly BudgetTargetRow[]): Promise<void> {
+	await bulkUpsert(db, 'budget_targets', TARGET_FIELDS, ['entity_type', 'entity_id'], rows);
+}
+
+export interface CoreCounts {
+	transactions: number;
+	categories: number;
+	accounts: number;
+	/** Transactions whose amount_base is NULL (no FX rate yet). */
+	missingFx: number;
+}
+
+/** Row counts for the dashboard status page, in one query. */
+export async function countCoreRows(db: D1Database): Promise<CoreCounts> {
+	const row = await db
+		.prepare(
+			`SELECT (SELECT COUNT(*) FROM transactions) AS transactions, (SELECT COUNT(*) FROM categories) AS categories,
+			        (SELECT COUNT(*) FROM accounts) AS accounts, (SELECT COUNT(*) FROM transactions WHERE amount_base IS NULL) AS missingFx`,
+		)
+		.first<CoreCounts>();
+	return row ?? { transactions: 0, categories: 0, accounts: 0, missingFx: 0 };
+}
+
+/** The newest run_log row for each of `actions` (actions without rows are absent), in one query. */
+export async function latestRunLogByAction(db: D1Database, actions: readonly string[]): Promise<Map<string, RunLogRow>> {
+	const latest = new Map<string, RunLogRow>();
+	if (actions.length === 0) return latest;
+	const { results } = await db
+		.prepare(
+			`SELECT ${selectList(RUN_LOG_FIELDS)} FROM run_log WHERE id IN
+			 (SELECT MAX(id) FROM run_log WHERE action IN (SELECT value FROM json_each(?)) GROUP BY action)`,
+		)
+		.bind(JSON.stringify(actions))
+		.all<RunLogRow>();
+	for (const row of results) latest.set(row.action, row);
+	return latest;
+}
+
+/** Distinct upper-cased currencies used by transactions and accounts. */
+export async function listDistinctCurrencies(db: D1Database): Promise<string[]> {
+	const { results } = await db
+		.prepare(
+			`SELECT DISTINCT upper(currency) AS currency FROM transactions WHERE currency IS NOT NULL AND currency <> ''
+			 UNION SELECT DISTINCT upper(currency) FROM accounts WHERE currency IS NOT NULL AND currency <> '' ORDER BY 1`,
+		)
+		.all<{ currency: string }>();
+	return results.map((row) => row.currency);
+}
+
+/**
+ * Recomputes `amount_base` in SQL for transactions whose amount_base IS NULL (or for every
+ * transaction when `all`), with exactly the semantics of lib/fx.ts convertToBase +
+ * getFxRateOnOrBefore: identity for the base currency, else amount × the latest rate on or before
+ * the transaction date within `maxLookbackDays`, else NULL. A single UPDATE instead of one
+ * convertToBase query per (currency, date) keeps a multi-year backfill within D1's per-invocation
+ * query limit. Returns rows written and rows still without a rate afterwards.
+ */
+export async function reconvertTransactionsToBase(
+	db: D1Database,
+	baseCurrency: string,
+	opts: { all?: boolean; maxLookbackDays?: number } = {},
+): Promise<{ updated: number; stillMissing: number }> {
+	const lookback = `-${Math.max(0, Math.trunc(opts.maxLookbackDays ?? 14))} days`;
+	const [update, missing] = await db.batch([
+		db
+			.prepare(
+				`UPDATE transactions SET amount_base = CASE
+				   WHEN upper(currency) = ?1 THEN amount
+				   ELSE amount * (SELECT f.rate_to_base FROM fx_rates f
+				                  WHERE f.currency = upper(transactions.currency) AND f.date <= transactions.date
+				                    AND f.date >= date(transactions.date, ?2)
+				                  ORDER BY f.date DESC LIMIT 1)
+				 END
+				 WHERE ?3 = 1 OR amount_base IS NULL`,
+			)
+			.bind(baseCurrency.toUpperCase(), lookback, opts.all ? 1 : 0),
+		db.prepare('SELECT COUNT(*) AS n FROM transactions WHERE amount_base IS NULL'),
+	]);
+	return { updated: update!.meta.changes, stillMissing: (missing!.results[0] as { n: number } | undefined)?.n ?? 0 };
+}
