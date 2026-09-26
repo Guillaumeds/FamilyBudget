@@ -19,6 +19,8 @@ export interface Secrets {
 	SESSION_SECRET?: string;
 	/** base64 of 32 random bytes: AES-GCM key for the per-household secrets stored in D1 (src/lib/crypto.ts). */
 	TOKEN_ENCRYPTION_KEY?: string;
+	/** Cloudflare Turnstile server-side secret. When unset, signup skips CAPTCHA verification (logged). */
+	TURNSTILE_SECRET?: string;
 }
 
 type Vars = 'WALLET_API_BASE_URL' | 'WHATSAPP_API_VERSION';
@@ -30,4 +32,8 @@ export interface Env extends Omit<Cloudflare.Env, keyof Secrets | Vars>, Secrets
 	WALLET_API_BASE_URL: string;
 	/** Meta Graph API version for WhatsApp Cloud API calls, e.g. "v26.0" (wrangler.jsonc vars). */
 	WHATSAPP_API_VERSION: string;
+	/** Turnstile site key (public; wrangler.jsonc vars). Empty string when Turnstile is not configured. */
+	TURNSTILE_SITE_KEY?: string;
+	/** Per-household task queue (Workers Paid). Undefined = free plan / local: tasks run inline. */
+	HOUSEHOLD_TASKS?: Queue<unknown>;
 }
