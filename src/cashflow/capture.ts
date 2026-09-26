@@ -3,7 +3,8 @@
  * getNonCashAccountClosingDetailsForPeriods (legacy/Code.gs ~1137 and ~1452), adapted to the signed
  * native amounts stored in D1.
  *
- * For the current budget period, each account with include_in_cashflow (and not archived) gets a
+ * For the current budget period (or the one `offset` periods away, e.g. −1 for a retroactive
+ * capture of the previous period), each account with include_in_cashflow (and not archived) gets a
  * closing balance = current Wallet balance − the net of its transactions dated after the period end.
  * Writes one ACCOUNT row per account plus a TOTAL row (source 'auto'). Re-runs replace the previous
  * 'auto' capture of that period; 'import' rows are never touched.
@@ -23,9 +24,9 @@ export interface CaptureResult {
 
 const rowKey = (row: Pick<CashflowRow, 'rowType' | 'accountKey'>) => `${row.rowType}:${row.accountKey}`;
 
-export async function captureClosingBalances(db: D1Database, settings: Settings, now: Date): Promise<CaptureResult> {
+export async function captureClosingBalances(db: D1Database, settings: Settings, now: Date, offset = 0): Promise<CaptureResult> {
 	const base = settings.base_currency.toUpperCase();
-	const period = periodForOffset(localDate(now, settings.timezone), normalizeStartDay(Number(settings.budget_month_start_day)), 0);
+	const period = periodForOffset(localDate(now, settings.timezone), normalizeStartDay(Number(settings.budget_month_start_day)), offset);
 	const [accounts, laterTransactions] = await Promise.all([
 		listAccounts(db),
 		listTransactionsBetween(db, period.endExclusiveText, '9999-12-31'),
