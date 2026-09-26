@@ -73,6 +73,12 @@ export function h(tag, props, ...children) {
 	return el;
 }
 
+/** replaceChildren() that skips null/false like h() (the native one would print "false"). */
+export function setChildren(el, ...children) {
+	el.replaceChildren();
+	return append(el, children);
+}
+
 export function append(el, children) {
 	for (const child of [children].flat(Infinity)) {
 		if (child === null || child === undefined || child === false) continue;
@@ -141,6 +147,55 @@ export function keyValues(pairs) {
 		'dl',
 		{ class: 'kv' },
 		pairs.filter(Boolean).map(([label, value]) => [h('dt', {}, label), h('dd', {}, value)]),
+	);
+}
+
+/** Page title row: h1, optional subtitle and right-aligned actions. */
+export function pageHeader(title, subtitle, ...actions) {
+	return h(
+		'div',
+		{ class: 'page-header' },
+		h('div', {}, h('h1', {}, title), subtitle && h('p', { class: 'muted' }, subtitle)),
+		actions.length > 0 && h('div', { class: 'page-actions' }, actions),
+	);
+}
+
+/** A titled section card. */
+export function card(title, ...children) {
+	return h('section', { class: 'card' }, title && h('h2', { class: 'card-title' }, title), ...children);
+}
+
+/** kind: ok | bad | warn | info | neutral */
+export function badge(text, kind = 'neutral') {
+	return h('span', { class: `badge badge-${kind}` }, text);
+}
+
+export function emptyState(...children) {
+	return h('div', { class: 'empty' }, ...children);
+}
+
+/**
+ * Thin progress meter. `fraction` 0..n (over 1 turns red); `marker` (0..1) draws a pace tick,
+ * e.g. how far through the period we are.
+ */
+export function meter(fraction, { marker, label } = {}) {
+	const value = Math.max(0, Number(fraction) || 0);
+	const el = h(
+		'div',
+		{ class: `meter${value > 1 ? ' meter-over' : value > 0.9 ? ' meter-near' : ''}`, role: 'img', 'aria-label': label ?? `${percent(value)} used` },
+		h('span', { class: 'meter-fill', style: { width: `${Math.min(value, 1) * 100}%` } }),
+	);
+	if (marker !== undefined && marker !== null) el.append(h('span', { class: 'meter-marker', style: { left: `${Math.min(Math.max(marker, 0), 1) * 100}%` } }));
+	return el;
+}
+
+/** Plain-language error text for a failed request, used in inline callouts. */
+export function errorBox(error, retry) {
+	return callout(
+		'error',
+		h('strong', {}, 'Couldn’t load this page. '),
+		error?.message ?? String(error),
+		retry && h('div', { class: 'callout-actions' }, h('button', { type: 'button', class: 'btn btn-sm', onclick: retry }, 'Try again')),
 	);
 }
 
@@ -221,3 +276,22 @@ export function timeAgo(iso) {
 export function readFileText(file) {
 	return file.text();
 }
+
+/** localStorage for small UI preferences; silently no-ops where storage is blocked. */
+export const prefs = {
+	get(key, fallback) {
+		try {
+			const value = localStorage.getItem(`wbc:${key}`);
+			return value === null ? fallback : JSON.parse(value);
+		} catch {
+			return fallback;
+		}
+	},
+	set(key, value) {
+		try {
+			localStorage.setItem(`wbc:${key}`, JSON.stringify(value));
+		} catch {
+			// Private mode / blocked storage: preferences just don't persist.
+		}
+	},
+};

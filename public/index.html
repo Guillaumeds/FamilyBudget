@@ -3,19 +3,41 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="color-scheme" content="light dark" />
+		<meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#111418" media="(prefers-color-scheme: dark)" />
 		<title>Wallet Budget Companion</title>
-		<style>
-			body {
-				font-family: system-ui, sans-serif;
-				max-width: 40rem;
-				margin: 4rem auto;
-				padding: 0 1rem;
-				line-height: 1.5;
-			}
-		</style>
+		<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f766e'/%3E%3Cpath d='M9 21V11h4.5a3 3 0 0 1 0 6H9m8 4 6-10' stroke='white' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+		<link rel="stylesheet" href="/style.css" />
+		<script type="module" src="/js/app.js"></script>
 	</head>
 	<body>
-		<h1>Wallet Budget Companion</h1>
-		<p>The dashboard is under construction. The Worker is running — check <a href="/health">/health</a>.</p>
+		<a class="skip-link" href="#main">Skip to content</a>
+		<header class="topbar" id="topbar" hidden>
+			<div class="topbar-inner">
+				<a class="brand" href="#/budget" aria-label="Wallet Budget Companion — budget">
+					<span class="brand-mark" aria-hidden="true">B</span>
+					<span class="brand-name">Budget Companion</span>
+				</a>
+				<nav class="nav" aria-label="Main">
+					<a href="#/budget" data-view="budget">Budget</a>
+					<a href="#/transactions" data-view="transactions">Transactions</a>
+					<a href="#/cashflow" data-view="cashflow">Cash flow</a>
+					<a href="#/brief" data-view="brief">Brief</a>
+					<a href="#/settings" data-view="settings">Settings</a>
+				</nav>
+				<div class="topbar-end">
+					<span class="period-pill" id="period-label" title="Current budget period" hidden></span>
+					<button type="button" class="btn btn-ghost btn-sm" id="logout">Sign out</button>
+				</div>
+			</div>
+			<div class="setup-banner" id="setup-banner" hidden>
+				Setup isn’t finished yet. <a href="#/setup">Continue setup →</a>
+			</div>
+		</header>
+		<main id="main" tabindex="-1">
+			<div class="loading loading-page" role="status"><span class="spinner" aria-hidden="true"></span>Loading…</div>
+		</main>
+		<noscript><p class="noscript">This dashboard needs JavaScript.</p></noscript>
 	</body>
 </html>
