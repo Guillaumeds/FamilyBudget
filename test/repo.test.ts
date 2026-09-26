@@ -31,7 +31,7 @@ import {
 	upsertTransactions,
 } from '../src/db/repo';
 import { SETTING_DEFAULTS, getSetting, getSettings, setSetting, setSettings, waWindowKey } from '../src/db/settings';
-import { resetDb } from './helpers';
+import { HH1, resetDb } from './helpers';
 
 const db = env.DB;
 const NOW = '2026-09-26T10:00:00.000Z';
@@ -80,19 +80,19 @@ beforeEach(resetDb);
 describe('categories & accounts', () => {
 	it('upserts and lists categories (camelCase round trip, update on conflict)', async () => {
 		const groceries = category('cat-groceries', 'Groceries', 'food_drinks', 'Food & Drinks');
-		await upsertCategories(db, [groceries, category('cat-salary', 'Salary', 'income', 'Income')]);
-		await upsertCategories(db, [{ ...groceries, name: 'Supermarket', archived: 1 }]);
+		await upsertCategories(HH1, [groceries, category('cat-salary', 'Salary', 'income', 'Income')]);
+		await upsertCategories(HH1, [{ ...groceries, name: 'Supermarket', archived: 1 }]);
 
-		const rows = await listCategories(db);
+		const rows = await listCategories(HH1);
 		expect(rows).toHaveLength(2);
 		expect(rows.find((row) => row.id === 'cat-groceries')).toEqual({ ...groceries, name: 'Supermarket', archived: 1 });
 	});
 
 	it('preserves the user-controlled includeInCashflow flag on account upserts', async () => {
-		await upsertAccounts(db, [account('a1', { includeInCashflow: 0 }), account('a2')]);
-		await upsertAccounts(db, [account('a1', { balance: 250.5, includeInCashflow: 1, name: 'Renamed' })]);
+		await upsertAccounts(HH1, [account('a1', { includeInCashflow: 0 }), account('a2')]);
+		await upsertAccounts(HH1, [account('a1', { balance: 250.5, includeInCashflow: 1, name: 'Renamed' })]);
 
-		expect(await listAccounts(db)).toEqual([account('a2'), account('a1', { balance: 250.5, includeInCashflow: 0, name: 'Renamed' })]);
+		expect(await listAccounts(HH1)).toEqual([account('a2'), account('a1', { balance: 250.5, includeInCashflow: 0, name: 'Renamed' })]);
 	});
 });
 
@@ -105,32 +105,32 @@ describe('transactions', () => {
 				amountBase: i % 2 ? null : -12.34,
 			}),
 		);
-		await upsertTransactions(db, rows);
+		await upsertTransactions(HH1, rows);
 
-		const september = await listTransactionsBetween(db, '2026-09-01', '2026-10-01');
+		const september = await listTransactionsBetween(HH1, '2026-09-01', '2026-10-01');
 		expect(september).toHaveLength(250);
 		expect(september.find((row) => row.id === 't000')).toEqual(rows[0]);
 		expect(september.find((row) => row.id === 't001')!.amountBase).toBeNull();
 
-		const firstWeek = await listTransactionsBetween(db, '2026-09-01', '2026-09-08');
+		const firstWeek = await listTransactionsBetween(HH1, '2026-09-01', '2026-09-08');
 		expect(firstWeek.every((row) => row.date >= '2026-09-01' && row.date < '2026-09-08')).toBe(true);
 		expect(firstWeek.map((row) => row.date)).toEqual([...firstWeek.map((row) => row.date)].sort());
 
-		const onDate = await listTransactionsOnDate(db, '2026-09-01');
+		const onDate = await listTransactionsOnDate(HH1, '2026-09-01');
 		expect(onDate.map((row) => row.date)).toEqual(Array(onDate.length).fill('2026-09-01'));
 		expect(onDate.length).toBeGreaterThan(0);
 	});
 
 	it('updates existing rows on conflict', async () => {
-		await upsertTransactions(db, [transaction('t1', '2026-09-10')]);
-		await upsertTransactions(db, [transaction('t1', '2026-09-11', { amount: -99, amountBase: -99, note: 'edited' })]);
-		expect(await listTransactionsBetween(db, '2026-09-01', '2026-10-01')).toEqual([
+		await upsertTransactions(HH1, [transaction('t1', '2026-09-10')]);
+		await upsertTransactions(HH1, [transaction('t1', '2026-09-11', { amount: -99, amountBase: -99, note: 'edited' })]);
+		expect(await listTransactionsBetween(HH1, '2026-09-01', '2026-10-01')).toEqual([
 			transaction('t1', '2026-09-11', { amount: -99, amountBase: -99, note: 'edited' }),
 		]);
 	});
 
 	it('deleteTransactionsNotIn removes only rows in the window that Wallet no longer returns', async () => {
-		await upsertTransactions(db, [
+		await upsertTransactions(HH1, [
 			transaction('old', '2026-05-31'),
 			transaction('keep-1', '2026-06-01'),
 			transaction('gone-1', '2026-06-01'),
@@ -138,16 +138,16 @@ describe('transactions', () => {
 			transaction('gone-2', '2026-09-20'),
 		]);
 
-		expect(await deleteTransactionsNotIn(db, '2026-06-01', ['keep-1', 'keep-2', 'not-local'])).toBe(2);
-		const remaining = await listTransactionsBetween(db, '2000-01-01', '2100-01-01');
+		expect(await deleteTransactionsNotIn(HH1, '2026-06-01', ['keep-1', 'keep-2', 'not-local'])).toBe(2);
+		const remaining = await listTransactionsBetween(HH1, '2000-01-01', '2100-01-01');
 		expect(remaining.map((row) => row.id)).toEqual(['old', 'keep-1', 'keep-2']);
-		expect(await deleteTransactionsNotIn(db, '2026-06-01', new Set(['keep-1', 'keep-2']))).toBe(0);
+		expect(await deleteTransactionsNotIn(HH1, '2026-06-01', new Set(['keep-1', 'keep-2']))).toBe(0);
 	});
 
 	it('deleteTransactionsNotIn handles more ids than one statement', async () => {
-		await upsertTransactions(db, Array.from({ length: 1200 }, (_, i) => transaction(`x${i}`, '2026-09-01')));
-		expect(await deleteTransactionsNotIn(db, '2026-09-01', ['x7'])).toBe(1199);
-		expect((await listTransactionsOnDate(db, '2026-09-01')).map((row) => row.id)).toEqual(['x7']);
+		await upsertTransactions(HH1, Array.from({ length: 1200 }, (_, i) => transaction(`x${i}`, '2026-09-01')));
+		expect(await deleteTransactionsNotIn(HH1, '2026-09-01', ['x7'])).toBe(1199);
+		expect((await listTransactionsOnDate(HH1, '2026-09-01')).map((row) => row.id)).toEqual(['x7']);
 	});
 });
 
@@ -162,9 +162,9 @@ describe('budget targets', () => {
 	];
 
 	it('ensureDefaultTargets inserts category and group rows with the income/transfer/system rule', async () => {
-		expect(await ensureDefaultTargets(db, categories)).toBe(6 + 4);
+		expect(await ensureDefaultTargets(HH1, categories)).toBe(6 + 4);
 
-		const targets = await listTargets(db);
+		const targets = await listTargets(HH1);
 		const flag = (type: string, id: string) => targets.find((t) => t.entityType === type && t.entityId === id)?.includeInExpense;
 		expect(flag('category', 'cat-groceries')).toBe(1);
 		expect(flag('category', 'cat-orphan')).toBe(1);
@@ -187,8 +187,8 @@ describe('budget targets', () => {
 	});
 
 	it('ensureDefaultTargets is idempotent and never overwrites user edits', async () => {
-		await ensureDefaultTargets(db, categories);
-		await upsertTarget(db, {
+		await ensureDefaultTargets(HH1, categories);
+		await upsertTarget(HH1, {
 			entityType: 'category',
 			entityId: 'cat-groceries',
 			period: 'monthly',
@@ -198,16 +198,16 @@ describe('budget targets', () => {
 			includeInExpense: 1,
 		});
 
-		expect(await ensureDefaultTargets(db, categories)).toBe(0);
-		expect(await ensureDefaultTargets(db, [...categories, category('cat-new', 'New', 'food_drinks', 'Food & Drinks')])).toBe(1);
+		expect(await ensureDefaultTargets(HH1, categories)).toBe(0);
+		expect(await ensureDefaultTargets(HH1, [...categories, category('cat-new', 'New', 'food_drinks', 'Food & Drinks')])).toBe(1);
 
-		const groceries = (await listTargets(db)).find((t) => t.entityId === 'cat-groceries');
+		const groceries = (await listTargets(HH1)).find((t) => t.entityId === 'cat-groceries');
 		expect(groceries).toMatchObject({ forecastType: 'recurring', budget: 650, includeInReport: 1 });
-		expect(await listTargets(db)).toHaveLength(11);
+		expect(await listTargets(HH1)).toHaveLength(11);
 	});
 
 	it('ensureDefaultTargets with no categories is a no-op', async () => {
-		expect(await ensureDefaultTargets(db, [])).toBe(0);
+		expect(await ensureDefaultTargets(HH1, [])).toBe(0);
 	});
 });
 
@@ -227,41 +227,41 @@ describe('cash-flow balances', () => {
 	});
 
 	it('upserts idempotently and lists totals / rows newest first', async () => {
-		await upsertCashflowRows(db, [
+		await upsertCashflowRows(HH1, [
 			row('2026-08-24', 'ACCOUNT', 'a1', 100),
 			row('2026-08-24', 'TOTAL', 'TOTAL', 100),
 			row('2026-09-24', 'ACCOUNT', 'a1', 200),
 			row('2026-09-24', 'TOTAL', 'TOTAL', 200),
 		]);
-		await upsertCashflowRows(db, [row('2026-09-24', 'TOTAL', 'TOTAL', 250)]);
+		await upsertCashflowRows(HH1, [row('2026-09-24', 'TOTAL', 'TOTAL', 250)]);
 
-		expect((await listCashflowTotals(db, 10)).map((r) => [r.periodEnd, r.closingBalance])).toEqual([
+		expect((await listCashflowTotals(HH1, 10)).map((r) => [r.periodEnd, r.closingBalance])).toEqual([
 			['2026-09-24', 250],
 			['2026-08-24', 100],
 		]);
-		expect(await listCashflowTotals(db, 1)).toHaveLength(1);
-		expect((await listCashflowRows(db)).map((r) => [r.periodEnd, r.rowType])).toEqual([
+		expect(await listCashflowTotals(HH1, 1)).toHaveLength(1);
+		expect((await listCashflowRows(HH1)).map((r) => [r.periodEnd, r.rowType])).toEqual([
 			['2026-09-24', 'TOTAL'],
 			['2026-09-24', 'ACCOUNT'],
 			['2026-08-24', 'TOTAL'],
 			['2026-08-24', 'ACCOUNT'],
 		]);
-		expect(await listCashflowRows(db, '2026-08-24')).toEqual([row('2026-08-24', 'TOTAL', 'TOTAL', 100), row('2026-08-24', 'ACCOUNT', 'a1', 100)]);
+		expect(await listCashflowRows(HH1, '2026-08-24')).toEqual([row('2026-08-24', 'TOTAL', 'TOTAL', 100), row('2026-08-24', 'ACCOUNT', 'a1', 100)]);
 	});
 });
 
 describe('fx rates', () => {
 	it('upserts, reports coverage and looks up on-or-before', async () => {
-		await upsertFxRates(db, [
+		await upsertFxRates(db, 'EUR', [
 			{ date: '2026-09-18', currency: 'usd', rateToBase: 0.9 },
 			{ date: '2026-09-21', currency: 'USD', rateToBase: 0.85 },
 		]);
-		await upsertFxRates(db, [{ date: '2026-09-21', currency: 'USD', rateToBase: 0.8 }]);
+		await upsertFxRates(db, 'EUR', [{ date: '2026-09-21', currency: 'USD', rateToBase: 0.8 }]);
 
-		expect(await getFxRateOnOrBefore(db, '2026-09-20', 'USD')).toBe(0.9);
-		expect(await getFxRateOnOrBefore(db, '2026-09-21', 'USD')).toBe(0.8);
-		expect(await getFxRateOnOrBefore(db, '2026-09-17', 'USD')).toBeNull();
-		expect(await getFxCoverage(db, ['usd', 'ZAR'])).toEqual(new Map([['USD', { minDate: '2026-09-18', maxDate: '2026-09-21' }]]));
+		expect(await getFxRateOnOrBefore(db, 'EUR', '2026-09-20', 'USD')).toBe(0.9);
+		expect(await getFxRateOnOrBefore(db, 'EUR', '2026-09-21', 'USD')).toBe(0.8);
+		expect(await getFxRateOnOrBefore(db, 'EUR', '2026-09-17', 'USD')).toBeNull();
+		expect(await getFxCoverage(db, 'EUR', ['usd', 'ZAR'])).toEqual(new Map([['USD', { minDate: '2026-09-18', maxDate: '2026-09-21' }]]));
 	});
 });
 
@@ -309,12 +309,12 @@ describe('run log', () => {
 
 describe('settings', () => {
 	it('getSettings returns defaults merged with stored values', async () => {
-		expect(await getSettings(db)).toEqual(SETTING_DEFAULTS);
+		expect(await getSettings(HH1)).toEqual(SETTING_DEFAULTS);
 
-		await setSetting(db, 'timezone', 'Europe/Dublin');
-		await setSettings(db, { budget_month_start_day: '25', whatsapp_to_numbers: '+353000000000', wallet_last_change_rev: '42' });
+		await setSetting(HH1, 'timezone', 'Europe/Dublin');
+		await setSettings(HH1, { budget_month_start_day: '25', whatsapp_to_numbers: '+353000000000', wallet_last_change_rev: '42' });
 
-		const settings = await getSettings(db);
+		const settings = await getSettings(HH1);
 		expect(settings).toMatchObject({
 			timezone: 'Europe/Dublin',
 			budget_month_start_day: '25',
@@ -326,19 +326,19 @@ describe('settings', () => {
 	});
 
 	it('getSetting falls back to the default, or null for unset runtime keys', async () => {
-		expect(await getSetting(db, 'brief_hour_local')).toBe('9');
-		expect(await getSetting(db, 'brief_last_sent_date')).toBeNull();
+		expect(await getSetting(HH1, 'brief_hour_local')).toBe('9');
+		expect(await getSetting(HH1, 'brief_last_sent_date')).toBeNull();
 
-		await setSetting(db, 'brief_hour_local', '8');
-		await setSetting(db, waWindowKey('+353871234567'), NOW);
-		await setSettings(db, { brief_hour_local: '7' });
+		await setSetting(HH1, 'brief_hour_local', '8');
+		await setSetting(HH1, waWindowKey('+353871234567'), NOW);
+		await setSettings(HH1, { brief_hour_local: '7' });
 
-		expect(await getSetting(db, 'brief_hour_local')).toBe('7');
-		expect(await getSetting(db, 'wa_window_last_inbound:+353871234567')).toBe(NOW);
+		expect(await getSetting(HH1, 'brief_hour_local')).toBe('7');
+		expect(await getSetting(HH1, 'wa_window_last_inbound:+353871234567')).toBe(NOW);
 	});
 
 	it('setSettings with an empty record is a no-op', async () => {
-		await setSettings(db, {});
-		expect(await getSettings(db)).toEqual(SETTING_DEFAULTS);
+		await setSettings(HH1, {});
+		expect(await getSettings(HH1)).toEqual(SETTING_DEFAULTS);
 	});
 });

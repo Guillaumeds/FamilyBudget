@@ -12,8 +12,9 @@ export default defineConfig(async () => {
 			cloudflareTest({
 				wrangler: { configPath: './wrangler.jsonc' },
 				miniflare: {
-					// Test-only binding so test/apply-migrations.ts can apply the real migrations.
-					bindings: { TEST_MIGRATIONS: migrations },
+					// Test-only binding so test/apply-migrations.ts can apply the real migrations, and a fixed
+					// TOKEN_ENCRYPTION_KEY (= TEST_TOKEN_ENCRYPTION_KEY in test/helpers.ts) for the seeded secrets.
+					bindings: { TEST_MIGRATIONS: migrations, TOKEN_ENCRYPTION_KEY: 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=' },
 				},
 			}),
 		],

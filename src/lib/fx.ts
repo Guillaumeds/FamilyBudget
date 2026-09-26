@@ -5,7 +5,8 @@
  * [{ date, base, quote, rate }] where `rate` = units of `quote` per 1 `base`. We store the inverse,
  * `rate_to_base` = base units per 1 unit of the foreign currency, so amount_base = amount × rate.
  * Default (blended) rates cover ~200 currencies and usually include weekends; days without a
- * published rate fall back to the latest earlier rate (see getFxRateOnOrBefore).
+ * published rate fall back to the latest earlier rate (see getFxRateOnOrBefore). The cache is shared
+ * by all households and keyed by base currency.
  */
 import { getFxCoverage, getFxRateOnOrBefore, upsertFxRates } from '../db/repo';
 import { addDays } from './tz';
@@ -74,7 +75,7 @@ export async function ensureRates(
 	const wanted = [...new Set(currencies.map((c) => c.toUpperCase()))].filter((c) => c && c !== base);
 	if (wanted.length === 0 || minDate > maxDate) return 0;
 
-	const coverage = await getFxCoverage(db, wanted);
+	const coverage = await getFxCoverage(db, base, wanted);
 	const missing: string[] = [];
 	let from = maxDate;
 	let to = minDate;
@@ -90,7 +91,7 @@ export async function ensureRates(
 	if (missing.length === 0) return 0;
 
 	const rates = await fetchRatesRange(base, missing, addDays(from, -LOOKBACK_DAYS), to);
-	await upsertFxRates(db, rates);
+	await upsertFxRates(db, base, rates);
 	return rates.length;
 }
 
@@ -106,6 +107,6 @@ export async function convertToBase(
 	baseCurrency: string,
 ): Promise<number | null> {
 	if (currency.toUpperCase() === baseCurrency.toUpperCase()) return amount;
-	const rate = await getFxRateOnOrBefore(db, date, currency);
+	const rate = await getFxRateOnOrBefore(db, baseCurrency, date, currency);
 	return rate === null ? null : amount * rate;
 }

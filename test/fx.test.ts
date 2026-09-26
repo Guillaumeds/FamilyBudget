@@ -86,7 +86,7 @@ describe('ensureRates', () => {
 		expect(url!.searchParams.get('to')).toBe('2026-09-20');
 		expect(url!.searchParams.get('quotes')).toBe('USD,ZAR');
 		expect(stored).toBe(18 * 2);
-		expect(await getFxRateOnOrBefore(env.DB, '2026-09-15', 'USD')).toBe(0.8);
+		expect(await getFxRateOnOrBefore(env.DB, 'EUR', '2026-09-15', 'USD')).toBe(0.8);
 	});
 
 	it('does not call the API when the range is already covered', async () => {
@@ -100,7 +100,7 @@ describe('ensureRates', () => {
 	});
 
 	it('fetches only the missing tail, and only for currencies with a gap', async () => {
-		await upsertFxRates(env.DB, [
+		await upsertFxRates(env.DB, 'EUR', [
 			{ date: '2026-09-01', currency: 'USD', rateToBase: 0.8 },
 			{ date: '2026-09-20', currency: 'USD', rateToBase: 0.8 },
 			{ date: '2026-09-01', currency: 'ZAR', rateToBase: 0.05 },
@@ -117,7 +117,7 @@ describe('ensureRates', () => {
 	});
 
 	it('fetches a missing head when the range starts before the cached rates', async () => {
-		await upsertFxRates(env.DB, [{ date: '2026-09-10', currency: 'USD', rateToBase: 0.8 }]);
+		await upsertFxRates(env.DB, 'EUR', [{ date: '2026-09-10', currency: 'USD', rateToBase: 0.8 }]);
 		const spy = frankfurter({ USD: 1.25 });
 		await ensureRates(env.DB, 'EUR', ['USD'], '2026-08-01', '2026-09-10');
 
@@ -140,7 +140,7 @@ describe('convertToBase', () => {
 	});
 
 	it('multiplies by the rate on or before the date (e.g. Friday rate for a Sunday)', async () => {
-		await upsertFxRates(env.DB, [
+		await upsertFxRates(env.DB, 'EUR', [
 			{ date: '2026-09-18', currency: 'ZAR', rateToBase: 0.05 }, // Friday
 			{ date: '2026-09-21', currency: 'ZAR', rateToBase: 0.04 }, // Monday
 		]);
@@ -150,7 +150,7 @@ describe('convertToBase', () => {
 
 	it('returns null when no rate is available (or only a stale one)', async () => {
 		expect(await convertToBase(env.DB, 100, 'USD', '2026-09-20', 'EUR')).toBeNull();
-		await upsertFxRates(env.DB, [{ date: '2026-08-01', currency: 'USD', rateToBase: 0.8 }]);
+		await upsertFxRates(env.DB, 'EUR', [{ date: '2026-08-01', currency: 'USD', rateToBase: 0.8 }]);
 		expect(await convertToBase(env.DB, 100, 'USD', '2026-09-20', 'EUR')).toBeNull();
 		expect(await convertToBase(env.DB, 100, 'USD', '2026-07-31', 'EUR')).toBeNull();
 	});
