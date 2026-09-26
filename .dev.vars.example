@@ -3,7 +3,7 @@
 # Only WALLET_API_TOKEN, DASHBOARD_PASSWORD and SESSION_SECRET are needed for the dashboard + sync;
 # WhatsApp and Claude features switch on only when their secrets (and settings flags) are present.
 
-# BudgetBakers Wallet REST API token (Wallet web app -> Settings -> API; Premium plan required).
+# BudgetBakers Wallet REST API token (Wallet web app -> Settings -> REST API; Premium plan required).
 WALLET_API_TOKEN=
 
 # WhatsApp Cloud API (Meta for Developers -> your app -> WhatsApp -> API Setup).

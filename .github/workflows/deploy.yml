@@ -4,7 +4,7 @@ name: Deploy
 #
 # Required repository configuration (Settings → Secrets and variables → Actions):
 #   * Variable CLOUDFLARE_ACCOUNT_ID — your Cloudflare account id (dash → Workers → right sidebar).
-#   * Secret   CLOUDFLARE_API_TOKEN  — API token with Workers Scripts:Edit and D1:Edit.
+#   * Secret   CLOUDFLARE_API_TOKEN  — API token from the "Edit Cloudflare Workers" template, plus D1:Edit.
 # Forks and clones without these simply skip the deploy job, so CI stays green out of the box.
 # Runtime app secrets (Wallet token, WhatsApp, Anthropic, ...) are NOT set here — they live in
 # Workers secrets via `wrangler secret put` (see README).
