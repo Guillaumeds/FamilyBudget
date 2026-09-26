@@ -279,7 +279,8 @@ export async function syncWallet(env: Env, db: D1Database, opts: SyncOptions = {
 		};
 	} catch (error) {
 		const code = error instanceof WalletApiError ? error.code : 'SYNC_ERROR';
-		await logRun(db, 'ERROR', ACTION, `${code}: ${errorMessage(error)}`);
+		// The initial-sync 409 is expected right after a token is created — a warning, not an error.
+		await logRun(db, code === 'WALLET_SYNC_IN_PROGRESS' ? 'WARN' : 'ERROR', ACTION, `${code}: ${errorMessage(error)}`);
 		throw error;
 	}
 }

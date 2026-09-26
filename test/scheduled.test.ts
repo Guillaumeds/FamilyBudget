@@ -137,6 +137,24 @@ describe('daily brief gating', () => {
 		expect(await logLines()).toContain('WARN scheduled: Daily brief for 2026-01-15: +35*****12: text, +27*****34: template FAILED.');
 	});
 
+	it('leaves the guard unset when every recipient failed — nobody got the brief, so the next hour retries', async () => {
+		brief.mockResolvedValueOnce({
+			results: [
+				{ to: '+35*****12', mode: 'text', error: 'ERR_WHATSAPP_SEND: 500' },
+				{ to: '+27*****34', mode: 'template', error: 'ERR_WHATSAPP_SEND: 500' },
+			],
+		});
+		await tick('2026-01-15T09:00:00Z');
+
+		expect(await getSetting(db, 'brief_last_sent_date')).toBeNull();
+		expect((await logLines()).some((line) => line.includes('all sends failed, retrying next hour'))).toBe(true);
+
+		brief.mockResolvedValueOnce({ results: [{ to: '+35*****12', mode: 'text', messageId: 'wamid.2' }] });
+		await tick('2026-01-15T10:00:00Z');
+		expect(brief).toHaveBeenCalledTimes(2);
+		expect(await getSetting(db, 'brief_last_sent_date')).toBe('2026-01-15');
+	});
+
 	it('leaves the guard unset when building the brief throws, so the next hour retries', async () => {
 		brief.mockRejectedValueOnce(new Error('engine exploded'));
 		await tick('2026-01-15T09:00:00Z');

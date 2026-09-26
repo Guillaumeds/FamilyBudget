@@ -68,15 +68,17 @@ export async function runScheduled(env: Env, _ctx: ExecutionContext, now: Date =
 	if (hour >= hourSetting(settings, 'brief_hour_local') && settings.brief_last_sent_date !== today) {
 		try {
 			const outcome = await sendDailyBrief(env, db, now);
-			// Set the guard even on a skip (nothing to retry) or per-recipient failures (already logged by
-			// the client; retrying would double-send to the recipients that succeeded). Only a thrown error
-			// — the brief could not be built — leaves it unset for the next tick.
-			await setSetting(db, 'brief_last_sent_date', today);
 			const failed = outcome.results.filter((result) => result.error).length;
+			// Set the guard on a skip (nothing to retry) or on any successful send (retrying would
+			// double-send to the recipients that succeeded). When EVERY recipient failed nobody got the
+			// brief, so the guard stays unset and the next tick retries — as it does when building the
+			// brief threw.
+			const allFailed = outcome.results.length > 0 && failed === outcome.results.length;
+			if (!allFailed) await setSetting(db, 'brief_last_sent_date', today);
 			const detail = outcome.skippedReason
 				? `skipped (${outcome.skippedReason})`
 				: outcome.results.map((result) => `${result.to}: ${result.mode}${result.error ? ' FAILED' : ''}`).join(', ');
-			await logRun(db, failed ? 'WARN' : 'INFO', ACTION, `Daily brief for ${today}: ${detail}.`);
+			await logRun(db, failed ? 'WARN' : 'INFO', ACTION, `Daily brief for ${today}: ${detail}${allFailed ? ' — all sends failed, retrying next hour' : ''}.`);
 		} catch (error) {
 			await logRun(db, 'ERROR', ACTION, `Daily brief for ${today} failed, retrying next hour: ${describeError(error)}`);
 		}
