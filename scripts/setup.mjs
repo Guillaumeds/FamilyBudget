@@ -284,6 +284,7 @@ function existingSecrets() {
 async function setSecrets() {
 	const existing = existingSecrets();
 	const groups = {};
+	const skipped = [];
 
 	for (const secret of SECRETS) {
 		const { name } = secret;
@@ -303,6 +304,7 @@ async function setSecrets() {
 			}
 			if (!groups[secret.group]) {
 				info(dim('Skipped. Set it later with: npx wrangler secret put ' + name));
+				skipped.push(name);
 				continue;
 			}
 		}
@@ -318,12 +320,14 @@ async function setSecrets() {
 		if (!value) {
 			if (secret.required) warn(`${name} was not set. The dashboard will not work until you run: npx wrangler secret put ${name}`);
 			else info(dim('Skipped.'));
+			skipped.push(name);
 			continue;
 		}
 		const { status, stderr } = wrangler(['secret', 'put', name], { input: value, capture: true });
 		if (status !== 0) fail(`wrangler secret put ${name} failed:\n${stderr}`);
 		ok(`${name} saved.`);
 	}
+	return skipped;
 }
 
 function deploy() {
@@ -349,8 +353,16 @@ function deploy() {
 	return url;
 }
 
-function printNextSteps(url) {
+function printNextSteps(url, skipped = []) {
 	const base = url ?? 'https://<your-worker>.<your-subdomain>.workers.dev';
+	if (skipped.length) {
+		console.log(`
+${bold('⚠ Secrets NOT set during this run')} — the matching features stay off until you add them:
+${skipped.map((name) => `     npx wrangler secret put ${name}`).join('\n')}
+   (Each command prompts for the value and activates it immediately — no redeploy needed.
+    WHATSAPP_* and META_APP_SECRET are needed for the daily brief and inbound messages;
+    ANTHROPIC_API_KEY only for Claude Q&A.)`);
+	}
 	console.log(`
 ${bold('Done! Next steps')}
 
@@ -424,12 +436,12 @@ async function main() {
 
 	step('Secrets');
 	if (!INTERACTIVE && !YES) warn('No terminal detected: only secrets provided as environment variables will be set.');
-	await setSecrets();
+	const skipped = await setSecrets();
 
 	step('Deploy');
 	const url = deploy();
 
-	printNextSteps(url);
+	printNextSteps(url, skipped);
 }
 
 main().catch((error) => {
