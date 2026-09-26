@@ -17,6 +17,13 @@
 		"crons": ["0 * * * *"],
 	},
 
+	// Custom domains (the zone must be on this Cloudflare account). Deploying creates the DNS
+	// records and TLS certificates automatically; the workers.dev URL keeps working alongside.
+	"routes": [
+		{ "pattern": "briefbudget.com", "custom_domain": true },
+		{ "pattern": "www.briefbudget.com", "custom_domain": true },
+	],
+
 	"d1_databases": [
 		{
 			"binding": "DB",
