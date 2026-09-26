@@ -23,3 +23,6 @@ coverage/
 # Personal data — never commit spreadsheets or Wallet API audit dumps
 *.xlsx
 wallet-api-audit/
+
+# Personal data kept out of git
+*.local.csv
