@@ -26,3 +26,4 @@ wallet-api-audit/
 
 # Personal data kept out of git
 *.local.csv
+/backup-*.sql
