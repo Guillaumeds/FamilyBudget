@@ -14,11 +14,14 @@
  */
 import { loadBudgetComputation } from '../budget/engine';
 import { listCashflowTotals, listCategories, listTransactionsBetween } from '../db/repo';
+import { getHousehold } from '../db/households';
 import { getSettings, type Settings } from '../db/settings';
+import type { Tenant } from '../db/tenant';
 import type { Env } from '../env';
 import { roundCurrency } from '../lib/format';
 import { normalizeStartDay, periodForOffset } from '../lib/period';
 import { addDays, briefDateLabel, localDate, parseDateText } from '../lib/tz';
+import { getAiKey } from '../wallet/token';
 
 export const ANTHROPIC_MESSAGES_URL = 'https://api.anthropic.com/v1/messages';
 const ANTHROPIC_VERSION = '2023-06-01';
@@ -169,7 +172,7 @@ function currentPeriod(settings: Settings, now: Date) {
 	return periodForOffset(localDate(now, settings.timezone), normalizeStartDay(Number(settings.budget_month_start_day)), 0);
 }
 
-async function queryTransactions(db: D1Database, settings: Settings, now: Date, input: ToolInput) {
+async function queryTransactions(t: Tenant, settings: Settings, now: Date, input: ToolInput) {
 	const period = currentPeriod(settings, now);
 	const startDate = optionalDate(input, 'start_date') ?? period.startText;
 	const endDate = optionalDate(input, 'end_date') ?? period.endText;
@@ -180,7 +183,7 @@ async function queryTransactions(db: D1Database, settings: Settings, now: Date, 
 	const recordType = optionalString(input, 'record_type')?.toLowerCase();
 	const limit = boundedInt(input.limit, 50, 1, 100);
 
-	const [rows, categories] = await Promise.all([listTransactionsBetween(db, startDate, addDays(endDate, 1)), listCategories(db)]);
+	const [rows, categories] = await Promise.all([listTransactionsBetween(t, startDate, addDays(endDate, 1)), listCategories(t)]);
 	const categoryById = new Map(categories.map((category) => [category.id, category]));
 
 	const matched = rows
@@ -213,9 +216,9 @@ async function queryTransactions(db: D1Database, settings: Settings, now: Date, 
 	};
 }
 
-async function getBudgetSummary(db: D1Database, settings: Settings, now: Date, input: ToolInput) {
+async function getBudgetSummary(t: Tenant, settings: Settings, now: Date, input: ToolInput) {
 	const offset = boundedInt(input.period_offset, 0, -36, 12);
-	const computation = await loadBudgetComputation(db, settings, now, offset);
+	const computation = await loadBudgetComputation(t, settings, now, offset);
 	return {
 		period: computation.period.label,
 		startDate: computation.period.startText,
@@ -235,8 +238,8 @@ async function getBudgetSummary(db: D1Database, settings: Settings, now: Date, i
 	};
 }
 
-async function getCashflowHistory(db: D1Database, settings: Settings, input: ToolInput) {
-	const rows = await listCashflowTotals(db, boundedInt(input.limit, 6, 1, 24));
+async function getCashflowHistory(t: Tenant, settings: Settings, input: ToolInput) {
+	const rows = await listCashflowTotals(t, boundedInt(input.limit, 6, 1, 24));
 	return {
 		currency: settings.base_currency,
 		periods: rows.map((row) => ({
@@ -247,17 +250,17 @@ async function getCashflowHistory(db: D1Database, settings: Settings, input: Too
 	};
 }
 
-async function executeTool(db: D1Database, settings: Settings, now: Date, name: string, rawInput: unknown): Promise<unknown> {
+async function executeTool(t: Tenant, settings: Settings, now: Date, name: string, rawInput: unknown): Promise<unknown> {
 	const input: ToolInput = rawInput && typeof rawInput === 'object' ? (rawInput as ToolInput) : {};
 	switch (name) {
 		case 'query_transactions':
-			return queryTransactions(db, settings, now, input);
+			return queryTransactions(t, settings, now, input);
 		case 'get_budget_summary':
-			return getBudgetSummary(db, settings, now, input);
+			return getBudgetSummary(t, settings, now, input);
 		case 'get_cashflow_history':
-			return getCashflowHistory(db, settings, input);
+			return getCashflowHistory(t, settings, input);
 		case 'list_categories':
-			return (await listCategories(db)).map((category) => ({
+			return (await listCategories(t)).map((category) => ({
 				id: category.id,
 				fullPath: category.fullPath || category.name,
 				groupName: category.groupName,
@@ -267,9 +270,9 @@ async function executeTool(db: D1Database, settings: Settings, now: Date, name: 
 	}
 }
 
-async function runTool(db: D1Database, settings: Settings, now: Date, block: ToolUseBlock): Promise<ToolResultBlock> {
+async function runTool(t: Tenant, settings: Settings, now: Date, block: ToolUseBlock): Promise<ToolResultBlock> {
 	try {
-		const json = JSON.stringify(await executeTool(db, settings, now, block.name, block.input));
+		const json = JSON.stringify(await executeTool(t, settings, now, block.name, block.input));
 		const content = json.length > TOOL_RESULT_MAX_CHARS ? `${json.slice(0, TOOL_RESULT_MAX_CHARS)}…[truncated]` : json;
 		return { type: 'tool_result', tool_use_id: block.id, content };
 	} catch (error) {
@@ -355,14 +358,18 @@ function formatReply(response: MessagesResponse): string {
 }
 
 /**
- * Answers a free-text budget question with Claude and the D1 tools. Returns WhatsApp-ready text
+ * Answers a free-text budget question for household `t` with Claude (using the household's own
+ * Anthropic API key, see wallet/token.ts) and the D1 tools. Returns WhatsApp-ready text
  * (≤ 3500 chars). Throws AssistantError with a stable `code` on any failure.
  */
-export async function answerQuestion(env: Env, db: D1Database, question: string, now: Date): Promise<string> {
-	const apiKey = env.ANTHROPIC_API_KEY?.trim();
-	if (!apiKey) throw new AssistantError('ERR_AI_CONFIG', 'ANTHROPIC_API_KEY is not set.');
+export async function answerQuestion(env: Env, t: Tenant, question: string, now: Date): Promise<string> {
+	const household = await getHousehold(t.db, t.hid);
+	const apiKey = household ? await getAiKey(env, t.db, household) : null;
+	if (!apiKey) {
+		throw new AssistantError('ERR_AI_CONFIG', 'No Anthropic API key is configured for this household. Add your own Anthropic API key in Settings.');
+	}
 	const deadline = Date.now() + AI_TIME_BUDGET_MS;
-	const settings = await getSettings(db);
+	const settings = await getSettings(t);
 	const system = buildSystemPrompt(settings, now);
 	const messages: MessageParam[] = [{ role: 'user', content: question }];
 
@@ -376,6 +383,6 @@ export async function answerQuestion(env: Env, db: D1Database, question: string,
 		}
 		const toolUses = response.content.filter((block): block is ToolUseBlock => block.type === 'tool_use');
 		messages.push({ role: 'assistant', content: response.content });
-		messages.push({ role: 'user', content: await Promise.all(toolUses.map((block) => runTool(db, settings, now, block))) });
+		messages.push({ role: 'user', content: await Promise.all(toolUses.map((block) => runTool(t, settings, now, block))) });
 	}
 }

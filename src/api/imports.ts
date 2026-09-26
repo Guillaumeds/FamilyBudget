@@ -27,6 +27,7 @@ import {
 	upsertTargets,
 } from '../db/repo';
 import type { Settings } from '../db/settings';
+import type { Tenant } from '../db/tenant';
 import { roundCurrency } from '../lib/format';
 import { convertToBase, ensureRates } from '../lib/fx';
 import { isoNow } from '../lib/tz';
@@ -143,7 +144,7 @@ function findColumn(headers: string[], ...candidates: Array<string | RegExp>): n
 	return -1;
 }
 
-export async function importBudgetsCsv(db: D1Database, csv: string): Promise<BudgetImportResult> {
+export async function importBudgetsCsv(t: Tenant, csv: string): Promise<BudgetImportResult> {
 	const rows = parseCsv(csv);
 	if (rows.length === 0) throw new HttpError(400, 'The CSV file is empty.', 'VALIDATION');
 	const headers = rows[0]!.map(normalizeHeader);
@@ -157,7 +158,7 @@ export async function importBudgetsCsv(db: D1Database, csv: string): Promise<Bud
 		);
 	}
 
-	const [categories, existingTargets] = await Promise.all([listCategories(db), listTargets(db)]);
+	const [categories, existingTargets] = await Promise.all([listCategories(t), listTargets(t)]);
 	const index = new CategoryIndex(categories);
 	const existing = new Map(existingTargets.map((target) => [`${target.entityType}:${target.entityId}`, target]));
 
@@ -259,11 +260,11 @@ export async function importBudgetsCsv(db: D1Database, csv: string): Promise<Bud
 		};
 		return { ...base, ...patch, entityType, entityId };
 	});
-	await upsertTargets(db, targets);
+	await upsertTargets(t, targets);
 
 	const result: BudgetImportResult = { format: legacy ? 'legacy' : 'generic', imported: targets.length, skipped, unmatched };
 	await logRun(
-		db,
+		t,
 		unmatched.length ? 'WARN' : 'INFO',
 		'import.budgets',
 		`Imported ${targets.length} budget target(s) from a ${result.format} CSV; ${skipped} row(s) skipped, ${unmatched.length} unmatched/invalid.`,
@@ -301,7 +302,7 @@ export function slugify(value: string): string {
 
 const CASHFLOW_COLUMNS = ['period_start', 'period_end', 'account_name', 'currency', 'closing_balance'] as const;
 
-export async function importCashflowCsv(db: D1Database, settings: Settings, csv: string): Promise<CashflowImportResult> {
+export async function importCashflowCsv(t: Tenant, settings: Settings, csv: string): Promise<CashflowImportResult> {
 	const rows = parseCsv(csv);
 	if (rows.length < 2) throw new HttpError(400, 'The CSV file has no data rows.', 'VALIDATION');
 	const headers = rows[0]!.map(normalizeHeader);
@@ -369,26 +370,26 @@ export async function importCashflowCsv(db: D1Database, settings: Settings, csv:
 	if (toConvert.length > 0) {
 		const dates = toConvert.map((row) => row.periodEnd).sort();
 		try {
-			await ensureRates(db, base, [...new Set(toConvert.map((row) => row.currency!))], dates[0]!, dates[dates.length - 1]!);
+			await ensureRates(t.db, base, [...new Set(toConvert.map((row) => row.currency!))], dates[0]!, dates[dates.length - 1]!);
 		} catch (error) {
-			await logRun(db, 'WARN', 'import.cashflow', `FX fetch failed, converting with cached rates only: ${errorMessage(error)}`);
+			await logRun(t, 'WARN', 'import.cashflow', `FX fetch failed, converting with cached rates only: ${errorMessage(error)}`);
 		}
 		const rates = new Map<string, Promise<number | null>>();
 		for (const row of toConvert) {
 			const key = `${row.currency}|${row.periodEnd}`;
 			let rate = rates.get(key);
-			if (!rate) rates.set(key, (rate = convertToBase(db, 1, row.currency!, row.periodEnd, base)));
+			if (!rate) rates.set(key, (rate = convertToBase(t.db, 1, row.currency!, row.periodEnd, base)));
 			const rateToBase = await rate;
 			row.closingBalanceBase = rateToBase === null ? null : roundCurrency(row.closingBalance * rateToBase);
 		}
 	}
 	const accountRows: CashflowRow[] = [...parsed.values()].map((row) => ({ ...row, closingBalanceBase: row.closingBalanceBase ?? null }));
-	await upsertCashflowRows(db, accountRows);
+	await upsertCashflowRows(t, accountRows);
 
 	// One TOTAL per imported period — unless an automatic capture already owns that period's TOTAL.
 	const periodStarts = new Map<string, string>();
 	for (const row of accountRows) if (!periodStarts.has(row.periodEnd)) periodStarts.set(row.periodEnd, row.periodStart);
-	const stored = await listCashflowRows(db);
+	const stored = await listCashflowRows(t);
 	const totals: CashflowRow[] = [];
 	let totalsSkipped = 0;
 	for (const [periodEnd, periodStart] of periodStarts) {
@@ -413,7 +414,7 @@ export async function importCashflowCsv(db: D1Database, settings: Settings, csv:
 			notes: `Sum of ${accounts.length} imported account row(s)`,
 		});
 	}
-	await upsertCashflowRows(db, totals);
+	await upsertCashflowRows(t, totals);
 
 	const missingFx = accountRows.filter((row) => row.closingBalanceBase === null).length;
 	const result: CashflowImportResult = {
@@ -424,7 +425,7 @@ export async function importCashflowCsv(db: D1Database, settings: Settings, csv:
 		missingFx,
 	};
 	await logRun(
-		db,
+		t,
 		missingFx ? 'WARN' : 'INFO',
 		'import.cashflow',
 		`Imported ${result.accounts} cash-flow account row(s) across ${result.periods} period(s); ${result.totalsWritten} TOTAL row(s) written, ` +

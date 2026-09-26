@@ -101,16 +101,17 @@ async function toError(response: Response, path: string): Promise<WalletApiError
 }
 
 /**
- * GET `path` (e.g. '/v1/api/records') relative to env.WALLET_API_BASE_URL and parse the JSON body.
+ * GET `path` (e.g. '/v1/api/records') relative to env.WALLET_API_BASE_URL with the household's
+ * `token` (see ./token.ts) and parse the JSON body.
  * On 429 waits Retry-After (≤ MAX_RETRY_WAIT_SECONDS) and retries once. Throws WalletApiError.
  */
-export async function walletFetch(env: Env, path: string, params?: QueryParams): Promise<{ body: unknown; headers: Headers }> {
-	const token = env.WALLET_API_TOKEN?.trim();
-	if (!token) throw new WalletApiError('WALLET_AUTH', 'WALLET_API_TOKEN is not configured (wrangler secret put WALLET_API_TOKEN).');
+export async function walletFetch(env: Env, token: string, path: string, params?: QueryParams): Promise<{ body: unknown; headers: Headers }> {
+	const bearer = token?.trim();
+	if (!bearer) throw new WalletApiError('WALLET_AUTH', 'No BudgetBakers Wallet API token is configured for this household.');
 
 	const url = new URL(env.WALLET_API_BASE_URL.replace(/\/+$/, '') + path);
 	for (const [key, value] of Object.entries(params ?? {})) url.searchParams.set(key, String(value));
-	const init: RequestInit = { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } };
+	const init: RequestInit = { headers: { Authorization: `Bearer ${bearer}`, Accept: 'application/json' } };
 
 	const send = async (): Promise<Response> => {
 		try {
@@ -157,13 +158,13 @@ export interface PagedResult<T> {
  * Fetches every page of a list endpoint: `limit` defaults to PAGE_LIMIT, `offset` follows
  * `nextOffset` until it is absent. `itemsKeys` names the envelope array (e.g. ['records']).
  */
-export async function fetchAllPages<T>(env: Env, path: string, params: QueryParams, itemsKeys: string[]): Promise<PagedResult<T>> {
+export async function fetchAllPages<T>(env: Env, token: string, path: string, params: QueryParams, itemsKeys: string[]): Promise<PagedResult<T>> {
 	const items: T[] = [];
 	let headers: Headers | undefined;
 	let offset = 0;
 
 	for (let page = 0; page < MAX_PAGES; page++) {
-		const response = await walletFetch(env, path, { limit: PAGE_LIMIT, ...params, offset });
+		const response = await walletFetch(env, token, path, { limit: PAGE_LIMIT, ...params, offset });
 		headers ??= response.headers;
 		const body = response.body as Record<string, unknown> | unknown[];
 		const key = Array.isArray(body) ? undefined : itemsKeys.find((k) => Array.isArray(body?.[k]));
@@ -189,8 +190,8 @@ export async function fetchAllPages<T>(env: Env, path: string, params: QueryPara
 }
 
 /** Current `X-Last-Data-Change-Rev` via one minimal request (accounts, limit 1). Null when absent. */
-export async function getLastChangeRev(env: Env): Promise<string | null> {
-	const { headers } = await walletFetch(env, '/v1/api/accounts', { limit: 1 });
+export async function getLastChangeRev(env: Env, token: string): Promise<string | null> {
+	const { headers } = await walletFetch(env, token, '/v1/api/accounts', { limit: 1 });
 	return headers.get(LAST_CHANGE_REV_HEADER);
 }
 
@@ -198,9 +199,9 @@ export async function getLastChangeRev(env: Env): Promise<string | null> {
  * Checks the token with GET /v1/api/api-usage/stats?period=30days (not counted in usage stats).
  * Never throws; `code` is a WalletErrorCode (WALLET_SYNC_IN_PROGRESS → ask the user to retry later).
  */
-export async function testWalletAuth(env: Env): Promise<{ ok: boolean; code?: string; message?: string }> {
+export async function testWalletAuth(env: Env, token: string): Promise<{ ok: boolean; code?: string; message?: string }> {
 	try {
-		await walletFetch(env, '/v1/api/api-usage/stats', { period: '30days' });
+		await walletFetch(env, token, '/v1/api/api-usage/stats', { period: '30days' });
 		return { ok: true };
 	} catch (error) {
 		if (error instanceof WalletApiError) return { ok: false, code: error.code, message: error.message };

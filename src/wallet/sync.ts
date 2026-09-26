@@ -10,6 +10,7 @@
  * 00:00 UTC, while `transactions.date` is the local day, so records are requested from one day
  * before `windowStart` and only local rows dated ≥ `windowStart` are candidates for deletion.
  */
+import { HttpError } from '../api/http';
 import {
 	type AccountRow,
 	type CategoryRow,
@@ -22,11 +23,14 @@ import {
 	upsertCategories,
 	upsertTransactions,
 } from '../db/repo';
+import { getHousehold } from '../db/households';
 import { getSettings, setSetting } from '../db/settings';
+import type { Tenant } from '../db/tenant';
 import type { Env } from '../env';
 import { convertToBase, ensureRates } from '../lib/fx';
 import { addDays, isoNow, localDate } from '../lib/tz';
 import { LAST_CHANGE_REV_HEADER, PAGE_LIMIT, WalletApiError, fetchAllPages, getLastChangeRev } from './client';
+import { getWalletToken } from './token';
 
 /** Incremental window: covers the current budget period plus the 3 baseline periods (≤ 124 days). */
 export const RECENT_WINDOW_DAYS = 125;
@@ -148,13 +152,17 @@ export function toAccountRows(accounts: readonly WalletAccount[], updatedAt: str
 }
 
 /**
- * Syncs Wallet into D1. Skips (one request) when X-Last-Data-Change-Rev equals the stored
+ * Syncs household `t`'s Wallet (with its own token, see ./token.ts) into D1. Skips (one request) when X-Last-Data-Change-Rev equals the stored
  * `wallet_last_change_rev`, unless `force`/`full`. Logs to run_log; WalletApiError (and any other
  * failure) is logged as ERROR and rethrown.
  */
-export async function syncWallet(env: Env, db: D1Database, opts: SyncOptions = {}): Promise<SyncResult> {
+export async function syncWallet(env: Env, t: Tenant, opts: SyncOptions = {}): Promise<SyncResult> {
 	try {
-		const settings = await getSettings(db);
+		const household = await getHousehold(t.db, t.hid);
+		if (!household) throw new HttpError(404, `Household ${t.hid} does not exist.`, 'HOUSEHOLD_NOT_FOUND');
+		const token = await getWalletToken(env, t.db, household);
+		if (!token) throw new WalletApiError('WALLET_AUTH', 'No Wallet token configured for this household.');
+		const settings = await getSettings(t);
 		const now = opts.now ?? new Date();
 		const timezone = settings.timezone;
 		const base = settings.base_currency.toUpperCase();
@@ -163,19 +171,20 @@ export async function syncWallet(env: Env, db: D1Database, opts: SyncOptions = {
 		// 1. Change detection.
 		let precheckRev: string | null = null;
 		if (!opts.force && !opts.full) {
-			precheckRev = await getLastChangeRev(env);
+			precheckRev = await getLastChangeRev(env, token);
 			if (precheckRev !== null && precheckRev === settings.wallet_last_change_rev) {
-				await logRun(db, 'INFO', ACTION, `Skipped: Wallet unchanged (rev ${precheckRev}).`);
+				await logRun(t, 'INFO', ACTION, `Skipped: Wallet unchanged (rev ${precheckRev}).`);
 				return { skipped: true, categories: 0, accounts: 0, recordsUpserted: 0, recordsDeleted: 0, windowStart: null, changeRev: precheckRev };
 			}
 		}
 
 		// 2. Fetch everything before writing anything.
 		const windowStart = opts.full ? settings.sync_backfill_from : addDays(today, -RECENT_WINDOW_DAYS);
-		const categoryPages = await fetchAllPages<WalletCategory>(env, '/v1/api/categories', {}, ['categories']);
-		const accountPages = await fetchAllPages<WalletAccount>(env, '/v1/api/accounts', {}, ['accounts']);
+		const categoryPages = await fetchAllPages<WalletCategory>(env, token, '/v1/api/categories', {}, ['categories']);
+		const accountPages = await fetchAllPages<WalletAccount>(env, token, '/v1/api/accounts', {}, ['accounts']);
 		const recordPages = await fetchAllPages<WalletRecord>(
 			env,
+			token,
 			'/v1/api/records',
 			{ limit: PAGE_LIMIT, recordDate: `gte.${addDays(windowStart, -1)}` },
 			['records'],
@@ -184,10 +193,10 @@ export async function syncWallet(env: Env, db: D1Database, opts: SyncOptions = {
 
 		// 3–4. Categories (+ default budget targets) and accounts.
 		const categories = toCategoryRows(categoryPages.items, syncedAt);
-		await upsertCategories(db, categories);
-		await ensureDefaultTargets(db, categories);
+		await upsertCategories(t, categories);
+		await ensureDefaultTargets(t, categories);
 		const accounts = toAccountRows(accountPages.items, syncedAt);
-		await upsertAccounts(db, accounts);
+		await upsertAccounts(t, accounts);
 
 		// 7. Normalize records (port of normalizeRecords). Later duplicates of an id win.
 		const accountById = new Map(accounts.map((account) => [account.id, account]));
@@ -225,9 +234,9 @@ export async function syncWallet(env: Env, db: D1Database, opts: SyncOptions = {
 		if (currencies.length > 0) {
 			const minDate = pending.reduce((min, row) => (row.date < min ? row.date : min), today);
 			try {
-				await ensureRates(db, base, currencies, minDate, today);
+				await ensureRates(t.db, base, currencies, minDate, today);
 			} catch (error) {
-				await logRun(db, 'WARN', ACTION, `FX refresh failed, converting with cached rates only: ${errorMessage(error)}`);
+				await logRun(t, 'WARN', ACTION, `FX refresh failed, converting with cached rates only: ${errorMessage(error)}`);
 			}
 		}
 
@@ -237,19 +246,19 @@ export async function syncWallet(env: Env, db: D1Database, opts: SyncOptions = {
 		for (const row of pending) {
 			const key = `${row.currency}|${row.date}`;
 			let rate = rates.get(key);
-			if (!rate) rates.set(key, (rate = convertToBase(db, 1, row.currency, row.date, base)));
+			if (!rate) rates.set(key, (rate = convertToBase(t.db, 1, row.currency, row.date, base)));
 			const rateToBase = await rate;
 			transactions.push({ ...row, amountBase: rateToBase === null ? null : row.amount * rateToBase });
 		}
 		const missingFx = transactions.filter((row) => row.amountBase === null).length;
 
 		// 8. Upsert, then delete local rows that vanished from Wallet — only with a complete, non-empty fetch.
-		await upsertTransactions(db, transactions);
+		await upsertTransactions(t, transactions);
 		let recordsDeleted = 0;
 		if (recordPages.complete && byId.size > 0) {
-			recordsDeleted = await deleteTransactionsNotIn(db, windowStart, byId.keys());
+			recordsDeleted = await deleteTransactionsNotIn(t, windowStart, byId.keys());
 		} else if (!recordPages.complete) {
-			await logRun(db, 'WARN', ACTION, 'Record pagination stopped early; skipped the windowed delete and kept the previous change rev.');
+			await logRun(t, 'WARN', ACTION, 'Record pagination stopped early; skipped the windowed delete and kept the previous change rev.');
 		}
 
 		// 9. Remember the earliest revision seen this run: a change landing mid-sync then re-triggers a sync.
@@ -258,10 +267,10 @@ export async function syncWallet(env: Env, db: D1Database, opts: SyncOptions = {
 			categoryPages.headers.get(LAST_CHANGE_REV_HEADER) ??
 			accountPages.headers.get(LAST_CHANGE_REV_HEADER) ??
 			recordPages.headers.get(LAST_CHANGE_REV_HEADER);
-		if (changeRev !== null && recordPages.complete) await setSetting(db, 'wallet_last_change_rev', changeRev);
+		if (changeRev !== null && recordPages.complete) await setSetting(t, 'wallet_last_change_rev', changeRev);
 
 		await logRun(
-			db,
+			t,
 			'INFO',
 			ACTION,
 			`${opts.full ? 'Full' : 'Incremental'} sync from ${windowStart}: ${categories.length} categories, ${accounts.length} accounts, ` +
@@ -278,9 +287,9 @@ export async function syncWallet(env: Env, db: D1Database, opts: SyncOptions = {
 			changeRev,
 		};
 	} catch (error) {
-		const code = error instanceof WalletApiError ? error.code : 'SYNC_ERROR';
+		const code = error instanceof WalletApiError ? error.code : error instanceof HttpError && error.code ? error.code : 'SYNC_ERROR';
 		// The initial-sync 409 is expected right after a token is created — a warning, not an error.
-		await logRun(db, code === 'WALLET_SYNC_IN_PROGRESS' ? 'WARN' : 'ERROR', ACTION, `${code}: ${errorMessage(error)}`);
+		await logRun(t, code === 'WALLET_SYNC_IN_PROGRESS' ? 'WARN' : 'ERROR', ACTION, `${code}: ${errorMessage(error)}`);
 		throw error;
 	}
 }

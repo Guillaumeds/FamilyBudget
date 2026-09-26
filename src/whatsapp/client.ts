@@ -14,8 +14,10 @@
  * Ported from legacy/Code.gs sendWhatsAppTextMessage (~1586).
  */
 import { buildBriefData, renderBriefText, renderTemplateParams } from '../budget/brief';
+import { getHousehold } from '../db/households';
 import { insertMessageLog, logRun, type MessageLogInsert } from '../db/repo';
 import { getSettings, type Settings, waWindowKey } from '../db/settings';
+import type { Tenant } from '../db/tenant';
 import type { Env } from '../env';
 import { maskPhone } from '../lib/format';
 import { isoNow } from '../lib/tz';
@@ -184,36 +186,41 @@ export interface BriefSendResult {
 
 export interface DailyBriefOutcome {
 	results: BriefSendResult[];
-	/** Set when nothing was attempted ('whatsapp_disabled' | 'no_recipients'). */
+	/** Set when nothing was attempted ('whatsapp_disabled' | 'not_approved' | 'no_recipients'). */
 	skippedReason?: string;
 }
 
 /**
- * Builds the daily brief once and delivers it to every configured recipient: free-form text inside
+ * Builds household `t`'s daily brief once and delivers it to every configured recipient: free-form text inside
  * the 24h window, the approved template otherwise, or only logged when `dry_run` is '1'. A failing
  * recipient is recorded in its result (and run_log/message_log) without stopping the others.
+ * Nothing is sent unless the household enabled WhatsApp AND the owner approved it (wa_approved).
  *
  * `options.recipients` overrides the `whatsapp_to_numbers` setting (e.g. an admin test send).
  * Errors while building the brief itself propagate to the caller.
  */
 export async function sendDailyBrief(
 	env: Env,
-	db: D1Database,
+	t: Tenant,
 	now: Date,
 	options: { recipients?: string[] } = {},
 ): Promise<DailyBriefOutcome> {
-	const settings = await getSettings(db);
+	const settings = await getSettings(t);
 	if (settings.whatsapp_enabled !== '1') {
-		await logRun(db, 'INFO', BRIEF_ACTION, 'Daily brief skipped: WhatsApp is disabled (whatsapp_enabled).');
+		await logRun(t, 'INFO', BRIEF_ACTION, 'Daily brief skipped: WhatsApp is disabled (whatsapp_enabled).');
 		return { results: [], skippedReason: 'whatsapp_disabled' };
+	}
+	if ((await getHousehold(t.db, t.hid))?.waApproved !== 1) {
+		await logRun(t, 'INFO', BRIEF_ACTION, 'Daily brief skipped: WhatsApp is pending owner approval for this household.');
+		return { results: [], skippedReason: 'not_approved' };
 	}
 	const recipients = options.recipients ? parseRecipients(options.recipients.join(',')) : parseRecipients(settings.whatsapp_to_numbers);
 	if (recipients.length === 0) {
-		await logRun(db, 'INFO', BRIEF_ACTION, 'Daily brief skipped: no recipients configured (whatsapp_to_numbers).');
+		await logRun(t, 'INFO', BRIEF_ACTION, 'Daily brief skipped: no recipients configured (whatsapp_to_numbers).');
 		return { results: [], skippedReason: 'no_recipients' };
 	}
 
-	const data = await buildBriefData(db, settings, now);
+	const data = await buildBriefData(t, settings, now);
 	const text = renderBriefText(data);
 	const params = renderTemplateParams(data);
 	const templateBody = `template ${settings.wa_template_name || '(not configured)'} ${JSON.stringify(params)}`;
@@ -227,34 +234,43 @@ export async function sendDailyBrief(
 
 		if (dryRun) {
 			await logRun(
-				db,
+				t,
 				'INFO',
 				BRIEF_ACTION,
 				`DRY RUN: would send the daily brief to ${masked} as ${mode === 'text' ? `text (${text.length} chars)` : `template ${settings.wa_template_name || '(not configured)'} (${Object.keys(params).length} params)`}.`,
 			);
-			await logMessage(db, { direction: 'out', status: 'DRY_RUN', fromNumber: masked, body: logBody });
+			await logMessage(t.db, { direction: 'out', status: 'DRY_RUN', fromNumber: masked, body: logBody, householdId: t.hid });
 			results.push({ to: masked, mode: 'dry' });
 			continue;
 		}
 
 		try {
 			const { messageId } = mode === 'text' ? await sendText(env, to, text) : await sendTemplate(env, settings, to, params);
-			await logMessage(db, {
+			await logMessage(t.db, {
 				direction: 'out',
 				status: 'SENT',
+				householdId: t.hid,
 				fromNumber: masked,
 				body: logBody,
 				outboundMessageId: messageId || null,
 				outboundAt: isoNow(),
 			});
-			await logRun(db, 'INFO', BRIEF_ACTION, `Sent the daily brief to ${masked} as ${mode} (messageId=${messageId || 'n/a'}).`);
+			await logRun(t, 'INFO', BRIEF_ACTION, `Sent the daily brief to ${masked} as ${mode} (messageId=${messageId || 'n/a'}).`);
 			results.push({ to: masked, mode, messageId });
 		} catch (error) {
 			const code = errorCode(error, 'ERR_WHATSAPP_SEND');
 			const message = errorText(error);
 			const excerpt = error instanceof WhatsAppError && error.bodyExcerpt ? ` body=${error.bodyExcerpt}` : '';
-			await logRun(db, 'ERROR', BRIEF_ACTION, `Daily brief to ${masked} (${mode}) failed: ${code}: ${message}${excerpt}`);
-			await logMessage(db, { direction: 'out', status: 'FAILED', fromNumber: masked, body: logBody, errorCode: code, errorMessage: message });
+			await logRun(t, 'ERROR', BRIEF_ACTION, `Daily brief to ${masked} (${mode}) failed: ${code}: ${message}${excerpt}`);
+			await logMessage(t.db, {
+				direction: 'out',
+				status: 'FAILED',
+				fromNumber: masked,
+				body: logBody,
+				errorCode: code,
+				errorMessage: message,
+				householdId: t.hid,
+			});
 			results.push({ to: masked, mode, error: `${code}: ${message}` });
 		}
 	}

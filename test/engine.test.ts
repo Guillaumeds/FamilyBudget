@@ -11,7 +11,7 @@ import {
 } from '../src/db/repo';
 import { getSettings, setSettings } from '../src/db/settings';
 import { periodForOffset } from '../src/lib/period';
-import { resetDb } from './helpers';
+import { HH1, resetDb } from './helpers';
 
 const NOW = '2026-09-04T10:00:00.000Z';
 
@@ -292,13 +292,13 @@ describe('with D1', () => {
 
 	beforeEach(async () => {
 		await resetDb();
-		await setSettings(db, { timezone: 'Europe/Dublin', budget_month_start_day: '25' });
-		await upsertCategories(db, CATEGORIES);
-		for (const row of TARGETS) await upsertTarget(db, row);
+		await setSettings(HH1, { timezone: 'Europe/Dublin', budget_month_start_day: '25' });
+		await upsertCategories(HH1, CATEGORIES);
+		for (const row of TARGETS) await upsertTarget(HH1, row);
 	});
 
 	it('loadBudgetComputation loads the current and three baseline periods from the settings', async () => {
-		await upsertTransactions(db, [
+		await upsertTransactions(HH1, [
 			tx('cat-groc', -110, { date: '2026-08-25' }), // first day of the current period
 			tx('cat-groc', -1, { date: '2026-09-25' }), // next period: ignored
 			tx('cat-groc', -100, { date: '2026-08-24' }), // offset −1 (25 Jul – 24 Aug)
@@ -307,20 +307,20 @@ describe('with D1', () => {
 			tx('cat-groc', -999, { date: '2026-05-24' }), // offset −4: ignored
 			tx('cat-rest', null, { date: '2026-09-01', currency: 'ZAR' }),
 		]);
-		const result = await loadBudgetComputation(db, await getSettings(db), new Date(NOW));
+		const result = await loadBudgetComputation(HH1, await getSettings(HH1), new Date(NOW));
 
 		expect(result.todayLocal).toBe('2026-09-04');
 		expect(result.period.label).toBe('25 Aug to 24 Sep 2026');
 		expect(byId(result.lines, 'CATEGORY', 'cat-groc')).toMatchObject({ spent: 110, forecast: 310, baselines: [100, 200, 300] });
 		expect(result.missingFxCount).toBe(1);
 
-		const previous = await loadBudgetComputation(db, await getSettings(db), new Date(NOW), -1);
+		const previous = await loadBudgetComputation(HH1, await getSettings(HH1), new Date(NOW), -1);
 		expect(previous.period.label).toBe('25 Jul to 24 Aug 2026');
 		expect(byId(previous.lines, 'CATEGORY', 'cat-groc')).toMatchObject({ spent: 100, forecast: 100, baselines: [200, 300, 999] });
 	});
 
 	it('listYesterdayExpenses keeps included expenses of the local yesterday, sorted by category then note', async () => {
-		await upsertTransactions(db, [
+		await upsertTransactions(HH1, [
 			tx('cat-rest', -12.5, { date: '2026-09-26', note: 'Lunch', accountName: 'Card' }),
 			tx('cat-groc', -40, { date: '2026-09-26', note: 'Tesco' }),
 			tx('cat-groc', null, { date: '2026-09-26', note: 'Aldi', currency: 'ZAR', amount: -100 }),
@@ -331,7 +331,7 @@ describe('with D1', () => {
 			tx('cat-groc', -98, { date: '2026-09-27' }), // today
 		]);
 		// 23:30 UTC on 26 Sep is already 27 Sep in Dublin (UTC+1) → yesterday is 26 Sep.
-		const expenses = await listYesterdayExpenses(db, await getSettings(db), new Date('2026-09-26T23:30:00Z'));
+		const expenses = await listYesterdayExpenses(HH1, await getSettings(HH1), new Date('2026-09-26T23:30:00Z'));
 
 		expect(expenses.map((e) => [e.category, e.note, e.amountBase])).toEqual([
 			['Bar', '', 6],
@@ -345,8 +345,8 @@ describe('with D1', () => {
 
 	it('listYesterdayExpenses includes every expense when no targets exist at all', async () => {
 		await db.prepare('DELETE FROM budget_targets').run();
-		await upsertTransactions(db, [tx('cat-transfer', -500, { date: '2026-09-03' }), tx('cat-salary', 3000, { date: '2026-09-03' })]);
-		const expenses = await listYesterdayExpenses(db, await getSettings(db), new Date(NOW));
+		await upsertTransactions(HH1, [tx('cat-transfer', -500, { date: '2026-09-03' }), tx('cat-salary', 3000, { date: '2026-09-03' })]);
+		const expenses = await listYesterdayExpenses(HH1, await getSettings(HH1), new Date(NOW));
 		expect(expenses.map((e) => e.category)).toEqual(['Transfer']);
 	});
 });

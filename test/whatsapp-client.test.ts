@@ -15,7 +15,8 @@ import {
 	TEXT_BODY_MAX_CHARS,
 	WhatsAppError,
 } from '../src/whatsapp/client';
-import { resetDb } from './helpers';
+import { GLOBAL_HID, tenant } from '../src/db/tenant';
+import { HH1, HH2, resetDb } from './helpers';
 
 // brief.ts is implemented in parallel — never run its real bodies here.
 vi.mock('../src/budget/brief', () => ({
@@ -204,24 +205,42 @@ describe('sendDailyBrief', () => {
 
 	it('skips when WhatsApp is disabled, without building the brief', async () => {
 		const spy = mockGraph();
-		await setSettings(db, { ...enabled, whatsapp_enabled: '0' });
-		expect(await sendDailyBrief(waEnv, db, NOW)).toEqual({ results: [], skippedReason: 'whatsapp_disabled' });
+		await setSettings(HH1, { ...enabled, whatsapp_enabled: '0' });
+		expect(await sendDailyBrief(waEnv, HH1, NOW)).toEqual({ results: [], skippedReason: 'whatsapp_disabled' });
 		expect(buildBriefData).not.toHaveBeenCalled();
 		expect(spy).not.toHaveBeenCalled();
 	});
 
+	it('skips a household whose WhatsApp is not approved by the owner, without building the brief', async () => {
+		const spy = mockGraph();
+		await setSettings(HH2, enabled);
+		expect(await sendDailyBrief(waEnv, HH2, NOW)).toEqual({ results: [], skippedReason: 'not_approved' });
+		expect(buildBriefData).not.toHaveBeenCalled();
+		expect(spy).not.toHaveBeenCalled();
+		expect((await listRunLog(db, 1, 2))[0]).toMatchObject({ level: 'INFO', action: 'whatsapp.brief' });
+	});
+
+	it('uses the global template name/language when the household has none', async () => {
+		const spy = mockGraph();
+		await setSettings(tenant(db, GLOBAL_HID), { wa_template_name: 'global_brief', wa_template_lang: 'en_GB' });
+		const { wa_template_name: _unused, ...household } = enabled;
+		await setSettings(HH1, household);
+		await sendDailyBrief(waEnv, HH1, NOW, { recipients: [ALICE] });
+		expect(payloads(spy)[0]!.template).toMatchObject({ name: 'global_brief', language: { code: 'en_GB' } });
+	});
+
 	it('skips when there are no recipients', async () => {
 		const spy = mockGraph();
-		await setSettings(db, { ...enabled, whatsapp_to_numbers: ' , ' });
-		expect(await sendDailyBrief(waEnv, db, NOW)).toEqual({ results: [], skippedReason: 'no_recipients' });
+		await setSettings(HH1, { ...enabled, whatsapp_to_numbers: ' , ' });
+		expect(await sendDailyBrief(waEnv, HH1, NOW)).toEqual({ results: [], skippedReason: 'no_recipients' });
 		expect(spy).not.toHaveBeenCalled();
 	});
 
 	it('dry run: logs DRY_RUN rows instead of sending', async () => {
 		const spy = mockGraph();
-		await setSettings(db, { ...enabled, dry_run: '1', [waWindowKey(ALICE)]: new Date(NOW.getTime() - 3600_000).toISOString() });
+		await setSettings(HH1, { ...enabled, dry_run: '1', [waWindowKey(ALICE)]: new Date(NOW.getTime() - 3600_000).toISOString() });
 
-		const outcome = await sendDailyBrief(waEnv, db, NOW);
+		const outcome = await sendDailyBrief(waEnv, HH1, NOW);
 		expect(outcome.results).toEqual([
 			{ to: '***1111', mode: 'dry' },
 			{ to: '***2222', mode: 'dry' },
@@ -229,21 +248,21 @@ describe('sendDailyBrief', () => {
 		expect(spy).not.toHaveBeenCalled();
 		expect(buildBriefData).toHaveBeenCalledOnce();
 
-		const rows = await listMessageLog(db, 10);
+		const rows = await listMessageLog(db, 10, 1);
 		expect(rows).toHaveLength(2);
 		expect(rows.every((row) => row.direction === 'out' && row.status === 'DRY_RUN')).toBe(true);
 		expect(rows.map((row) => row.fromNumber).sort()).toEqual(['***1111', '***2222']);
 		expect(rows.find((row) => row.fromNumber === '***1111')!.body).toBe(BRIEF_TEXT); // window open → text
 		expect(rows.find((row) => row.fromNumber === '***2222')!.body).toContain('daily_budget_update'); // closed → template
-		const runLog = await listRunLog(db, 10);
+		const runLog = await listRunLog(db, 10, 1);
 		expect(runLog.filter((row) => row.message.startsWith('DRY RUN'))).toHaveLength(2);
 	});
 
 	it('sends free-form text inside the 24h window and the template outside it', async () => {
 		const spy = mockGraph();
-		await setSettings(db, { ...enabled, [waWindowKey(ALICE)]: new Date(NOW.getTime() - 3600_000).toISOString() });
+		await setSettings(HH1, { ...enabled, [waWindowKey(ALICE)]: new Date(NOW.getTime() - 3600_000).toISOString() });
 
-		const outcome = await sendDailyBrief(waEnv, db, NOW);
+		const outcome = await sendDailyBrief(waEnv, HH1, NOW);
 		expect(outcome).toEqual({
 			results: [
 				{ to: '***1111', mode: 'text', messageId: 'wamid.TEST1' },
@@ -257,7 +276,7 @@ describe('sendDailyBrief', () => {
 		expect(toBob).toMatchObject({ to: BOB, type: 'template', template: { name: 'daily_budget_update', language: { code: 'en' } } });
 		expect(toBob!.template.components[0].parameters).toContainEqual({ type: 'text', parameter_name: 'expense_2', text: '–' });
 
-		const rows = await listMessageLog(db, 10);
+		const rows = await listMessageLog(db, 10, 1);
 		expect(rows.map((row) => [row.direction, row.status, row.fromNumber, row.outboundMessageId]).sort()).toEqual([
 			['out', 'SENT', '***1111', 'wamid.TEST1'],
 			['out', 'SENT', '***2222', 'wamid.TEST2'],
@@ -266,26 +285,26 @@ describe('sendDailyBrief', () => {
 
 	it('one failing recipient does not stop the other', async () => {
 		mockGraph((payload) => (payload.to === ALICE ? Response.json({ error: { message: 'boom' } }, { status: 500 }) : undefined));
-		await setSettings(db, enabled);
+		await setSettings(HH1, enabled);
 
-		const { results } = await sendDailyBrief(waEnv, db, NOW);
+		const { results } = await sendDailyBrief(waEnv, HH1, NOW);
 		expect(results[0]).toMatchObject({ to: '***1111', mode: 'template' });
 		expect(results[0]!.error).toMatch(/^ERR_WHATSAPP_SEND: .*HTTP 500/);
 		expect(results[1]).toEqual({ to: '***2222', mode: 'template', messageId: 'wamid.TEST1' });
 
-		const errors = (await listRunLog(db, 10)).filter((row) => row.level === 'ERROR');
+		const errors = (await listRunLog(db, 10, 1)).filter((row) => row.level === 'ERROR');
 		expect(errors).toHaveLength(1);
 		expect(errors[0]!.message).toContain('***1111');
-		const statuses = (await listMessageLog(db, 10)).map((row) => row.status).sort();
+		const statuses = (await listMessageLog(db, 10, 1)).map((row) => row.status).sort();
 		expect(statuses).toEqual(['FAILED', 'SENT']);
 	});
 
 	it('uses options.recipients instead of the setting', async () => {
 		const spy = mockGraph();
-		await setSettings(db, enabled);
-		const { results } = await sendDailyBrief(waEnv, db, NOW, { recipients: ['15550002222'] });
+		await setSettings(HH1, enabled);
+		const { results } = await sendDailyBrief(waEnv, HH1, NOW, { recipients: ['15550002222'] });
 		expect(results).toEqual([{ to: '***2222', mode: 'template', messageId: 'wamid.TEST1' }]);
 		expect(payloads(spy).map((payload) => payload.to)).toEqual([BOB]);
-		expect((await getSettings(db)).whatsapp_to_numbers).toBe(`${ALICE},${BOB}`);
+		expect((await getSettings(HH1)).whatsapp_to_numbers).toBe(`${ALICE},${BOB}`);
 	});
 });

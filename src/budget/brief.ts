@@ -8,6 +8,7 @@
  */
 import { listCashflowTotals } from '../db/repo';
 import type { Settings } from '../db/settings';
+import type { Tenant } from '../db/tenant';
 import { categoryEmoji, formatMoney, roundCurrency, sanitizeTemplateParam } from '../lib/format';
 import { briefDateLabel, MONTH_SHORT, parseDateText } from '../lib/tz';
 import { listYesterdayExpenses, loadBudgetComputation, type BudgetLine, type YesterdayExpense } from './engine';
@@ -59,12 +60,12 @@ function expenseSummary(expense: YesterdayExpense, currency: string): string {
 }
 
 /** Loads everything the brief needs from D1. */
-export async function buildBriefData(db: D1Database, settings: Settings, now: Date): Promise<BriefData> {
+export async function buildBriefData(t: Tenant, settings: Settings, now: Date): Promise<BriefData> {
 	const [computation, yesterday, totals] = await Promise.all([
-		loadBudgetComputation(db, settings, now, 0),
-		listYesterdayExpenses(db, settings, now),
+		loadBudgetComputation(t, settings, now, 0),
+		listYesterdayExpenses(t, settings, now),
 		// One more than shown, so the oldest shown period still has a prior balance to compare with.
-		listCashflowTotals(db, CASHFLOW_ENTRIES + 1),
+		listCashflowTotals(t, CASHFLOW_ENTRIES + 1),
 	]);
 
 	// POC getLastCompletedCashFlowPeriodsFromSheet: oldest first to compute changes, then newest first.
@@ -162,6 +163,6 @@ export function renderTemplateParams(data: BriefData): Record<string, string> {
 }
 
 /** Convenience: buildBriefData + renderBriefText. */
-export async function buildDailyBriefText(db: D1Database, settings: Settings, now: Date): Promise<string> {
-	return renderBriefText(await buildBriefData(db, settings, now));
+export async function buildDailyBriefText(t: Tenant, settings: Settings, now: Date): Promise<string> {
+	return renderBriefText(await buildBriefData(t, settings, now));
 }

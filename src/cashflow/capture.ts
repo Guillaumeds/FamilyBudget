@@ -11,6 +11,7 @@
  */
 import { deleteCashflowRows, listAccounts, listCashflowRows, listTransactionsBetween, logRun, upsertCashflowRows, type CashflowRow } from '../db/repo';
 import type { Settings } from '../db/settings';
+import type { Tenant } from '../db/tenant';
 import { formatMoney, roundCurrency } from '../lib/format';
 import { convertToBase } from '../lib/fx';
 import { normalizeStartDay, periodForOffset } from '../lib/period';
@@ -24,12 +25,12 @@ export interface CaptureResult {
 
 const rowKey = (row: Pick<CashflowRow, 'rowType' | 'accountKey'>) => `${row.rowType}:${row.accountKey}`;
 
-export async function captureClosingBalances(db: D1Database, settings: Settings, now: Date, offset = 0): Promise<CaptureResult> {
+export async function captureClosingBalances(t: Tenant, settings: Settings, now: Date, offset = 0): Promise<CaptureResult> {
 	const base = settings.base_currency.toUpperCase();
 	const period = periodForOffset(localDate(now, settings.timezone), normalizeStartDay(Number(settings.budget_month_start_day)), offset);
 	const [accounts, laterTransactions] = await Promise.all([
-		listAccounts(db),
-		listTransactionsBetween(db, period.endExclusiveText, '9999-12-31'),
+		listAccounts(t),
+		listTransactionsBetween(t, period.endExclusiveText, '9999-12-31'),
 	]);
 
 	// Net signed movement per account after the period end (POC movementAfterPeriodEnd).
@@ -44,7 +45,7 @@ export async function captureClosingBalances(db: D1Database, settings: Settings,
 		if (account.includeInCashflow !== 1 || account.archived === 1) continue;
 		const currency = (account.currency || base).toUpperCase();
 		const closing = roundCurrency((account.balance ?? 0) - (movementAfterEnd.get(account.id) ?? 0));
-		const closingBase = await convertToBase(db, closing, currency, period.endText, base);
+		const closingBase = await convertToBase(t.db, closing, currency, period.endText, base);
 		accountRows.push({
 			periodStart: period.startText,
 			periodEnd: period.endText,
@@ -77,17 +78,17 @@ export async function captureClosingBalances(db: D1Database, settings: Settings,
 		...accountRows,
 	];
 
-	await deleteCashflowRows(db, period.endText, 'auto');
+	await deleteCashflowRows(t, period.endText, 'auto');
 	// An imported row with the same key wins: the upsert would otherwise overwrite it.
-	const imported = new Set((await listCashflowRows(db, period.endText)).map(rowKey));
+	const imported = new Set((await listCashflowRows(t, period.endText)).map(rowKey));
 	await upsertCashflowRows(
-		db,
+		t,
 		rows.filter((row) => !imported.has(rowKey(row))),
 	);
 
 	const missingFx = accountRows.filter((row) => row.closingBalanceBase === null).length;
 	await logRun(
-		db,
+		t,
 		'INFO',
 		'capture',
 		`Captured ${accountRows.length} account(s) for ${period.label}: total ${formatMoney(totalBase, base)}` +

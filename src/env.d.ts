@@ -17,6 +17,8 @@ export interface Secrets {
 	ANTHROPIC_API_KEY?: string;
 	DASHBOARD_PASSWORD?: string;
 	SESSION_SECRET?: string;
+	/** base64 of 32 random bytes: AES-GCM key for the per-household secrets stored in D1 (src/lib/crypto.ts). */
+	TOKEN_ENCRYPTION_KEY?: string;
 }
 
 type Vars = 'WALLET_API_BASE_URL' | 'WHATSAPP_API_VERSION';

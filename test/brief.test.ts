@@ -12,7 +12,7 @@ import {
 	upsertTransactions,
 } from '../src/db/repo';
 import { getSettings, setSettings } from '../src/db/settings';
-import { resetDb } from './helpers';
+import { HH1, resetDb } from './helpers';
 
 function line(overrides: Partial<BudgetLine>): BudgetLine {
 	return {
@@ -205,12 +205,12 @@ describe('buildBriefData (D1)', () => {
 
 	beforeEach(async () => {
 		await resetDb();
-		await setSettings(db, { timezone: 'Europe/Dublin', budget_month_start_day: '25', base_currency: 'EUR', brief_title: 'Our Brief' });
-		await upsertCategories(db, categories);
+		await setSettings(HH1, { timezone: 'Europe/Dublin', budget_month_start_day: '25', base_currency: 'EUR', brief_title: 'Our Brief' });
+		await upsertCategories(HH1, categories);
 		const base = { entityType: 'category' as const, period: 'monthly', forecastType: 'day_to_day' as const, includeInExpense: 1 as const };
-		await upsertTarget(db, { ...base, entityId: 'cat-groc', budget: 600, includeInReport: 1 });
-		await upsertTarget(db, { ...base, entityId: 'cat-rest', budget: 200, includeInReport: 0 });
-		await upsertTransactions(db, [
+		await upsertTarget(HH1, { ...base, entityId: 'cat-groc', budget: 600, includeInReport: 1 });
+		await upsertTarget(HH1, { ...base, entityId: 'cat-rest', budget: 200, includeInReport: 0 });
+		await upsertTransactions(HH1, [
 			tx('t1', '2026-09-25', 'cat-groc', -40, 'Tesco'),
 			tx('t2', '2026-09-25', 'cat-rest', -20),
 			tx('t3', '2026-09-24', 'cat-groc', -500), // previous period
@@ -218,13 +218,13 @@ describe('buildBriefData (D1)', () => {
 	});
 
 	it('wires settings, engine, yesterday and the cash-flow trail together', async () => {
-		await upsertCashflowRows(db, [
+		await upsertCashflowRows(HH1, [
 			total('2026-05-25', '2026-06-24', 900, 900, 'import'),
 			total('2026-06-25', '2026-07-24', 1000, 1000, 'import'),
 			total('2026-07-25', '2026-08-24', 5000, 1250.5), // base value wins over native
 			total('2026-08-25', '2026-09-24', 1100, null), // no base value → native
 		]);
-		const data = await buildBriefData(db, await getSettings(db), NOW);
+		const data = await buildBriefData(HH1, await getSettings(HH1), NOW);
 
 		expect(data).toMatchObject({ title: 'Our Brief', dateLabel: 'Sat, 26 Sep 2026', periodLabel: '25 Sep to 24 Oct 2026', currency: 'EUR' });
 		expect(data.overall).toMatchObject({ budget: 800, spent: 60 });
@@ -239,22 +239,22 @@ describe('buildBriefData (D1)', () => {
 			{ label: '25 Jun to 24 Jul 2026', closing: 1000, change: 100, hasPrior: true },
 		]);
 
-		const text = await buildDailyBriefText(db, await getSettings(db), NOW);
+		const text = await buildDailyBriefText(HH1, await getSettings(HH1), NOW);
 		expect(text).toBe(renderBriefText(data));
 		expect(text).toContain('• 2026-09-25 · Groceries — €40.00 from Current — Tesco');
 		expect(text).toContain('*25 Jun to 24 Jul 2026:* +€100.00 change · closing funds €1,000.00');
 	});
 
 	it('marks the only captured period as the baseline', async () => {
-		await upsertCashflowRows(db, [total('2026-08-25', '2026-09-24', 1100, 1100)]);
-		const data = await buildBriefData(db, await getSettings(db), NOW);
+		await upsertCashflowRows(HH1, [total('2026-08-25', '2026-09-24', 1100, 1100)]);
+		const data = await buildBriefData(HH1, await getSettings(HH1), NOW);
 		expect(data.cashflow).toEqual([{ label: '25 Aug to 24 Sep 2026', closing: 1100, change: 0, hasPrior: false }]);
 		expect(renderBriefText(data)).toContain('*25 Aug to 24 Sep 2026:* baseline captured · closing funds €1,100.00');
 	});
 
 	it('works on an empty database', async () => {
 		await resetDb();
-		const text = await buildDailyBriefText(db, await getSettings(db), NOW);
+		const text = await buildDailyBriefText(HH1, await getSettings(HH1), NOW);
 		expect(text).toContain('💰 *Family Budget Brief*');
 		expect(text).toContain('No included expenses found for yesterday.');
 		expect(text).toContain('No budget lines are selected for the report yet.');

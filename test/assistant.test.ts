@@ -3,15 +3,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AI_TIME_BUDGET_MS, ANTHROPIC_MESSAGES_URL, AssistantError, answerQuestion, MAX_ITERATIONS } from '../src/ai/assistant';
 import { type BudgetComputation, type BudgetLine, loadBudgetComputation } from '../src/budget/engine';
 import { type CategoryRow, type TransactionRow, upsertCashflowRows, upsertCategories, upsertTransactions } from '../src/db/repo';
+import { getHousehold, updateHousehold } from '../src/db/households';
 import { setSettings } from '../src/db/settings';
 import type { Env } from '../src/env';
-import { resetDb } from './helpers';
+import { HH1, HH2, TEST_AI_KEY, resetDb } from './helpers';
 
 // engine.ts is implemented in parallel — never run its real bodies here.
 vi.mock('../src/budget/engine', () => ({ computeBudget: vi.fn(), loadBudgetComputation: vi.fn(), listYesterdayExpenses: vi.fn() }));
 
 const db = env.DB;
-const aiEnv: Env = { ...env, ANTHROPIC_API_KEY: 'sk-ant-test' };
+/** The env key is only a transitional fallback for household 1 — HH1 has its own stored key (TEST_AI_KEY). */
+const aiEnv: Env = { ...env, ANTHROPIC_API_KEY: 'sk-env-ignored' };
 const NOW = new Date('2026-09-26T10:00:00.000Z');
 const SYNCED = NOW.toISOString();
 
@@ -96,7 +98,7 @@ function transaction(id: string, date: string, categoryId: string, amountBase: n
 beforeEach(async () => {
 	await resetDb();
 	vi.clearAllMocks();
-	await setSettings(db, { timezone: 'Europe/Dublin', budget_month_start_day: '25', base_currency: 'EUR' });
+	await setSettings(HH1, { timezone: 'Europe/Dublin', budget_month_start_day: '25', base_currency: 'EUR' });
 });
 
 afterEach(() => {
@@ -120,7 +122,7 @@ describe('answerQuestion', () => {
 		);
 		const spy = mockClaude(first, message([text('Last period groceries: *€250.00* of €600.00.')], 'end_turn'));
 
-		expect(await answerQuestion(aiEnv, db, 'How did groceries go last month?', NOW)).toBe('Last period groceries: *€250.00* of €600.00.');
+		expect(await answerQuestion(aiEnv, HH1, 'How did groceries go last month?', NOW)).toBe('Last period groceries: *€250.00* of €600.00.');
 		expect(spy).toHaveBeenCalledTimes(2);
 
 		// Request shape (plain fetch, Messages API headers).
@@ -128,7 +130,7 @@ describe('answerQuestion', () => {
 		expect(String(url)).toBe(ANTHROPIC_MESSAGES_URL);
 		const headers = new Headers(init?.headers);
 		expect([headers.get('x-api-key'), headers.get('anthropic-version'), headers.get('content-type')]).toEqual([
-			'sk-ant-test',
+			TEST_AI_KEY,
 			'2023-06-01',
 			'application/json',
 		]);
@@ -165,14 +167,14 @@ describe('answerQuestion', () => {
 	});
 
 	it('executes parallel tool calls against D1 and returns all results in one user message', async () => {
-		await upsertCategories(db, [category('cat-groc', 'Groceries', 'Food & Drinks'), category('cat-fuel', 'Fuel', 'Vehicle')]);
-		await upsertTransactions(db, [
+		await upsertCategories(HH1, [category('cat-groc', 'Groceries', 'Food & Drinks'), category('cat-fuel', 'Fuel', 'Vehicle')]);
+		await upsertTransactions(HH1, [
 			transaction('t1', '2026-09-01', 'cat-groc', -10, 'Lidl'),
 			transaction('t2', '2026-09-20', 'cat-groc', -20.5, 'Tesco'),
 			transaction('t3', '2026-09-21', 'cat-fuel', -60),
 			transaction('t4', '2026-10-02', 'cat-groc', -99),
 		]);
-		await upsertCashflowRows(db, [
+		await upsertCashflowRows(HH1, [
 			{
 				periodStart: '2026-07-25',
 				periodEnd: '2026-08-24',
@@ -200,7 +202,7 @@ describe('answerQuestion', () => {
 			message([text('Done.')], 'end_turn'),
 		);
 
-		expect(await answerQuestion(aiEnv, db, 'Groceries this month?', NOW)).toBe('Done.');
+		expect(await answerQuestion(aiEnv, HH1, 'Groceries this month?', NOW)).toBe('Done.');
 		const results = requests(spy)[1]!.messages[2]!.content as Array<{ tool_use_id: string; content: string; is_error?: boolean }>;
 		expect(results.map((result) => result.tool_use_id)).toEqual(['toolu_a', 'toolu_b', 'toolu_c', 'toolu_d']);
 
@@ -223,17 +225,17 @@ describe('answerQuestion', () => {
 	});
 
 	it('defaults query_transactions to the current budget period', async () => {
-		await upsertCategories(db, [category('cat-groc', 'Groceries', 'Food & Drinks')]);
-		await upsertTransactions(db, [transaction('old', '2026-09-24', 'cat-groc', -5), transaction('new', '2026-09-25', 'cat-groc', -7)]);
+		await upsertCategories(HH1, [category('cat-groc', 'Groceries', 'Food & Drinks')]);
+		await upsertTransactions(HH1, [transaction('old', '2026-09-24', 'cat-groc', -5), transaction('new', '2026-09-25', 'cat-groc', -7)]);
 		const spy = mockClaude(message([toolUse('toolu_1', 'query_transactions')], 'tool_use'), message([text('ok')], 'end_turn'));
-		await answerQuestion(aiEnv, db, 'Spending so far?', NOW);
+		await answerQuestion(aiEnv, HH1, 'Spending so far?', NOW);
 		const result = JSON.parse(requests(spy)[1]!.messages[2]!.content[0].content);
 		expect(result).toMatchObject({ startDate: '2026-09-25', endDate: '2026-10-24', matched: 1, totalAmountBase: -7 });
 	});
 
 	it('shortens long replies to 3500 characters for WhatsApp', async () => {
 		mockClaude(message([text('a'.repeat(5000))], 'end_turn'));
-		const reply = await answerQuestion(aiEnv, db, 'Tell me everything', NOW);
+		const reply = await answerQuestion(aiEnv, HH1, 'Tell me everything', NOW);
 		expect(reply.length).toBeLessThanOrEqual(3500);
 		expect(reply.endsWith('\n\n…reply shortened for WhatsApp.')).toBe(true);
 		expect(reply.startsWith('a'.repeat(3000))).toBe(true);
@@ -241,7 +243,7 @@ describe('answerQuestion', () => {
 
 	it('throws ERR_AI_EMPTY_REPLY when the final turn has no text', async () => {
 		mockClaude(message([{ type: 'thinking', thinking: '', signature: 'sig' }, text('   ')], 'end_turn'));
-		const error = await answerQuestion(aiEnv, db, 'Hi', NOW).catch((e) => e);
+		const error = await answerQuestion(aiEnv, HH1, 'Hi', NOW).catch((e) => e);
 		expect(error).toBeInstanceOf(AssistantError);
 		expect(error.code).toBe('ERR_AI_EMPTY_REPLY');
 	});
@@ -251,7 +253,7 @@ describe('answerQuestion', () => {
 		const spy = vi
 			.spyOn(globalThis, 'fetch')
 			.mockImplementation(async () => Response.json(message([toolUse(`toolu_${Math.random()}`, 'list_categories')], 'tool_use')));
-		await expect(answerQuestion(aiEnv, db, 'Loop forever', NOW)).rejects.toMatchObject({ code: 'ERR_AI_TOOL_LIMIT' });
+		await expect(answerQuestion(aiEnv, HH1, 'Loop forever', NOW)).rejects.toMatchObject({ code: 'ERR_AI_TOOL_LIMIT' });
 		expect(spy).toHaveBeenCalledTimes(MAX_ITERATIONS);
 	});
 
@@ -260,18 +262,29 @@ describe('answerQuestion', () => {
 			Response.json({ type: 'error', error: { type, message: `${type} happened` } }, { status, headers: { 'request-id': `req_${status}` } });
 
 		mockClaude(apiError(429, 'rate_limit_error'), apiError(401, 'authentication_error'), apiError(529, 'overloaded_error'));
-		const rateLimited = await answerQuestion(aiEnv, db, 'Q', NOW).catch((e) => e);
+		const rateLimited = await answerQuestion(aiEnv, HH1, 'Q', NOW).catch((e) => e);
 		expect(rateLimited).toMatchObject({ code: 'ERR_AI_RATE_LIMIT', status: 429, requestId: 'req_429' });
 		expect(rateLimited.message).toContain('rate_limit_error happened');
 		expect(rateLimited.message).toContain('req_429');
-		await expect(answerQuestion(aiEnv, db, 'Q', NOW)).rejects.toMatchObject({ code: 'ERR_AI_AUTH', status: 401 });
-		await expect(answerQuestion(aiEnv, db, 'Q', NOW)).rejects.toMatchObject({ code: 'ERR_AI_ERROR', status: 529 });
+		await expect(answerQuestion(aiEnv, HH1, 'Q', NOW)).rejects.toMatchObject({ code: 'ERR_AI_AUTH', status: 401 });
+		await expect(answerQuestion(aiEnv, HH1, 'Q', NOW)).rejects.toMatchObject({ code: 'ERR_AI_ERROR', status: 529 });
 	});
 
-	it('fails fast with ERR_AI_CONFIG without an API key', async () => {
+	it('fails fast with ERR_AI_CONFIG when the household has no Anthropic key (env key not adopted beyond household 1)', async () => {
 		const spy = mockClaude();
-		await expect(answerQuestion({ ...aiEnv, ANTHROPIC_API_KEY: undefined }, db, 'Q', NOW)).rejects.toMatchObject({ code: 'ERR_AI_CONFIG' });
+		await expect(answerQuestion(aiEnv, HH2, 'Q', NOW)).rejects.toMatchObject({
+			code: 'ERR_AI_CONFIG',
+			message: expect.stringContaining('Add your own Anthropic API key in Settings'),
+		});
 		expect(spy).not.toHaveBeenCalled();
+	});
+
+	it('household 1 adopts the env ANTHROPIC_API_KEY when it has no stored key', async () => {
+		await updateHousehold(db, 1, { anthropicKeyEnc: null });
+		const spy = mockClaude(message([text('Hi.')], 'end_turn'));
+		expect(await answerQuestion({ ...env, ANTHROPIC_API_KEY: 'sk-env' }, HH1, 'Q', NOW)).toBe('Hi.');
+		expect(new Headers(spy.mock.calls[0]![1]?.headers).get('x-api-key')).toBe('sk-env');
+		expect((await getHousehold(db, 1))!.anthropicKeyEnc).toMatch(/^v1\./);
 	});
 
 	it('gives up with ERR_AI_TIMEOUT once the time budget is spent', async () => {
@@ -281,7 +294,7 @@ describe('answerQuestion', () => {
 			clock += AI_TIME_BUDGET_MS; // this call used the whole budget
 			return Response.json(message([toolUse('toolu_1', 'list_categories')], 'tool_use'));
 		});
-		await expect(answerQuestion(aiEnv, db, 'Q', NOW)).rejects.toMatchObject({ code: 'ERR_AI_TIMEOUT' });
+		await expect(answerQuestion(aiEnv, HH1, 'Q', NOW)).rejects.toMatchObject({ code: 'ERR_AI_TIMEOUT' });
 		expect(spy).toHaveBeenCalledOnce();
 	});
 });

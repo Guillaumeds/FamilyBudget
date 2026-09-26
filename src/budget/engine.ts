@@ -17,6 +17,7 @@ import {
 	type TransactionRow,
 } from '../db/repo';
 import type { Settings } from '../db/settings';
+import type { Tenant } from '../db/tenant';
 import { roundCurrency } from '../lib/format';
 import { elapsedDays, normalizeStartDay, periodForOffset, type BudgetPeriod } from '../lib/period';
 import { addDays, localDate } from '../lib/tz';
@@ -285,7 +286,7 @@ export function computeBudget(input: EngineInput): BudgetComputation {
 
 /** Loads rows from D1 for the period at `offset` months from now, then runs computeBudget. */
 export async function loadBudgetComputation(
-	db: D1Database,
+	t: Tenant,
 	settings: Settings,
 	now: Date,
 	offset = 0,
@@ -293,10 +294,10 @@ export async function loadBudgetComputation(
 	const startDay = normalizeStartDay(Number(settings.budget_month_start_day));
 	const todayLocal = localDate(now, settings.timezone);
 	const period = periodForOffset(todayLocal, startDay, offset);
-	const window = (p: BudgetPeriod) => listTransactionsBetween(db, p.startText, p.endExclusiveText);
+	const window = (p: BudgetPeriod) => listTransactionsBetween(t, p.startText, p.endExclusiveText);
 	const [categories, targets, current, b1, b2, b3] = await Promise.all([
-		listCategories(db),
-		listTargets(db),
+		listCategories(t),
+		listTargets(t),
 		window(period),
 		window(periodForOffset(todayLocal, startDay, offset - 1)),
 		window(periodForOffset(todayLocal, startDay, offset - 2)),
@@ -310,18 +311,18 @@ export async function loadBudgetComputation(
  * include_in_expense set, sorted by category. Ports setupYesterdayExpensesSheet (~line 1099).
  */
 export async function listYesterdayExpenses(
-	db: D1Database,
+	t: Tenant,
 	settings: Settings,
 	now: Date,
 ): Promise<YesterdayExpense[]> {
 	const yesterday = addDays(localDate(now, settings.timezone), -1);
 	const [transactions, categories, targets] = await Promise.all([
-		listTransactionsOnDate(db, yesterday),
-		listCategories(db),
-		listTargets(db),
+		listTransactionsOnDate(t, yesterday),
+		listCategories(t),
+		listTargets(t),
 	]);
 	const categoriesById = new Map(categories.map((category) => [category.id, category]));
-	const included = new Set(targets.filter((target) => target.includeInExpense === 1).map((t) => targetKey(t.entityType, t.entityId)));
+	const included = new Set(targets.filter((target) => target.includeInExpense === 1).map((target) => targetKey(target.entityType, target.entityId)));
 	// POC parity (~line 1118): with no targets configured at all, every expense is listed.
 	const includeAll = targets.length === 0;
 

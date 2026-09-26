@@ -14,7 +14,7 @@ import {
 	upsertTransactions,
 } from '../src/db/repo';
 import { getSettings, setSettings } from '../src/db/settings';
-import { resetDb } from './helpers';
+import { HH1, resetDb } from './helpers';
 
 const db = env.DB;
 // 22:00 in Dublin on the last day of the 25 Aug – 24 Sep 2026 budget period.
@@ -64,19 +64,19 @@ const summary = (rows: CashflowRow[]) => rows.map((r) => [r.rowType, r.accountKe
 
 beforeEach(async () => {
 	await resetDb();
-	await setSettings(db, { timezone: 'Europe/Dublin', budget_month_start_day: '25', base_currency: 'EUR' });
-	await upsertAccounts(db, [
+	await setSettings(HH1, { timezone: 'Europe/Dublin', budget_month_start_day: '25', base_currency: 'EUR' });
+	await upsertAccounts(HH1, [
 		account('a-eur', { name: 'Current', balance: 1000 }),
 		account('a-zar', { name: 'Rand savings', currency: 'ZAR', balance: 20000 }),
 		account('a-cash', { name: 'Cash', balance: 300, includeInCashflow: 0 }),
 		account('a-old', { name: 'Closed', balance: 999, archived: 1 }),
 	]);
-	await upsertFxRates(db, [
+	await upsertFxRates(db, 'EUR', [
 		{ date: '2026-09-23', currency: 'ZAR', rateToBase: 0.04 },
 		{ date: '2026-09-24', currency: 'ZAR', rateToBase: 0.05 }, // period end → used
 		{ date: '2026-09-25', currency: 'ZAR', rateToBase: 0.06 },
 	]);
-	await upsertTransactions(db, [
+	await upsertTransactions(HH1, [
 		tx('in-period', 'a-eur', '2026-09-20', -50), // inside the period: already in the balance
 		tx('after-1', 'a-eur', '2026-09-25', -30.1), // after the period end (e.g. planned records)
 		tx('after-2', 'a-eur', '2026-10-02', 200),
@@ -84,16 +84,16 @@ beforeEach(async () => {
 		tx('after-cash', 'a-cash', '2026-09-26', -10),
 		tx('after-none', null, '2026-09-26', -10),
 	]);
-	await upsertCashflowRows(db, [importRow('2026-05-24', 'TOTAL', 'TOTAL', 4321), importRow('2026-09-24', 'ACCOUNT', 'revolut-legacy', 77)]);
+	await upsertCashflowRows(HH1, [importRow('2026-05-24', 'TOTAL', 'TOTAL', 4321), importRow('2026-09-24', 'ACCOUNT', 'revolut-legacy', 77)]);
 });
 
 describe('captureClosingBalances', () => {
 	it('captures balance minus post-period movements per included account, converted at the period end, plus a TOTAL', async () => {
-		const result = await captureClosingBalances(db, await getSettings(db), NOW);
+		const result = await captureClosingBalances(HH1, await getSettings(HH1), NOW);
 
 		// a-eur: 1000 − (−30.10 + 200) = 830.10; a-zar: 20000 − (−1000) = 21000 ZAR × 0.05 = 1050.
 		expect(result).toEqual({ periodEnd: '2026-09-24', accounts: 2, totalBase: 1880.1 });
-		const rows = await listCashflowRows(db, '2026-09-24');
+		const rows = await listCashflowRows(HH1, '2026-09-24');
 		expect(summary(rows)).toEqual([
 			['TOTAL', 'TOTAL', 'EUR', 1880.1, 1880.1, 'auto'],
 			['ACCOUNT', 'a-eur', 'EUR', 830.1, 830.1, 'auto'],
@@ -102,42 +102,42 @@ describe('captureClosingBalances', () => {
 		]);
 		expect(rows.find((r) => r.rowType === 'TOTAL')).toMatchObject({ periodStart: '2026-08-25', accountName: 'All included accounts', notes: null });
 		expect(rows.find((r) => r.accountKey === 'a-zar')).toMatchObject({ accountName: 'Rand savings', periodStart: '2026-08-25' });
-		expect((await listRunLog(db, 1))[0]).toMatchObject({ level: 'INFO', action: 'capture' });
+		expect((await listRunLog(db, 1, 1))[0]).toMatchObject({ level: 'INFO', action: 'capture' });
 	});
 
 	it('is idempotent, drops accounts no longer included, and never touches imported rows', async () => {
-		const settings = await getSettings(db);
-		await captureClosingBalances(db, settings, NOW);
-		await captureClosingBalances(db, settings, NOW);
-		expect(await listCashflowRows(db, '2026-09-24')).toHaveLength(4);
+		const settings = await getSettings(HH1);
+		await captureClosingBalances(HH1, settings, NOW);
+		await captureClosingBalances(HH1, settings, NOW);
+		expect(await listCashflowRows(HH1, '2026-09-24')).toHaveLength(4);
 
 		await db.prepare("UPDATE accounts SET include_in_cashflow = 0 WHERE id = 'a-zar'").run();
-		await upsertAccounts(db, [account('a-eur', { name: 'Current', balance: 1100 })]);
-		const result = await captureClosingBalances(db, settings, NOW);
+		await upsertAccounts(HH1, [account('a-eur', { name: 'Current', balance: 1100 })]);
+		const result = await captureClosingBalances(HH1, settings, NOW);
 
 		expect(result).toEqual({ periodEnd: '2026-09-24', accounts: 1, totalBase: 930.1 });
-		expect(summary(await listCashflowRows(db))).toEqual([
+		expect(summary(await listCashflowRows(HH1))).toEqual([
 			['TOTAL', 'TOTAL', 'EUR', 930.1, 930.1, 'auto'],
 			['ACCOUNT', 'a-eur', 'EUR', 930.1, 930.1, 'auto'],
 			['ACCOUNT', 'revolut-legacy', 'EUR', 77, 77, 'import'],
 			['TOTAL', 'TOTAL', 'EUR', 4321, 4321, 'import'],
 		]);
-		expect((await listCashflowRows(db, '2026-05-24'))[0]).toEqual(importRow('2026-05-24', 'TOTAL', 'TOTAL', 4321));
+		expect((await listCashflowRows(HH1, '2026-05-24'))[0]).toEqual(importRow('2026-05-24', 'TOTAL', 'TOTAL', 4321));
 	});
 
 	it('keeps an imported row that has the same key as a captured one', async () => {
-		await upsertCashflowRows(db, [importRow('2026-09-24', 'ACCOUNT', 'a-eur', 12.34)]);
-		await captureClosingBalances(db, await getSettings(db), NOW);
-		expect((await listCashflowRows(db, '2026-09-24')).find((r) => r.accountKey === 'a-eur')).toEqual(
+		await upsertCashflowRows(HH1, [importRow('2026-09-24', 'ACCOUNT', 'a-eur', 12.34)]);
+		await captureClosingBalances(HH1, await getSettings(HH1), NOW);
+		expect((await listCashflowRows(HH1, '2026-09-24')).find((r) => r.accountKey === 'a-eur')).toEqual(
 			importRow('2026-09-24', 'ACCOUNT', 'a-eur', 12.34),
 		);
 	});
 
 	it('stores a NULL base value (counted as 0 in the TOTAL) when no FX rate is available', async () => {
 		await db.prepare('DELETE FROM fx_rates').run();
-		const result = await captureClosingBalances(db, await getSettings(db), NOW);
+		const result = await captureClosingBalances(HH1, await getSettings(HH1), NOW);
 		expect(result.totalBase).toBe(830.1);
-		expect((await listCashflowRows(db, '2026-09-24')).find((r) => r.accountKey === 'a-zar')).toMatchObject({
+		expect((await listCashflowRows(HH1, '2026-09-24')).find((r) => r.accountKey === 'a-zar')).toMatchObject({
 			closingBalance: 21000,
 			closingBalanceBase: null,
 		});
@@ -146,9 +146,9 @@ describe('captureClosingBalances', () => {
 
 describe('deleteCashflowRows', () => {
 	it('deletes only the given period and source', async () => {
-		await captureClosingBalances(db, await getSettings(db), NOW);
-		expect(await deleteCashflowRows(db, '2026-09-24', 'auto')).toBe(3);
-		expect(summary(await listCashflowRows(db))).toEqual([
+		await captureClosingBalances(HH1, await getSettings(HH1), NOW);
+		expect(await deleteCashflowRows(HH1, '2026-09-24', 'auto')).toBe(3);
+		expect(summary(await listCashflowRows(HH1))).toEqual([
 			['ACCOUNT', 'revolut-legacy', 'EUR', 77, 77, 'import'],
 			['TOTAL', 'TOTAL', 'EUR', 4321, 4321, 'import'],
 		]);
