@@ -248,9 +248,11 @@ describe('computeBudget', () => {
 			expect(byId(manual.lines, 'CATEGORY', 'cat-groc')).toEqual(cat('cat-groc'));
 		});
 
-		it('forecasts a manual day-to-day group as group spent / elapsed days × period days', () => {
-			// 165 / 11 × 31 = 465 (not the 496 sum of child forecasts, which includes the excluded Bar).
-			expect(mType('food')).toMatchObject({ forecast: 465, forecastVsBudget: -535 });
+		it('keeps the sum-of-children forecast for a manual day-to-day group (recurring children count in full)', () => {
+			// The manual budget replaces only the target. The forecast stays the sheet's method: the 496
+			// sum of child forecasts (incl. the excluded Bar — POC parity), NOT 165 / 11 × 31 = 465, which
+			// would extrapolate pooled spend and drop unpaid recurring bills.
+			expect(mType('food')).toMatchObject({ forecast: 496, forecastVsBudget: -504 });
 		});
 
 		it('forecasts a manual recurring group as its budget', () => {
@@ -259,11 +261,12 @@ describe('computeBudget', () => {
 
 		it('treats a manual 0 as a real budget', () => {
 			const zero = withGroupTargets({ budget: 0 }, {});
-			expect(byId(zero.lines, 'TYPE', 'food')).toMatchObject({ budget: 0, usedPct: 0, remaining: -165, forecast: 465 });
+			expect(byId(zero.lines, 'TYPE', 'food')).toMatchObject({ budget: 0, usedPct: 0, remaining: -165, forecast: 496 });
 		});
 
 		it('rolls OVERALL over the effective group budgets and forecasts', () => {
-			expect(manual.overall).toMatchObject({ budget: 1150, spent: 265, forecast: 615, remaining: 885, forecastVsBudget: -535 });
+			// food 496 (children sum) + veh 150 (manual recurring) = 646.
+			expect(manual.overall).toMatchObject({ budget: 1150, spent: 265, forecast: 646, remaining: 885, forecastVsBudget: -504 });
 		});
 
 		it('falls back to the rollup when the group budget is null (forecast type is shown but unused)', () => {

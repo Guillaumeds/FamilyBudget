@@ -346,7 +346,7 @@ export async function render(root, ctx) {
 			cells.used,
 			cells.forecast,
 			cells.baseline,
-			editable ? h('td', { title: 'Applies when the group has its own budget; otherwise the forecast is the sum of its categories’ forecasts.' }, forecastSelect('group', line)) : h('td', { class: 'muted small' }, 'Group total'),
+			editable ? h('td', { title: 'The forecast is the sum of the categories’ forecasts (recurring ones always count in full). Choosing “recurring” on a group with its own budget forecasts that budget instead.' }, forecastSelect('group', line)) : h('td', { class: 'muted small' }, 'Group total'),
 			h('td', { class: 'center' }, report ?? '—'),
 			h('td', { class: 'center' }, expense ?? '—'),
 		);

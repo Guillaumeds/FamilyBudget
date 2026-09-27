@@ -238,10 +238,14 @@ export function computeBudget(input: EngineInput): BudgetComputation {
 			categoryLines.filter((line) => line.includeInExpense),
 			categoryLines,
 		);
-		// A manual group budget overrides the sum of its categories and is forecast like a category.
+		// A manual group budget overrides only the summed TARGET. The forecast keeps the sheet's
+		// method — the sum of the children, where recurring children always count at their full
+		// budget (spent or not) and day-to-day children extrapolate their own spend — because
+		// extrapolating the group's pooled spend would drop unpaid recurring bills from the
+		// forecast. Only a group explicitly marked recurring forecasts as its own budget.
 		if (target?.budget != null) {
 			totals.budget = target.budget;
-			totals.forecast = forecast(forecastType, target.budget, totals.spent);
+			if (forecastType === 'recurring') totals.forecast = roundCurrency(target.budget);
 		}
 		const typeLine = finishLine({
 			rowType: 'TYPE',
